@@ -29,6 +29,11 @@ install:
   - cmd: conda install -y -q pairinteraction-dependencies
   - git submodule update --init --recursive
 
+  
+cache:
+- C:\ProgramData\chocolatey\bin
+- C:\ProgramData\chocolatey\lib
+
 
 before_build:
   
@@ -38,17 +43,17 @@ before_build:
 
 
 build:
-  project: build\ALL_BUILD.vcxproj
+  project: build\pairinteraction.sln
   parallel: true
   verbosity: minimal
 
 artifacts:
-  - path: build\Release\hello.exe
+  - path: build\Release\pairinteraction.exe
     name: installer
 
-cache:
-- C:\ProgramData\chocolatey\bin
-- C:\ProgramData\chocolatey\lib
+#cache:
+#- C:\ProgramData\chocolatey\bin
+#- C:\ProgramData\chocolatey\lib
 
 
 deploy:
