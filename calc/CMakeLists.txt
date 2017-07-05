@@ -56,7 +56,7 @@ target_link_libraries(pairinteraction-complex ${LIBRARIES})
 target_link_libraries(matrixelements ${LIBRARIES})
 
 # Set c++11
-
+if(NOT MSVC)
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
 CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
@@ -67,7 +67,7 @@ elseif(COMPILER_SUPPORTS_CXX0X)
 else()
     message(FATAL "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
-
+endif(NOT MSVC)
 # Use OpenMP
 
 find_package(OpenMP REQUIRED)
