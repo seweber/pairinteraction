@@ -31,12 +31,13 @@ install:
 
 
 before_build:
+  - cmd: ls "C:/projects/pairinteraction/build"  
   - cmd: md build && cd build
   - cmd: cmake -G "Visual Studio 14 2015 Win64" .. -DCMAKE_TOOLCHAIN_FILE=vcpkg-export\scripts\buildsystems\vcpkg.cmake"
 
 
 build:
-  project: build\hello.vcxproj
+  project: build\pairinteraction.vcxproj
   parallel: true
   verbosity: minimal
 
