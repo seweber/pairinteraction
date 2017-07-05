@@ -38,7 +38,7 @@ before_build:
 
 
 build:
-  project: build\pairinteraction.vcxproj
+  project: build\pairinteraction.sln
   parallel: true
   verbosity: minimal
 
