@@ -27,6 +27,7 @@ install:
   - cmd: call C:\Miniconda36-x64\Scripts\activate.bat
   - cmd: conda config --prepend channels file:///%APPVEYOR_BUILD_FOLDER%/conda-export
   - cmd: conda install -y -q pairinteraction-dependencies
+  - git submodule update --init --recursive
 
 
 before_build:
