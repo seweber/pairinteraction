@@ -34,6 +34,7 @@ cache:
   - C:\ProgramData\chocolatey\lib -> .appveyor.yml
 
 before_build:
+  - cmd: ls "C:/projects/pairinteraction" 
   - cmd: md build && cd build
   - cmd: cmake -G "Visual Studio 14 2015 Win64" .. -DCMAKE_TOOLCHAIN_FILE=vcpkg-export\scripts\buildsystems\vcpkg.cmake"
 
