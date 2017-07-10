@@ -45,6 +45,7 @@ build:
 
 after_build:
   #- cmd: pyinstaller gui\startgui
+  - cmd: ls "C:/projects/pairinteraction/build/win32"
   - cmd: pyinstaller win32\startgui.spec
   - cmd: ls "C:/projects/pairinteraction/build"
   - cmd: more startgui.spec  
