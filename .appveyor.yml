@@ -44,7 +44,7 @@ build:
   verbosity: minimal
 
 after_build:
-  - cmd: pyinstaller gui\startgui
+  - cmd: pyinstaller build\gui\startgui
   - cmd: ls "C:/projects/pairinteraction/build"
   - cmd: more startgui.spec  
   - cmd: copy "C:\Program Files\Microsoft SDKs\Windows\v7.1\Redist\VC\vcredist_x64.exe" calc\
