@@ -19,8 +19,8 @@ install:
   - ps: choco install -y -r sqlite --version 3.19.2
   - ps: choco install -y -r pkgconfiglite # TODO can we get rid of this dependency?
   
-  - ps: Start-FileDownload 'https://github.com/seweber/pairinteraction-build-dependencies/releases/download/v110/cpp-libraries-windows-x86_64.zip'
-  - cmd: 7z x -y cpp-libraries-windows-x86_64.zip > nul
+  #- ps: Start-FileDownload 'https://github.com/seweber/pairinteraction-build-dependencies/releases/download/v110/cpp-libraries-windows-x86_64.zip'
+  #- cmd: 7z x -y cpp-libraries-windows-x86_64.zip > nul
 
   - ps: Start-FileDownload 'https://github.com/seweber/pairinteraction-build-dependencies/releases/download/v110/python-packages-windows_x86_64.zip'
   - cmd: 7z x -y python-packages-windows_x86_64.zip > nul
@@ -36,7 +36,8 @@ cache:
 before_build:
   - cmd: ls "C:/projects/pairinteraction" 
   - cmd: md build && cd build
-  - cmd: cmake -G "Visual Studio 14 2015 Win64" .. -DCMAKE_TOOLCHAIN_FILE=vcpkg-export\scripts\buildsystems\vcpkg.cmake"
+  - cmd: cmake -G "Visual Studio 14 2015 Win64" .. 
+  #-DCMAKE_TOOLCHAIN_FILE=vcpkg-export\scripts\buildsystems\vcpkg.cmake"
 
 build:
   project: build\pairinteraction.sln
@@ -45,8 +46,9 @@ build:
 
 after_build:
   #- cmd: pyinstaller gui\startgui
-  - cmd: ls "C:/projects/pairinteraction/build/win32"
-  - cmd: ls "C:/projects/pairinteraction/build/gui"
+  #- cmd: ls "C:/projects/pairinteraction/build/win32"
+  #- cmd: ls "C:/projects/pairinteraction/build/gui"
+  - cmd: copy ..\win32\startgui.spec gui\
   - cmd: pyinstaller ..\win32\startgui.spec
   - cmd: ls "C:/projects/pairinteraction/build"
   - cmd: more startgui.spec  
