@@ -3,7 +3,7 @@
 block_cipher = None
 
 mkl_dlls = [
-    ('C:\\Program Files\\Miniconda3\\Library\\bin\\mkl_tbb_thread.dll', '')
+    ('C:\\Miniconda36-x64\\Library\\bin\\mkl_tbb_thread.dll', '')
 ]
 
 a = Analysis(['startgui'],
