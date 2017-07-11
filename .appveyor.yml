@@ -48,8 +48,9 @@ after_build:
   - cmd: ls "C:/projects/pairinteraction/build/win32"
   - cmd: cd .. 
   - cmd: dir
-  - cmd: ls win32
-  - cmd: pyinstaller win32\startgui.spec
+  - cmd: cd win32
+  - cmd: dir
+  - cmd: pyinstaller startgui.spec
   - cmd: ls "C:/projects/pairinteraction/build"
   - cmd: more startgui.spec  
   - cmd: copy "C:\Program Files\Microsoft SDKs\Windows\v7.1\Redist\VC\vcredist_x64.exe" calc\
