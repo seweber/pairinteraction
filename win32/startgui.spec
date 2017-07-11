@@ -1,5 +1,5 @@
 # -*- mode: python -*-
-
+##Changes
 block_cipher = None
 
 mkl_dlls = [
@@ -7,7 +7,7 @@ mkl_dlls = [
 ]
 
 a = Analysis(['startgui'],
-             pathex=['..\\build\\gui'],
+             pathex=['C:\\projects\\pairinteraction\\build\\gui'],
              binaries=mkl_dlls,
              datas=None,
              hiddenimports=['six', 'scipy.integrate'],
