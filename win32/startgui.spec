@@ -7,7 +7,7 @@ mkl_dlls = [
 ]
 
 a = Analysis(['startgui'],
-             pathex=['..\\build\\gui\\'],
+             pathex=['../build/gui'],
              binaries=mkl_dlls,
              datas=None,
              hiddenimports=['six', 'scipy.integrate'],
