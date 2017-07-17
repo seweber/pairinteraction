@@ -6,7 +6,7 @@ mkl_dlls = [
     ('C:\\Miniconda36-x64\\Library\\bin\\mkl_tbb_thread.dll', '')
 ]
 
-a = Analysis(['startgui'],
+a = Analysis(['..\\gui\\startgui'],
              pathex=['c:\\projects\\pairinteraction\\build\\gui'],
              binaries=mkl_dlls,
              datas=None,
