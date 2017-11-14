@@ -76,6 +76,8 @@ class Worker(QtCore.QThread):
         status_dimension = ""
 
         for line in iter(self.stdout.readline, b""):
+            print(line.decode('utf-8'), end="")
+
             if self.exiting or not line:
                 break
 
