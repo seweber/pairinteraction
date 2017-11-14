@@ -1186,6 +1186,7 @@ class MainWindow(QtGui.QMainWindow):
 
             if basisfile != "":
                 # load basis
+                print(basisfile)
                 basis = np.loadtxt(basisfile)
 
                 if len(basis.shape) == 1:

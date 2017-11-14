@@ -155,6 +155,7 @@ void HamiltonianOne::build() {
     // save basis
     boost::filesystem::path path_basis = boost::filesystem::temp_directory_path();
     path_basis /= "basis_one_"+uuid+".csv";
+    std::cout << path_basis.string() << std::endl;
     basis->save(path_basis.string());
 
     publisher.send(">>STA %s", path_basis.c_str());
