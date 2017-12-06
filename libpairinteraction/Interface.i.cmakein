@@ -63,12 +63,19 @@ import_array();
 
     void __setstate_internal(PyObject* const sState) {
       char *buffer;
+      std::cout << 1 << std::endl;
       Py_ssize_t len;
+      std::cout << 2 << std::endl;
       PyBytes_AsStringAndSize(sState, &buffer, &len);
+      std::cout << 3 << std::endl;
       boost::iostreams::array_source asource(buffer, static_cast<size_t>(len)); // prevents from copying
+      std::cout << 4 << std::endl;
       boost::iostreams::stream<boost::iostreams::array_source> ss(asource);
+      std::cout << 5 << std::endl;
       boost::archive::binary_iarchive ar(ss);
+      std::cout << 6 << std::endl;
       ar >> *($self);
+      std::cout << 7 << std::endl;
     }
   }
 %enddef
