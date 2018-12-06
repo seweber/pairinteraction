@@ -781,17 +781,17 @@ public:
         system0.buildHamiltonian();
 
         // Check that system, on which applySchriefferWolffTransformation() is called, is unitary
-        if (!this->checkIsUnitary(basisvectors)) {
+        /*if (!this->checkIsUnitary(basisvectors)) {
             throw std::runtime_error("The system, on which applySchriefferWolffTransformation() is "
                                      "called, is not unitary. Call unitarize() on the system.");
-        }
+        }*/
 
         // Check that system0, i.e. the unperturbed system, is unitary
-        if (!this->checkIsUnitary(system0.basisvectors)) {
+        /*if (!this->checkIsUnitary(system0.basisvectors)) {
             throw std::runtime_error(
                 "The unperturbed system passed to applySchriefferWolffTransformation() is not "
                 "unitary. Call unitarize() on the system.");
-        }
+        }*/
 
         // Check that the unperturbed system is diagonal
         if (!this->checkIsDiagonal(system0.hamiltonian)) {
