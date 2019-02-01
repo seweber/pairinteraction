@@ -9,7 +9,7 @@ setup(
     ]),
     package_data = {
         "libpairinteraction" : [
-            "_picomplex.so", "_pireal.so",
+            "_picomplex.so", "_pireal.so", "libpicomplex.*", "libpireal.*",
             "pairinteraction-complex", "pairinteraction-real",
             "databases/quantum_defects.db"
         ],
