@@ -67,6 +67,9 @@ script:
   - git fetch --unshallow --tags
   - travis_wait 30 sleep infinity & ci/build_docker.sh
 
+before_deploy:
+  - cd $TRAVIS_BUILD_DIR/build
+
 deploy:
   - provider: releases
     prerelease: true
@@ -77,12 +80,24 @@ deploy:
     on:
       tags: true
       condition: $package != ""
-  - provider: releases
-    prerelease: true
-    api_key: $GH_TOKEN
-    file_glob: true
-    file: $TRAVIS_BUILD_DIR/build/wheelhouse/*.whl
+  - provider: pypi
+    user: pairinteraction-slave
+    password:
+      secure: $PYPI_TOKEN
+    server: https://test.pypi.org/legacy/
+    distributions: "sdist"
     skip_cleanup: true
-    overwrite: true
+    skip_existing: true
     on:
       tags: true
+      fork: true
+  - provider: pypi
+    user: pairinteraction-slave
+    password:
+      secure: $PYPI_TOKEN
+    distributions: "sdist"
+    skip_cleanup: true
+    skip_existing: true
+    on:
+      tags: true
+      fork: false
