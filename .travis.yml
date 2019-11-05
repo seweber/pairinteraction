@@ -39,7 +39,8 @@ matrix:
           packages:
             - python3-pip pyqt5-dev-tools
       install:
-        - python3 -m pip install --user --upgrade setuptools twine
+        - python3 -m pip install --user --upgrade setuptools
+        - python3 -m pip install --user --upgrade git+https://github.com/pypa/twine.git@109bddce81d54dfa897438ed903cd72268890e03 # TODO if working version of twine in pypi, install it from there
       env:
         - image=manylinux
     - os: linux
