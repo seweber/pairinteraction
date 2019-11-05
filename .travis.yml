@@ -39,7 +39,7 @@ matrix:
           packages:
             - python3-pip pyqt5-dev-tools
       install:
-        - python3 -m pip install --user --upgrade setuptools twine
+        - python3 -m pip install --user --upgrade setuptools twine<2.0
       env:
         - image=manylinux
     - os: linux
