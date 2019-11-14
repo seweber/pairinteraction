@@ -61,8 +61,6 @@ if(WITH_JULIA)
     OUTPUT_VARIABLE JlCxx_DIR
     OUTPUT_STRIP_TRAILING_WHITESPACE)
   find_package(JlCxx REQUIRED)
-  #set(CMAKE_INSTALL_RPATH "${JlCxx_DIR}/../")
-  #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
   add_library(pireal_jl SHARED julia_hooks_pi.cpp)
   add_library(picomplex_jl SHARED julia_hooks_pi.cpp)
