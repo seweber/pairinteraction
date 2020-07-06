@@ -1,0 +1,243 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/SystemOne.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - SystemOne.h<span style="font-size: 80%;"> (source / <a href="SystemOne.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntryLo">60.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntryLo">60.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef SYSTEMONE_H
+<span class="lineNum">      21 </span>            : #define SYSTEMONE_H
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &quot;State.h&quot;
+<span class="lineNum">      24 </span>            : #include &quot;SystemBase.h&quot;
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #include &lt;array&gt;
+<span class="lineNum">      27 </span>            : #include &lt;boost/functional/hash.hpp&gt;
+<span class="lineNum">      28 </span>            : #include &lt;boost/serialization/base_object.hpp&gt;
+<span class="lineNum">      29 </span>            : #include &lt;boost/serialization/unordered_map.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;cmath&gt;
+<span class="lineNum">      31 </span>            : #include &lt;set&gt;
+<span class="lineNum">      32 </span>            : #include &lt;type_traits&gt;
+<span class="lineNum">      33 </span>            : #include &lt;unordered_map&gt;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #ifndef SWIG
+<span class="lineNum">      36 </span>            : namespace std {
+<a name="37"><span class="lineNum">      37 </span>            : template &lt;&gt;</a>
+<span class="lineNum">      38 </span>            : struct hash&lt;std::array&lt;int, 2&gt;&gt; {
+<span class="lineNum">      39 </span><span class="lineCov">       6018 :     size_t operator()(const std::array&lt;int, 2&gt; &amp;a) const { return boost::hash_value(a); }</span>
+<span class="lineNum">      40 </span>            : };
+<span class="lineNum">      41 </span>            : } // namespace std
+<span class="lineNum">      42 </span>            : #endif
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : class SystemOne : public SystemBase&lt;StateOne&gt; {
+<span class="lineNum">      45 </span>            : public:
+<span class="lineNum">      46 </span>            :     SystemOne(std::string species, MatrixElementCache &amp;cache);
+<span class="lineNum">      47 </span>            :     SystemOne(std::string species, MatrixElementCache &amp;cache, bool memory_saving);
+<span class="lineNum">      48 </span>            : 
+<span class="lineNum">      49 </span>            :     const std::string &amp;getSpecies() const;
+<span class="lineNum">      50 </span>            :     void setEfield(std::array&lt;double, 3&gt; field);
+<span class="lineNum">      51 </span>            :     void setBfield(std::array&lt;double, 3&gt; field);
+<span class="lineNum">      52 </span>            :     void setEfield(std::array&lt;double, 3&gt; field, std::array&lt;double, 3&gt; to_z_axis,
+<span class="lineNum">      53 </span>            :                    std::array&lt;double, 3&gt; to_y_axis);
+<span class="lineNum">      54 </span>            :     void setBfield(std::array&lt;double, 3&gt; field, std::array&lt;double, 3&gt; to_z_axis,
+<span class="lineNum">      55 </span>            :                    std::array&lt;double, 3&gt; to_y_axis);
+<span class="lineNum">      56 </span>            :     void setEfield(std::array&lt;double, 3&gt; field, double alpha, double beta, double gamma);
+<span class="lineNum">      57 </span>            :     void setBfield(std::array&lt;double, 3&gt; field, double alpha, double beta, double gamma);
+<span class="lineNum">      58 </span>            :     void enableDiamagnetism(bool enable);
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            :     void setConservedParityUnderReflection(parity_t parity);
+<span class="lineNum">      61 </span>            :     void setConservedMomentaUnderRotation(const std::set&lt;float&gt; &amp;momenta);
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            : protected:
+<span class="lineNum">      64 </span>            :     void initializeBasis() override;
+<span class="lineNum">      65 </span>            :     void initializeInteraction() override;
+<span class="lineNum">      66 </span>            :     void addInteraction() override;
+<span class="lineNum">      67 </span>            :     void transformInteraction(const eigen_sparse_t &amp;transformator) override;
+<span class="lineNum">      68 </span>            :     void deleteInteraction() override;
+<span class="lineNum">      69 </span>            :     eigen_sparse_t rotateStates(const std::vector&lt;size_t&gt; &amp;states_indices, double alpha,
+<span class="lineNum">      70 </span>            :                                 double beta, double gamma) override;
+<span class="lineNum">      71 </span>            :     eigen_sparse_t buildStaterotator(double alpha, double beta, double gamma) override;
+<span class="lineNum">      72 </span>            :     void incorporate(SystemBase&lt;StateOne&gt; &amp;system) override;
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            : private:
+<span class="lineNum">      75 </span>            :     std::array&lt;double, 3&gt; efield, bfield;
+<span class="lineNum">      76 </span>            :     std::unordered_map&lt;int, scalar_t&gt; efield_spherical, bfield_spherical;
+<span class="lineNum">      77 </span>            :     bool diamagnetism;
+<span class="lineNum">      78 </span>            :     std::unordered_map&lt;std::array&lt;int, 2&gt;, scalar_t&gt; diamagnetism_terms;
+<span class="lineNum">      79 </span>            :     std::string species;
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            :     std::unordered_map&lt;int, eigen_sparse_t&gt; interaction_efield;
+<span class="lineNum">      82 </span>            :     std::unordered_map&lt;int, eigen_sparse_t&gt; interaction_bfield;
+<span class="lineNum">      83 </span>            :     std::unordered_map&lt;std::array&lt;int, 2&gt;, eigen_sparse_t&gt; interaction_diamagnetism;
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :     parity_t sym_reflection;
+<span class="lineNum">      86 </span>            :     std::set&lt;float&gt; sym_rotation;
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">      89 </span>            :     /// Utility methods ////////////////////////////////////////////////
+<span class="lineNum">      90 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            :     void addSymmetrizedBasisvectors(const StateOne &amp;state, size_t &amp;idx, const double &amp;energy,
+<span class="lineNum">      93 </span>            :                                     std::vector&lt;eigen_triplet_t&gt; &amp;basisvectors_triplets,
+<span class="lineNum">      94 </span>            :                                     std::vector&lt;eigen_triplet_t&gt; &amp;hamiltonian_triplets,
+<span class="lineNum">      95 </span>            :                                     parity_t &amp;sym_reflection_local);
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            :     void addBasisvectors(const StateOne &amp;state, const size_t &amp;idx, const scalar_t &amp;value,
+<span class="lineNum">      98 </span>            :                          std::vector&lt;eigen_triplet_t&gt; &amp;basisvectors_triplets);
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            :     void changeToSphericalbasis(std::array&lt;double, 3&gt; field,
+<span class="lineNum">     101 </span>            :                                 std::unordered_map&lt;int, double&gt; &amp;field_spherical);
+<span class="lineNum">     102 </span>            :     void changeToSphericalbasis(std::array&lt;double, 3&gt; field,
+<span class="lineNum">     103 </span>            :                                 std::unordered_map&lt;int, std::complex&lt;double&gt;&gt; &amp;field_spherical);
+<span class="lineNum">     104 </span>            :     void addTriplet(std::vector&lt;eigen_triplet_t&gt; &amp;triplets, size_t r_idx, size_t c_idx,
+<span class="lineNum">     105 </span>            :                     scalar_t val);
+<span class="lineNum">     106 </span>            :     void rotateVector(std::array&lt;double, 3&gt; &amp;field, std::array&lt;double, 3&gt; &amp;to_z_axis,
+<span class="lineNum">     107 </span>            :                       std::array&lt;double, 3&gt; &amp;to_y_axis);
+<span class="lineNum">     108 </span>            :     void rotateVector(std::array&lt;double, 3&gt; &amp;field, double alpha, double beta, double gamma);
+<a name="109"><span class="lineNum">     109 </span>            : </a>
+<span class="lineNum">     110 </span>            :     template &lt;class T&gt;
+<span class="lineNum">     111 </span><span class="lineCov">        275 :     void addRotated(const StateOne &amp;state, const size_t &amp;idx,</span>
+<span class="lineNum">     112 </span>            :                     std::vector&lt;Eigen::Triplet&lt;T&gt;&gt; &amp;triplets, WignerD &amp;wigner, const double &amp;alpha,
+<span class="lineNum">     113 </span>            :                     const double &amp;beta, const double &amp;gamma) {
+<span class="lineNum">     114 </span>            :         // Check whether the angles are compatible to the used data type
+<span class="lineNum">     115 </span><span class="lineCov">        275 :         double tolerance = 1e-16;</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :         if (std::is_same&lt;T, double&gt;::value &amp;&amp;</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :             std::abs(std::remainder(alpha, 2 * M_PI)) &gt; tolerance) {</span>
+<span class="lineNum">     118 </span>            :             throw std::runtime_error(
+<span class="lineNum">     119 </span>            :                 &quot;If the Euler angle alpha is not a multiple of 2 pi, the Wigner D matrix element &quot;
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :                 &quot;is complex and cannot be converted to double.&quot;);</span>
+<span class="lineNum">     121 </span>            :         }
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :         if (std::is_same&lt;T, double&gt;::value &amp;&amp;</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :             std::abs(std::remainder(gamma, 2 * M_PI)) &gt; tolerance) {</span>
+<span class="lineNum">     124 </span>            :             throw std::runtime_error(
+<span class="lineNum">     125 </span>            :                 &quot;If the Euler angle gamma is not a multiple of 2 pi, the Wigner D matrix element &quot;
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :                 &quot;is complex and cannot be converted to double.&quot;);</span>
+<span class="lineNum">     127 </span>            :         }
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            :         // Add rotated triplet entries
+<span class="lineNum">     130 </span><span class="lineCov">       1847 :         for (float m = -state.getJ(); m &lt;= state.getJ(); ++m) {</span>
+<span class="lineNum">     131 </span><span class="lineCov">       3144 :             StateOne newstate(state.getSpecies(), state.getN(), state.getL(), state.getJ(), m);</span>
+<span class="lineNum">     132 </span><span class="lineCov">       1572 :             auto state_iter = states.get&lt;1&gt;().find(newstate);</span>
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span><span class="lineCov">       1572 :             if (state_iter != states.get&lt;1&gt;().end()) {</span>
+<span class="lineNum">     135 </span>            :                 // We calculate the matrix element &lt;m|d_mM|state.getM()&gt;|m&gt;. Note that we must
+<span class="lineNum">     136 </span>            :                 // invert the angles since they are given for a passive rotation, i.e. rotation of
+<span class="lineNum">     137 </span>            :                 // the coordinate system, and the WignerD matrix is for an active rotation of spins.
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :                 auto val =</span>
+<span class="lineNum">     139 </span><span class="lineCov">       1572 :                     utils::convert&lt;T&gt;(wigner(state.getJ(), m, state.getM(), -gamma, -beta, -alpha));</span>
+<span class="lineNum">     140 </span><span class="lineCov">       1572 :                 triplets.push_back(Eigen::Triplet&lt;T&gt;(state_iter-&gt;idx, idx, val));</span>
+<span class="lineNum">     141 </span>            :             } else {
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :                 std::cerr &lt;&lt; &quot;Warning: Incomplete rotation because the basis is lacking some &quot;</span>
+<span class="lineNum">     143 </span>            :                              &quot;Zeeman levels.&quot;
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :                           &lt;&lt; std::endl;</span>
+<span class="lineNum">     145 </span>            :             }
+<span class="lineNum">     146 </span>            :         }
+<span class="lineNum">     147 </span><span class="lineCov">        275 :     }</span>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :     bool isRefelectionAndRotationCompatible();
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     152 </span>            :     /// Method for serialization ///////////////////////////////////////
+<span class="lineNum">     153 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span>            :     friend class boost::serialization::access;
+<a name="156"><span class="lineNum">     156 </span>            : </a>
+<span class="lineNum">     157 </span>            :     template &lt;class Archive&gt;
+<span class="lineNum">     158 </span><span class="lineCov">         15 :     void serialize(Archive &amp;ar, const unsigned int /*version*/) {</span>
+<span class="lineNum">     159 </span><span class="lineCov">         15 :         ar &amp;boost::serialization::base_object&lt;SystemBase&lt;StateOne&gt;&gt;(*this);</span>
+<span class="lineNum">     160 </span><span class="lineCov">         15 :         ar &amp;species;</span>
+<span class="lineNum">     161 </span><span class="lineCov">         15 :         ar &amp;efield &amp;bfield &amp;diamagnetism &amp;sym_reflection &amp;sym_rotation;</span>
+<span class="lineNum">     162 </span><span class="lineCov">         15 :         ar &amp;efield_spherical &amp;bfield_spherical &amp;diamagnetism_terms;</span>
+<span class="lineNum">     163 </span><span class="lineCov">         15 :         ar &amp;interaction_efield &amp;interaction_bfield &amp;interaction_diamagnetism;</span>
+<span class="lineNum">     164 </span><span class="lineCov">         15 :     }</span>
+<span class="lineNum">     165 </span><span class="lineCov">         15 : };</span>
+<span class="lineNum">     166 </span><span class="lineCov">         15 : </span>
+<span class="lineNum">     167 </span><span class="lineCov">         15 : #endif</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

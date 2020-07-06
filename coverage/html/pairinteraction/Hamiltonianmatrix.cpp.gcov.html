@@ -1,0 +1,807 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/Hamiltonianmatrix.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - Hamiltonianmatrix.cpp<span style="font-size: 80%;"> (source / <a href="Hamiltonianmatrix.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">138</td>
+            <td class="headerCovTableEntry">419</td>
+            <td class="headerCovTableEntryLo">32.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">43</td>
+            <td class="headerCovTableEntryLo">48.8 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &quot;Hamiltonianmatrix.h&quot;
+<span class="lineNum">      21 </span>            : #include &lt;stdexcept&gt;
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &lt;boost/format.hpp&gt;
+<span class="lineNum">      24 </span>            : 
+<a name="25"><span class="lineNum">      25 </span>            : Hamiltonianmatrix::Hamiltonianmatrix() = default;</a>
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span><span class="lineCov">          2 : Hamiltonianmatrix::Hamiltonianmatrix(const eigen_sparse_t &amp;entries, const eigen_sparse_t &amp;basis)</span>
+<a name="28"><span class="lineNum">      28 </span><span class="lineCov">          2 :     : entries_(entries), basis_(basis) {}</span></a>
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span><span class="lineCov">         16 : Hamiltonianmatrix::Hamiltonianmatrix(size_t szBasis, size_t szEntries) {</span>
+<span class="lineNum">      31 </span><span class="lineCov">         16 :     triplets_basis.reserve(szBasis);</span>
+<span class="lineNum">      32 </span><span class="lineCov">         16 :     triplets_entries.reserve(szEntries);</span>
+<a name="33"><span class="lineNum">      33 </span><span class="lineCov">         16 : }</span></a>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span><span class="lineNoCov">          0 : eigen_sparse_t &amp;Hamiltonianmatrix::entries() {</span>
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 :     bytes.clear();</span>
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 :     return entries_;</span>
+<a name="38"><span class="lineNum">      38 </span>            : }</a>
+<span class="lineNum">      39 </span>            : 
+<a name="40"><span class="lineNum">      40 </span><span class="lineCov">          6 : const eigen_sparse_t &amp;Hamiltonianmatrix::entries() const { return entries_; }</span></a>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span><span class="lineCov">          2 : eigen_sparse_t &amp;Hamiltonianmatrix::basis() {</span>
+<span class="lineNum">      43 </span><span class="lineCov">          2 :     bytes.clear();</span>
+<span class="lineNum">      44 </span><span class="lineCov">          2 :     return basis_;</span>
+<a name="45"><span class="lineNum">      45 </span>            : }</a>
+<span class="lineNum">      46 </span>            : 
+<a name="47"><span class="lineNum">      47 </span><span class="lineCov">          3 : const eigen_sparse_t &amp;Hamiltonianmatrix::basis() const { return basis_; }</span></a>
+<span class="lineNum">      48 </span>            : 
+<a name="49"><span class="lineNum">      49 </span><span class="lineCov">         54 : size_t Hamiltonianmatrix::num_basisvectors() const { return basis_.cols(); }</span></a>
+<span class="lineNum">      50 </span>            : 
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">          7 : size_t Hamiltonianmatrix::num_coordinates() const { return basis_.rows(); }</span></a>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineNoCov">          0 : void Hamiltonianmatrix::addBasis(idx_t row, idx_t col, scalar_t val) {</span>
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :     triplets_basis.emplace_back(row, col, val);</span>
+<a name="55"><span class="lineNum">      55 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 : void Hamiltonianmatrix::addEntries(idx_t row, idx_t col, scalar_t val) {</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :     triplets_entries.emplace_back(row, col, val);</span>
+<a name="59"><span class="lineNum">      59 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span><span class="lineCov">         16 : void Hamiltonianmatrix::compress(size_t nBasis, size_t nCoordinates) {</span>
+<span class="lineNum">      62 </span><span class="lineCov">         16 :     basis_.resize(nCoordinates, nBasis);</span>
+<span class="lineNum">      63 </span><span class="lineCov">         16 :     entries_.resize(nBasis, nBasis);</span>
+<span class="lineNum">      64 </span><span class="lineCov">         16 :     basis_.setFromTriplets(triplets_basis.begin(), triplets_basis.end());</span>
+<span class="lineNum">      65 </span><span class="lineCov">         16 :     entries_.setFromTriplets(triplets_entries.begin(), triplets_entries.end());</span>
+<span class="lineNum">      66 </span><span class="lineCov">         16 :     triplets_basis.clear();</span>
+<span class="lineNum">      67 </span><span class="lineCov">         16 :     triplets_entries.clear();</span>
+<a name="68"><span class="lineNum">      68 </span><span class="lineCov">         16 : }</span></a>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span><span class="lineNoCov">          0 : std::vector&lt;Hamiltonianmatrix&gt; Hamiltonianmatrix::findSubs() const { // TODO</span>
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :     std::vector&lt;Hamiltonianmatrix&gt; submatrices;</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :     submatrices.push_back(*this);</span>
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :     return submatrices;</span>
+<a name="74"><span class="lineNum">      74 </span>            : }</a>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 : Hamiltonianmatrix Hamiltonianmatrix::abs() const {</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :     return Hamiltonianmatrix(entries_.cwiseAbs().cast&lt;scalar_t&gt;(), basis_);</span>
+<a name="78"><span class="lineNum">      78 </span>            : }</a>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineCov">          2 : Hamiltonianmatrix Hamiltonianmatrix::changeBasis(const eigen_sparse_t &amp;basis) const {</span>
+<span class="lineNum">      81 </span><span class="lineCov">          2 :     auto transformator = basis_.adjoint() * basis;</span>
+<span class="lineNum">      82 </span><span class="lineCov">          2 :     auto entries = transformator.adjoint() * entries_ * transformator;</span>
+<span class="lineNum">      83 </span><span class="lineCov">          2 :     return Hamiltonianmatrix(entries, basis);</span>
+<a name="84"><span class="lineNum">      84 </span>            : }</a>
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 : void Hamiltonianmatrix::applyCutoff(double cutoff) {</span>
+<span class="lineNum">      87 </span><span class="lineNoCov">          0 :     bytes.clear();</span>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :     // build transformator
+<span class="lineNum">      90 </span><span class="lineNoCov">          0 :     eigen_vector_t diag = entries_.diagonal();</span>
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :     std::vector&lt;eigen_triplet_t&gt; triplets_transformator;</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :     triplets_transformator.reserve(num_basisvectors());</span>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineNoCov">          0 :     size_t idxBasis = 0;</span>
+<span class="lineNum">      96 </span><span class="lineNoCov">          0 :     for (size_t idx = 0; idx &lt; this-&gt;num_basisvectors(); ++idx) {</span>
+<span class="lineNum">      97 </span><span class="lineNoCov">          0 :         if (std::abs(diag[idx]) &lt; cutoff) {</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :             triplets_transformator.emplace_back(idx, idxBasis++, 1);</span>
+<span class="lineNum">      99 </span>            :         }
+<span class="lineNum">     100 </span>            :     }
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineNoCov">          0 :     eigen_sparse_t transformator(this-&gt;num_basisvectors(), idxBasis);</span>
+<span class="lineNum">     103 </span><span class="lineNoCov">          0 :     transformator.setFromTriplets(triplets_transformator.begin(), triplets_transformator.end());</span>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            :     // apply transformator
+<span class="lineNum">     106 </span><span class="lineNoCov">          0 :     basis_ = basis_ * transformator;</span>
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 :     entries_ = transformator.adjoint() * entries_ * transformator;</span>
+<a name="108"><span class="lineNum">     108 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 : void Hamiltonianmatrix::findUnnecessaryStates(std::vector&lt;bool&gt; &amp;isNecessaryCoordinate) const {</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :     std::vector&lt;double&gt; isNecessaryCoordinate_real(num_coordinates(), 0);</span>
+<span class="lineNum">     112 </span><span class="lineNoCov">          0 :     for (int k = 0; k &lt; basis_.outerSize(); ++k) {</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 :         for (eigen_iterator_t triple(basis_, k); triple; ++triple) {</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :             isNecessaryCoordinate_real[triple.row()] += std::pow(std::abs(triple.value()), 2);</span>
+<span class="lineNum">     115 </span>            :         }
+<span class="lineNum">     116 </span>            :     }
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :     for (size_t idx = 0; idx &lt; this-&gt;num_coordinates(); ++idx) {</span>
+<span class="lineNum">     119 </span><span class="lineNoCov">          0 :         if (isNecessaryCoordinate_real[idx] &gt; 0.05) { // TODO</span>
+<span class="lineNum">     120 </span><span class="lineNoCov">          0 :             isNecessaryCoordinate[idx] = true;</span>
+<span class="lineNum">     121 </span>            :         }
+<span class="lineNum">     122 </span>            :     }
+<a name="123"><span class="lineNum">     123 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 : void Hamiltonianmatrix::removeUnnecessaryBasisvectors(</span>
+<span class="lineNum">     126 </span>            :     const std::vector&lt;bool&gt; &amp;isNecessaryCoordinate) {
+<span class="lineNum">     127 </span><span class="lineNoCov">          0 :     bytes.clear();</span>
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            :     // build transformator
+<span class="lineNum">     130 </span><span class="lineNoCov">          0 :     std::vector&lt;double&gt; isNecessaryBasisvector(num_basisvectors(), 0);</span>
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :     for (int k_1 = 0; k_1 &lt; basis_.outerSize(); ++k_1) {</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :         for (eigen_iterator_t triple(basis_, k_1); triple; ++triple) {</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :             ptrdiff_t col = triple.col(); // basis vector</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :             ptrdiff_t row = triple.row(); // coordinate</span>
+<span class="lineNum">     135 </span><span class="lineNoCov">          0 :             if (isNecessaryCoordinate[row]) {</span>
+<span class="lineNum">     136 </span><span class="lineNoCov">          0 :                 isNecessaryBasisvector[col] += std::pow(std::abs(triple.value()), 2);</span>
+<span class="lineNum">     137 </span>            :             }
+<span class="lineNum">     138 </span>            :         }
+<span class="lineNum">     139 </span>            :     }
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span><span class="lineNoCov">          0 :     std::vector&lt;eigen_triplet_t&gt; triplets_transformator;</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :     triplets_transformator.reserve(num_basisvectors());</span>
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :     size_t idxBasis = 0;</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :     for (size_t idx = 0; idx &lt; this-&gt;num_basisvectors(); ++idx) {</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :         if (isNecessaryBasisvector[idx] &gt; 0.05) { // TODO</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :             triplets_transformator.emplace_back(idx, idxBasis++, 1);</span>
+<span class="lineNum">     148 </span>            :         }
+<span class="lineNum">     149 </span>            :     }
+<span class="lineNum">     150 </span>            : 
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :     eigen_sparse_t transformator(this-&gt;num_basisvectors(), idxBasis);</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :     transformator.setFromTriplets(triplets_transformator.begin(), triplets_transformator.end());</span>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span>            :     // apply transformator
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :     basis_ = basis_ * transformator;</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :     entries_ = transformator.adjoint() * entries_ * transformator;</span>
+<a name="157"><span class="lineNum">     157 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span><span class="lineCov">          2 : void Hamiltonianmatrix::removeUnnecessaryBasisvectors() {</span>
+<span class="lineNum">     160 </span><span class="lineCov">          2 :     bytes.clear();</span>
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            :     // build transformator
+<span class="lineNum">     163 </span><span class="lineCov">          4 :     std::vector&lt;double&gt; isNecessaryBasisvector(num_basisvectors(), 0);</span>
+<span class="lineNum">     164 </span><span class="lineCov">          2 :     for (int k_1 = 0; k_1 &lt; basis_.outerSize(); ++k_1) {</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :         for (eigen_iterator_t triple(basis_, k_1); triple; ++triple) {</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 :             ptrdiff_t col = triple.col(); // basis vector</span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :             isNecessaryBasisvector[col] += std::pow(std::abs(triple.value()), 2);</span>
+<span class="lineNum">     168 </span>            :         }
+<span class="lineNum">     169 </span>            :     }
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span><span class="lineCov">          4 :     std::vector&lt;eigen_triplet_t&gt; triplets_transformator;</span>
+<span class="lineNum">     172 </span><span class="lineCov">          2 :     triplets_transformator.reserve(num_basisvectors());</span>
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span><span class="lineCov">          2 :     size_t idxBasis = 0;</span>
+<span class="lineNum">     175 </span><span class="lineCov">          2 :     for (size_t idx = 0; idx &lt; this-&gt;num_basisvectors(); ++idx) {</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         if (isNecessaryBasisvector[idx] &gt; 0.05) {</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :             triplets_transformator.emplace_back(idx, idxBasis++, 1);</span>
+<span class="lineNum">     178 </span>            :         }
+<span class="lineNum">     179 </span>            :     }
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineCov">          2 :     eigen_sparse_t transformator(this-&gt;num_basisvectors(), idxBasis);</span>
+<span class="lineNum">     182 </span><span class="lineCov">          2 :     transformator.setFromTriplets(triplets_transformator.begin(), triplets_transformator.end());</span>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :     // apply transformator
+<span class="lineNum">     185 </span><span class="lineCov">          2 :     basis_ = basis_ * transformator;</span>
+<span class="lineNum">     186 </span><span class="lineCov">          2 :     entries_ = transformator.adjoint() * entries_ * transformator;</span>
+<a name="187"><span class="lineNum">     187 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineCov">          1 : void Hamiltonianmatrix::removeUnnecessaryStates(const std::vector&lt;bool&gt; &amp;isNecessaryCoordinate) {</span>
+<span class="lineNum">     190 </span><span class="lineCov">          1 :     bytes.clear();</span>
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            :     // build transformator
+<span class="lineNum">     193 </span><span class="lineCov">          2 :     std::vector&lt;eigen_triplet_t&gt; triplets_transformator;</span>
+<span class="lineNum">     194 </span><span class="lineCov">          1 :     triplets_transformator.reserve(num_coordinates());</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineCov">          1 :     size_t idxCoordinate = 0;</span>
+<span class="lineNum">     197 </span><span class="lineCov">          1 :     for (size_t idx = 0; idx &lt; this-&gt;num_coordinates(); ++idx) {</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :         if (isNecessaryCoordinate[idx]) {</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :             triplets_transformator.emplace_back(idxCoordinate++, idx, 1);</span>
+<span class="lineNum">     200 </span>            :         }
+<span class="lineNum">     201 </span>            :     }
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineCov">          1 :     eigen_sparse_t transformator(idxCoordinate, this-&gt;num_coordinates());</span>
+<span class="lineNum">     204 </span><span class="lineCov">          1 :     transformator.setFromTriplets(triplets_transformator.begin(), triplets_transformator.end());</span>
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            :     // apply transformator
+<span class="lineNum">     207 </span><span class="lineCov">          1 :     basis_ = transformator * basis_;</span>
+<a name="208"><span class="lineNum">     208 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 : Hamiltonianmatrix Hamiltonianmatrix::getBlock(const std::vector&lt;ptrdiff_t&gt; &amp;indices) {</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :     std::vector&lt;eigen_triplet_t&gt; triplets_transformator;</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :     triplets_transformator.reserve(indices.size());</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :     for (size_t idx = 0; idx &lt; indices.size(); ++idx) {</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :         triplets_transformator.emplace_back(indices[idx], idx, 1);</span>
+<span class="lineNum">     215 </span>            :     }
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :     eigen_sparse_t transformator(this-&gt;num_basisvectors(), indices.size());</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :     transformator.setFromTriplets(triplets_transformator.begin(), triplets_transformator.end());</span>
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :     eigen_sparse_t block_entries = transformator.adjoint() * entries_ * transformator;</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :     eigen_sparse_t block_basis = basis_ * transformator;</span>
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :     return Hamiltonianmatrix(block_entries, block_basis);</span>
+<a name="223"><span class="lineNum">     223 </span>            : }</a>
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span><span class="lineCov">         21 : void Hamiltonianmatrix::diagonalize() {</span>
+<span class="lineNum">     226 </span><span class="lineCov">         21 :     if (this-&gt;num_basisvectors() &gt; 1) { // NOLINT</span>
+<span class="lineNum">     227 </span>            :         // diagonalization
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :         Eigen::SelfAdjointEigenSolver&lt;eigen_dense_t&gt; eigensolver(eigen_dense_t(this-&gt;entries()));</span>
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span>            :         // eigenvalues and eigenvectors
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :         eigen_vector_double_t evals = eigensolver.eigenvalues();</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :         eigen_sparse_t evecs = eigensolver.eigenvectors().sparseView(1e-4, 0.5);</span>
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :         this-&gt;entries().setZero();</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         this-&gt;entries().reserve(evals.size());</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :         for (int idx = 0; idx &lt; evals.size(); ++idx) {</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :             this-&gt;entries().insert(idx, idx) = evals.coeffRef(idx);</span>
+<span class="lineNum">     238 </span>            :         }
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :         this-&gt;entries().makeCompressed();</span>
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :         this-&gt;basis() = (this-&gt;basis() * evecs).pruned(1e-4, 0.5);</span>
+<span class="lineNum">     242 </span>            :     }
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">         21 : }</span></a>
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span><span class="lineCov">          6 : Hamiltonianmatrix operator+(Hamiltonianmatrix lhs, const Hamiltonianmatrix &amp;rhs) {</span>
+<span class="lineNum">     246 </span><span class="lineCov">          6 :     lhs.bytes.clear();</span>
+<span class="lineNum">     247 </span><span class="lineCov">          6 :     lhs.entries_ += rhs.entries_;</span>
+<span class="lineNum">     248 </span><span class="lineCov">          6 :     return lhs;</span>
+<a name="249"><span class="lineNum">     249 </span>            : }</a>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span><span class="lineCov">          6 : Hamiltonianmatrix operator-(Hamiltonianmatrix lhs, const Hamiltonianmatrix &amp;rhs) {</span>
+<span class="lineNum">     252 </span><span class="lineCov">          6 :     lhs.bytes.clear();</span>
+<span class="lineNum">     253 </span><span class="lineCov">          6 :     lhs.entries_ -= rhs.entries_;</span>
+<span class="lineNum">     254 </span><span class="lineCov">          6 :     return lhs;</span>
+<a name="255"><span class="lineNum">     255 </span>            : }</a>
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span><span class="lineCov">          4 : Hamiltonianmatrix operator*(const scalar_t &amp;lhs, Hamiltonianmatrix rhs) {</span>
+<span class="lineNum">     258 </span><span class="lineCov">          4 :     rhs.bytes.clear();</span>
+<span class="lineNum">     259 </span><span class="lineCov">          4 :     rhs.entries_ *= lhs;</span>
+<span class="lineNum">     260 </span><span class="lineCov">          4 :     return rhs;</span>
+<a name="261"><span class="lineNum">     261 </span>            : }</a>
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span><span class="lineCov">         36 : Hamiltonianmatrix operator*(Hamiltonianmatrix lhs, const scalar_t &amp;rhs) {</span>
+<span class="lineNum">     264 </span><span class="lineCov">         36 :     lhs.bytes.clear();</span>
+<span class="lineNum">     265 </span><span class="lineCov">         36 :     lhs.entries_ *= rhs;</span>
+<span class="lineNum">     266 </span><span class="lineCov">         36 :     return lhs;</span>
+<a name="267"><span class="lineNum">     267 </span>            : }</a>
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span><span class="lineCov">         20 : Hamiltonianmatrix &amp;Hamiltonianmatrix::operator+=(const Hamiltonianmatrix &amp;rhs) {</span>
+<span class="lineNum">     270 </span><span class="lineCov">         20 :     bytes.clear();</span>
+<span class="lineNum">     271 </span><span class="lineCov">         20 :     entries_ += rhs.entries_;</span>
+<span class="lineNum">     272 </span><span class="lineCov">         20 :     return *this;</span>
+<a name="273"><span class="lineNum">     273 </span>            : }</a>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 : Hamiltonianmatrix &amp;Hamiltonianmatrix::operator-=(const Hamiltonianmatrix &amp;rhs) {</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :     bytes.clear();</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :     entries_ -= rhs.entries_;</span>
+<span class="lineNum">     278 </span><span class="lineNoCov">          0 :     return *this;</span>
+<a name="279"><span class="lineNum">     279 </span>            : }</a>
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 : bytes_t &amp;Hamiltonianmatrix::serialize() {</span>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :     doSerialization();</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :     return bytes;</span>
+<a name="284"><span class="lineNum">     284 </span>            : }</a>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineCov">         21 : void Hamiltonianmatrix::doSerialization() {</span>
+<span class="lineNum">     287 </span><span class="lineCov">         21 :     if (bytes.empty()) {</span>
+<span class="lineNum">     288 </span><span class="lineCov">         21 :         entries_.makeCompressed();</span>
+<span class="lineNum">     289 </span><span class="lineCov">         21 :         basis_.makeCompressed();</span>
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span>            :         // convert matrix &quot;entries&quot; to vectors of primitive data types
+<span class="lineNum">     292 </span><span class="lineCov">         21 :         byte_t entries_flags = 0;</span>
+<span class="lineNum">     293 </span>            :         if (entries_.IsRowMajor != 0) {
+<span class="lineNum">     294 </span>            :             entries_flags |= csr_not_csc;
+<span class="lineNum">     295 </span>            :         }
+<span class="lineNum">     296 </span>            :         if (utils::is_complex&lt;scalar_t&gt;::value) {
+<span class="lineNum">     297 </span><span class="lineCov">         21 :             entries_flags |= complex_not_real;</span>
+<span class="lineNum">     298 </span>            :         }
+<span class="lineNum">     299 </span><span class="lineCov">         21 :         storage_idx_t entries_rows = entries_.rows();</span>
+<span class="lineNum">     300 </span><span class="lineCov">         21 :         storage_idx_t entries_cols = entries_.cols();</span>
+<span class="lineNum">     301 </span>            :         std::vector&lt;scalar_t&gt; entries_data(entries_.valuePtr(),
+<span class="lineNum">     302 </span><span class="lineCov">         42 :                                            entries_.valuePtr() + entries_.nonZeros());</span>
+<span class="lineNum">     303 </span><span class="lineCov">         42 :         std::vector&lt;storage_double&gt; entries_data_real, entries_data_imag;</span>
+<span class="lineNum">     304 </span><span class="lineCov">         21 :         splitComplex(entries_data_real, entries_data_imag, entries_data);</span>
+<span class="lineNum">     305 </span>            :         std::vector&lt;storage_idx_t&gt; entries_indices(entries_.innerIndexPtr(),
+<span class="lineNum">     306 </span><span class="lineCov">         42 :                                                    entries_.innerIndexPtr() + entries_.nonZeros());</span>
+<span class="lineNum">     307 </span>            :         std::vector&lt;storage_idx_t&gt; entries_indptr(entries_.outerIndexPtr(),
+<span class="lineNum">     308 </span><span class="lineCov">         42 :                                                   entries_.outerIndexPtr() + entries_.outerSize());</span>
+<span class="lineNum">     309 </span>            : 
+<span class="lineNum">     310 </span>            :         // convert matrix &quot;basis&quot; to vectors of primitive data types
+<span class="lineNum">     311 </span><span class="lineCov">         21 :         byte_t basis_flags = 0;</span>
+<span class="lineNum">     312 </span>            :         if (basis_.IsRowMajor != 0) {
+<span class="lineNum">     313 </span>            :             basis_flags |= csr_not_csc;
+<span class="lineNum">     314 </span>            :         }
+<span class="lineNum">     315 </span>            :         if (utils::is_complex&lt;scalar_t&gt;::value) {
+<span class="lineNum">     316 </span><span class="lineCov">         21 :             basis_flags |= complex_not_real;</span>
+<span class="lineNum">     317 </span>            :         }
+<span class="lineNum">     318 </span><span class="lineCov">         21 :         storage_idx_t basis_rows = basis_.rows();</span>
+<span class="lineNum">     319 </span><span class="lineCov">         21 :         storage_idx_t basis_cols = basis_.cols();</span>
+<span class="lineNum">     320 </span><span class="lineCov">         42 :         std::vector&lt;scalar_t&gt; basis_data(basis_.valuePtr(), basis_.valuePtr() + basis_.nonZeros());</span>
+<span class="lineNum">     321 </span><span class="lineCov">         42 :         std::vector&lt;storage_double&gt; basis_data_real, basis_data_imag;</span>
+<span class="lineNum">     322 </span><span class="lineCov">         21 :         splitComplex(basis_data_real, basis_data_imag, basis_data);</span>
+<span class="lineNum">     323 </span>            :         std::vector&lt;storage_idx_t&gt; basis_indices(basis_.innerIndexPtr(),
+<span class="lineNum">     324 </span><span class="lineCov">         42 :                                                  basis_.innerIndexPtr() + basis_.nonZeros());</span>
+<span class="lineNum">     325 </span>            :         std::vector&lt;storage_idx_t&gt; basis_indptr(basis_.outerIndexPtr(),
+<span class="lineNum">     326 </span><span class="lineCov">         42 :                                                 basis_.outerIndexPtr() + basis_.outerSize());</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span>            :         // serialize vectors of primitive data types
+<span class="lineNum">     329 </span><span class="lineCov">         42 :         Serializer s;</span>
+<span class="lineNum">     330 </span><span class="lineCov">         21 :         s &lt;&lt; entries_flags;</span>
+<span class="lineNum">     331 </span><span class="lineCov">         21 :         s &lt;&lt; entries_rows;</span>
+<span class="lineNum">     332 </span><span class="lineCov">         21 :         s &lt;&lt; entries_cols;</span>
+<span class="lineNum">     333 </span><span class="lineCov">         21 :         s &lt;&lt; entries_data_real;</span>
+<span class="lineNum">     334 </span><span class="lineCov">         21 :         if ((entries_flags &amp; complex_not_real) != 0) {</span>
+<span class="lineNum">     335 </span><span class="lineCov">         21 :             s &lt;&lt; entries_data_imag;</span>
+<span class="lineNum">     336 </span>            :         }
+<span class="lineNum">     337 </span><span class="lineCov">         21 :         s &lt;&lt; entries_indices;</span>
+<span class="lineNum">     338 </span><span class="lineCov">         21 :         s &lt;&lt; entries_indptr;</span>
+<span class="lineNum">     339 </span><span class="lineCov">         21 :         s &lt;&lt; basis_flags;</span>
+<span class="lineNum">     340 </span><span class="lineCov">         21 :         s &lt;&lt; basis_rows;</span>
+<span class="lineNum">     341 </span><span class="lineCov">         21 :         s &lt;&lt; basis_cols;</span>
+<span class="lineNum">     342 </span><span class="lineCov">         21 :         s &lt;&lt; basis_data_real;</span>
+<span class="lineNum">     343 </span><span class="lineCov">         21 :         if ((basis_flags &amp; complex_not_real) != 0) {</span>
+<span class="lineNum">     344 </span><span class="lineCov">         21 :             s &lt;&lt; basis_data_imag;</span>
+<span class="lineNum">     345 </span>            :         }
+<span class="lineNum">     346 </span><span class="lineCov">         21 :         s &lt;&lt; basis_indices;</span>
+<span class="lineNum">     347 </span><span class="lineCov">         21 :         s &lt;&lt; basis_indptr;</span>
+<span class="lineNum">     348 </span><span class="lineCov">         21 :         s.save(bytes);</span>
+<span class="lineNum">     349 </span>            :     }
+<a name="350"><span class="lineNum">     350 </span><span class="lineCov">         21 : }</span></a>
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 : void Hamiltonianmatrix::deserialize(bytes_t &amp;bytesin) {</span>
+<span class="lineNum">     353 </span><span class="lineNoCov">          0 :     bytes = bytesin;</span>
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :     doDeserialization();</span>
+<a name="355"><span class="lineNum">     355 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 : void Hamiltonianmatrix::doDeserialization() {</span>
+<span class="lineNum">     358 </span>            :     // deserialize vectors of primitive data types
+<span class="lineNum">     359 </span>            :     byte_t entries_flags;
+<span class="lineNum">     360 </span>            :     storage_idx_t entries_rows, entries_cols;
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :     std::vector&lt;storage_double&gt; entries_data_real, entries_data_imag;</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :     std::vector&lt;idx_t&gt; entries_indices;</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :     std::vector&lt;idx_t&gt; entries_indptr;</span>
+<span class="lineNum">     364 </span>            :     byte_t basis_flags;
+<span class="lineNum">     365 </span>            :     storage_idx_t basis_rows, basis_cols;
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :     std::vector&lt;storage_double&gt; basis_data_real, basis_data_imag;</span>
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :     std::vector&lt;idx_t&gt; basis_indices;</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :     std::vector&lt;idx_t&gt; basis_indptr;</span>
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :     Serializer s;</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :     s.load(bytes);</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :     s &gt;&gt; entries_flags;</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :     s &gt;&gt; entries_rows;</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :     s &gt;&gt; entries_cols;</span>
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :     s &gt;&gt; entries_data_real;</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :     if ((entries_flags &amp; complex_not_real) != 0) {</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :         s &gt;&gt; entries_data_imag;</span>
+<span class="lineNum">     378 </span>            :     }
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :     s &gt;&gt; entries_indices;</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :     s &gt;&gt; entries_indptr;</span>
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :     s &gt;&gt; basis_flags;</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :     s &gt;&gt; basis_rows;</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :     s &gt;&gt; basis_cols;</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :     s &gt;&gt; basis_data_real;</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :     if ((basis_flags &amp; complex_not_real) != 0) {</span>
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :         s &gt;&gt; basis_data_imag;</span>
+<span class="lineNum">     387 </span>            :     }
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :     s &gt;&gt; basis_indices;</span>
+<span class="lineNum">     389 </span><span class="lineNoCov">          0 :     s &gt;&gt; basis_indptr;</span>
+<span class="lineNum">     390 </span>            : 
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :     if ((((entries_flags &amp; complex_not_real) &gt; 0) != utils::is_complex&lt;scalar_t&gt;::value) ||</span>
+<span class="lineNum">     392 </span><span class="lineNoCov">          0 :         (((basis_flags &amp; complex_not_real) &gt; 0) != utils::is_complex&lt;scalar_t&gt;::value)) {</span>
+<span class="lineNum">     393 </span>            :         std::string msg(&quot;The data type used in the program does not fit the data type used in the &quot;
+<span class="lineNum">     394 </span><span class="lineNoCov">          0 :                         &quot;serialized objects.&quot;);</span>
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :         std::cout &lt;&lt; boost::format(&quot;&gt;&gt;ERR%s&quot;) % msg.c_str() &lt;&lt; std::endl;</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :         throw std::runtime_error(msg);</span>
+<span class="lineNum">     397 </span>            :     }
+<span class="lineNum">     398 </span>            : 
+<span class="lineNum">     399 </span>            :     // build matrix &quot;entries_&quot;
+<span class="lineNum">     400 </span><span class="lineNoCov">          0 :     std::vector&lt;scalar_t&gt; entries_data;</span>
+<span class="lineNum">     401 </span><span class="lineNoCov">          0 :     mergeComplex(entries_data_real, entries_data_imag, entries_data);</span>
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 :     entries_ = eigen_sparse_t(entries_rows, entries_cols);</span>
+<span class="lineNum">     403 </span><span class="lineNoCov">          0 :     entries_.makeCompressed();</span>
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :     entries_.resizeNonZeros(entries_data.size());</span>
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :     std::copy(entries_data.begin(), entries_data.end(), entries_.valuePtr());</span>
+<span class="lineNum">     406 </span><span class="lineNoCov">          0 :     std::copy(entries_indices.begin(), entries_indices.end(), entries_.innerIndexPtr());</span>
+<span class="lineNum">     407 </span><span class="lineNoCov">          0 :     std::copy(entries_indptr.begin(), entries_indptr.end(), entries_.outerIndexPtr());</span>
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 :     entries_.finalize();</span>
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span>            :     // build matrix &quot;basis_&quot;
+<span class="lineNum">     411 </span><span class="lineNoCov">          0 :     std::vector&lt;scalar_t&gt; basis_data;</span>
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :     mergeComplex(basis_data_real, basis_data_imag, basis_data);</span>
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :     basis_ = eigen_sparse_t(basis_rows, basis_cols);</span>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :     basis_.makeCompressed();</span>
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :     basis_.resizeNonZeros(basis_data.size());</span>
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :     std::copy(basis_data.begin(), basis_data.end(), basis_.valuePtr());</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :     std::copy(basis_indices.begin(), basis_indices.end(), basis_.innerIndexPtr());</span>
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :     std::copy(basis_indptr.begin(), basis_indptr.end(), basis_.outerIndexPtr());</span>
+<span class="lineNum">     419 </span><span class="lineNoCov">          0 :     basis_.finalize();</span>
+<a name="420"><span class="lineNum">     420 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     421 </span>            : 
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 : uint64_t Hamiltonianmatrix::hashEntries() {</span>
+<span class="lineNum">     423 </span>            :     // TODO bring this functionality to the matrix class and use it for serialization, too
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :     doSerialization();</span>
+<span class="lineNum">     425 </span><span class="lineNoCov">          0 :     return utils::FNV64(&amp;bytes[0], bytes.size());</span>
+<a name="426"><span class="lineNum">     426 </span>            : }</a>
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span><span class="lineNoCov">          0 : uint64_t Hamiltonianmatrix::hashBasis() {</span>
+<span class="lineNum">     429 </span>            :     // TODO bring this functionality to the matrix class and use it for serialization, too
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :     doSerialization();</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :     return utils::FNV64(&amp;bytes[0], bytes.size());</span>
+<a name="432"><span class="lineNum">     432 </span>            : }</a>
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span><span class="lineCov">         21 : void Hamiltonianmatrix::save(const std::string &amp;fname) {</span>
+<span class="lineNum">     435 </span><span class="lineCov">         21 :     doSerialization();</span>
+<span class="lineNum">     436 </span>            : 
+<span class="lineNum">     437 </span>            :     // open file
+<span class="lineNum">     438 </span>            :     FILE *pFile;
+<span class="lineNum">     439 </span><span class="lineCov">         21 :     pFile = fopen(fname.c_str(), &quot;wb&quot;);</span>
+<span class="lineNum">     440 </span>            : 
+<span class="lineNum">     441 </span>            :     // write
+<span class="lineNum">     442 </span><span class="lineCov">         21 :     fwrite(&amp;bytes[0], 1, sizeof(byte_t) * bytes.size(), pFile);</span>
+<span class="lineNum">     443 </span>            : 
+<span class="lineNum">     444 </span>            :     // close file
+<span class="lineNum">     445 </span><span class="lineCov">         21 :     fclose(pFile);</span>
+<a name="446"><span class="lineNum">     446 </span><span class="lineCov">         21 : }</span></a>
+<span class="lineNum">     447 </span>            : 
+<span class="lineNum">     448 </span><span class="lineNoCov">          0 : bool Hamiltonianmatrix::load(const std::string &amp;fname) {</span>
+<span class="lineNum">     449 </span>            :     try {
+<span class="lineNum">     450 </span>            :         // open file
+<span class="lineNum">     451 </span><span class="lineNoCov">          0 :         if (FILE *pFile = fopen(fname.c_str(), &quot;rb&quot;)) {</span>
+<span class="lineNum">     452 </span>            :             // obtain file size:
+<span class="lineNum">     453 </span><span class="lineNoCov">          0 :             fseek(pFile, 0, SEEK_END);</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :             size_t size_file = ftell(pFile);</span>
+<span class="lineNum">     455 </span><span class="lineNoCov">          0 :             rewind(pFile);</span>
+<span class="lineNum">     456 </span>            : 
+<span class="lineNum">     457 </span>            :             // read
+<span class="lineNum">     458 </span><span class="lineNoCov">          0 :             bytes.resize(size_file / sizeof(byte_t));</span>
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :             size_t size_result = fread(&amp;bytes[0], 1, sizeof(byte_t) * bytes.size(), pFile);</span>
+<span class="lineNum">     460 </span><span class="lineNoCov">          0 :             if (size_result != size_file) {</span>
+<span class="lineNum">     461 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Matrix could not be read from file.&quot;);</span>
+<span class="lineNum">     462 </span>            :             }
+<span class="lineNum">     463 </span>            : 
+<span class="lineNum">     464 </span>            :             // close file
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :             fclose(pFile);</span>
+<span class="lineNum">     466 </span>            : 
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :             doDeserialization();</span>
+<span class="lineNum">     468 </span>            : 
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :             return true;</span>
+<span class="lineNum">     470 </span>            :         }
+<span class="lineNum">     471 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     472 </span>            : 
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :     } catch (std::exception &amp;e) {</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 : #pragma omp critical(textoutput)</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :         std::cerr &lt;&lt; e.what() &lt;&lt; std::endl;</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     477 </span>            :     }
+<a name="478"><span class="lineNum">     478 </span>            : }</a>
+<span class="lineNum">     479 </span>            : 
+<span class="lineNum">     480 </span><span class="lineCov">          2 : Hamiltonianmatrix combine(const Hamiltonianmatrix &amp;lhs, const Hamiltonianmatrix &amp;rhs,</span>
+<span class="lineNum">     481 </span>            :                           const double &amp;deltaE, const std::shared_ptr&lt;BasisnamesTwo&gt; &amp;basis_two,
+<span class="lineNum">     482 </span>            :                           const Symmetry &amp;sym) {
+<span class="lineNum">     483 </span>            :     // TODO program a faster method for samebasis == true
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span><span class="lineCov">          2 :     size_t num_basisvectors = lhs.num_basisvectors() * rhs.num_basisvectors();</span>
+<span class="lineNum">     486 </span><span class="lineCov">          2 :     size_t num_coordinates = lhs.num_coordinates() * rhs.num_coordinates();</span>
+<span class="lineNum">     487 </span>            : 
+<span class="lineNum">     488 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     489 </span>            :     ////// Mapping used in case of reflection symmetry /////
+<span class="lineNum">     490 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     491 </span>            : 
+<span class="lineNum">     492 </span><span class="lineCov">          4 :     std::vector&lt;size_t&gt; mapping(num_coordinates, -1);</span>
+<span class="lineNum">     493 </span><span class="lineCov">          2 :     if (sym.reflection != NA) { // NOLINT</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :         std::unordered_map&lt;StateTwoOld, size_t&gt; buffer;</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :         for (auto state : *basis_two) {</span>
+<span class="lineNum">     496 </span><span class="lineNoCov">          0 :             if (state.m[0] &lt; 0) {</span>
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :                 continue;</span>
+<span class="lineNum">     498 </span>            :             }
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :             state.m[0] *= -1;</span>
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :             state.m[1] *= -1;</span>
+<span class="lineNum">     501 </span><span class="lineNoCov">          0 :             buffer[state] = state.idx;</span>
+<span class="lineNum">     502 </span>            :         }
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :         for (auto state : *basis_two) {</span>
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :             if (state.m[0] &gt; 0) {</span>
+<span class="lineNum">     505 </span><span class="lineNoCov">          0 :                 continue;</span>
+<span class="lineNum">     506 </span>            :             }
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :             mapping[buffer[state]] = state.idx;</span>
+<span class="lineNum">     508 </span><span class="lineNoCov">          0 :             if (sym.inversion != NA || sym.permutation != NA) {</span>
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :                 mapping[state.idx] = buffer[state];</span>
+<span class="lineNum">     510 </span>            :             }
+<span class="lineNum">     511 </span>            :         }
+<span class="lineNum">     512 </span>            :     }
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     515 </span>            :     ////// Combine basis and entries ///////////////////////
+<span class="lineNum">     516 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     517 </span>            : 
+<span class="lineNum">     518 </span>            :     // This approach does only work if lhs.entries() and rhs.entries() are diagonal // TODO assert
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span>            :     // === Initialize matrices ===
+<span class="lineNum">     521 </span><span class="lineCov">          4 :     eigen_vector_t diag1 = lhs.entries().diagonal();</span>
+<span class="lineNum">     522 </span><span class="lineCov">          4 :     eigen_vector_t diag2 = rhs.entries().diagonal();</span>
+<span class="lineNum">     523 </span>            : 
+<span class="lineNum">     524 </span>            :     // Number of elements for which space sould be reserved
+<span class="lineNum">     525 </span><span class="lineCov">          2 :     size_t size_basis = num_basisvectors; // TODO estimate better</span>
+<span class="lineNum">     526 </span><span class="lineCov">          2 :     size_t size_entries = num_basisvectors;</span>
+<span class="lineNum">     527 </span>            : 
+<span class="lineNum">     528 </span><span class="lineCov">          2 :     Hamiltonianmatrix mat(size_basis, size_entries);</span>
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span>            :     // === Combine basis and entries ===
+<span class="lineNum">     531 </span><span class="lineCov">          2 :     size_t col = 0; // basis vector</span>
+<span class="lineNum">     532 </span><span class="lineCov">          2 :     for (int col_1 = 0; col_1 &lt; lhs.basis().outerSize();</span>
+<span class="lineNum">     533 </span>            :          ++col_1) { // outerSize() == num_cols = num_basisvectors()
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :         for (int col_2 = 0; col_2 &lt; rhs.basis().outerSize(); ++col_2) {</span>
+<span class="lineNum">     535 </span>            : 
+<span class="lineNum">     536 </span>            :             // In case of inversion symmetry: skip half of the basis vector pairs
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :             if ((sym.inversion == EVEN &amp;&amp; col_1 &lt;= col_2) || // gerade</span>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :                 (sym.inversion == ODD &amp;&amp; col_1 &lt; col_2)) {   // ungerade</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                 continue;</span>
+<span class="lineNum">     540 </span>            :             }
+<span class="lineNum">     541 </span>            : 
+<span class="lineNum">     542 </span>            :             // In case of permutation symmetry: skip half of the basis vector pairs
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :             if ((sym.permutation == EVEN &amp;&amp; col_1 &lt;= col_2) || // sym</span>
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :                 (sym.permutation == ODD &amp;&amp; col_1 &lt; col_2)) {   // asym</span>
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :                 continue;</span>
+<span class="lineNum">     546 </span>            :             }
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span>            :             // TODO combine inversion and permutation symmetry (one variable &quot;permuinversion&quot;),
+<span class="lineNum">     549 </span>            :             // think about further simplifications
+<span class="lineNum">     550 </span>            : 
+<span class="lineNum">     551 </span>            :             // --- Combine diagonal elements for mat.entries() ---
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :             scalar_t val_entries = diag1[col_1] + diag2[col_2]; // diag(V) x I + I x diag(V)</span>
+<span class="lineNum">     553 </span>            : 
+<span class="lineNum">     554 </span>            :             // Check whether the new diagonal element is within the energy cutoff
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :             if (std::abs(val_entries) &lt; deltaE + 1e-11 ||</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :                 deltaE &lt; 0) { // TODO avoid the &quot;+1e-11&quot; hack</span>
+<span class="lineNum">     557 </span>            : 
+<span class="lineNum">     558 </span>            :                 // Variable that stores whether the combindes basis vector, that belongs to the
+<span class="lineNum">     559 </span>            :                 // combined diagonal element, is valid
+<span class="lineNum">     560 </span><span class="lineNoCov">          0 :                 bool existing = false;</span>
+<span class="lineNum">     561 </span>            : 
+<span class="lineNum">     562 </span>            :                 // --- Combine basis vectors for mat.basis() ---
+<span class="lineNum">     563 </span><span class="lineNoCov">          0 :                 for (eigen_iterator_t triple_1(lhs.basis(), col_1); triple_1; ++triple_1) {</span>
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :                     for (eigen_iterator_t triple_2(rhs.basis(), col_2); triple_2; ++triple_2) {</span>
+<span class="lineNum">     565 </span>            :                         size_t row =
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :                             rhs.num_coordinates() * triple_1.row() + triple_2.row(); // coordinate</span>
+<span class="lineNum">     567 </span>            : 
+<span class="lineNum">     568 </span>            :                         // Get pair state that belongs to the current coordinate of the combined
+<span class="lineNum">     569 </span>            :                         // basis vector
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :                         const auto &amp;state = basis_two-&gt;get(row);</span>
+<span class="lineNum">     571 </span>            : 
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 :                         float M = state.m[0] + state.m[1];</span>
+<span class="lineNum">     573 </span><span class="lineNoCov">          0 :                         int parityL = std::pow(-1, state.l[0] + state.l[1]);</span>
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 :                         int parityJ = std::pow(-1, state.j[0] + state.j[1]);</span>
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 :                         int parityM = std::pow(-1, state.m[0] + state.m[1]);</span>
+<span class="lineNum">     576 </span>            : 
+<span class="lineNum">     577 </span>            :                         // In case of inversion and reflection symmetry: check whether the inversion
+<span class="lineNum">     578 </span>            :                         // symmetric state is already reflection symmetric
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :                         bool skip_reflection = false;</span>
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :                         if (sym.inversion != NA &amp;&amp; col_1 != col_2 &amp;&amp; sym.reflection != NA &amp;&amp;</span>
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :                             mapping[row] ==</span>
+<span class="lineNum">     582 </span><span class="lineNoCov">          0 :                                 rhs.num_coordinates() * triple_2.row() + triple_1.row()) {</span>
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :                             if (((sym.inversion == EVEN) ? -parityL : parityL) !=</span>
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :                                 ((sym.reflection == EVEN) ? parityL * parityJ * parityM</span>
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :                                                           : -parityL * parityJ * parityM)) {</span>
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :                                 continue; // the parity under inversion and reflection is different</span>
+<span class="lineNum">     587 </span>            :                             }
+<span class="lineNum">     588 </span><span class="lineNoCov">          0 :                             skip_reflection =</span>
+<span class="lineNum">     589 </span>            :                                 true; // the parity under inversion and reflection is the same
+<span class="lineNum">     590 </span>            :                         }
+<span class="lineNum">     591 </span>            : 
+<span class="lineNum">     592 </span>            :                         // In case of permutation and reflection symmetry: check whether the
+<span class="lineNum">     593 </span>            :                         // permutation symmetric state is already reflection symmetric
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :                         if (sym.permutation != NA &amp;&amp; col_1 != col_2 &amp;&amp; sym.reflection != NA &amp;&amp;</span>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :                             mapping[row] ==</span>
+<span class="lineNum">     596 </span><span class="lineNoCov">          0 :                                 rhs.num_coordinates() * triple_2.row() + triple_1.row()) {</span>
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :                             if (((sym.permutation == EVEN) ? -1 : 1) !=</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :                                 ((sym.reflection == EVEN) ? parityL * parityJ * parityM</span>
+<span class="lineNum">     599 </span><span class="lineNoCov">          0 :                                                           : -parityL * parityJ * parityM)) {</span>
+<span class="lineNum">     600 </span><span class="lineNoCov">          0 :                                 continue; // the parity under permutation and reflection is</span>
+<span class="lineNum">     601 </span>            :                                           // different
+<span class="lineNum">     602 </span>            :                             }
+<span class="lineNum">     603 </span><span class="lineNoCov">          0 :                             skip_reflection =</span>
+<span class="lineNum">     604 </span>            :                                 true; // the parity under permutation and reflection is the same
+<span class="lineNum">     605 </span>            :                         }
+<span class="lineNum">     606 </span>            : 
+<span class="lineNum">     607 </span>            :                         // In case of inversion and permutation symmetry: the inversion symmetric
+<span class="lineNum">     608 </span>            :                         // state is already permutation symmetric
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :                         bool skip_permutation = false;</span>
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :                         if (sym.inversion != NA &amp;&amp; sym.permutation != NA &amp;&amp; col_1 != col_2) {</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :                             if (((sym.inversion == EVEN) ? -parityL : parityL) !=</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :                                 ((sym.permutation == EVEN) ? -1 : 1)) {</span>
+<span class="lineNum">     613 </span><span class="lineNoCov">          0 :                                 continue; // the parity under inversion and permutation is different</span>
+<span class="lineNum">     614 </span>            :                             }
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :                             skip_permutation =</span>
+<span class="lineNum">     616 </span>            :                                 true; // the parity under inversion and permutation is the same
+<span class="lineNum">     617 </span>            :                         }
+<span class="lineNum">     618 </span>            : 
+<span class="lineNum">     619 </span>            :                         // In case of rotation symmetry: skip coordinates with wrong total magnetic
+<span class="lineNum">     620 </span>            :                         // momentum
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :                         if (sym.rotation != NA &amp;&amp; sym.rotation != M &amp;&amp;</span>
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :                             (sym.reflection == NA || sym.rotation != -M)) {</span>
+<span class="lineNum">     623 </span><span class="lineNoCov">          0 :                             continue;</span>
+<span class="lineNum">     624 </span>            :                         }
+<span class="lineNum">     625 </span>            : 
+<span class="lineNum">     626 </span>            :                         // In case of reflection symmetry: skip half of the coordinates
+<span class="lineNum">     627 </span><span class="lineNoCov">          0 :                         if (sym.reflection != NA &amp;&amp; state.m[0] &lt; 0 &amp;&amp; !skip_reflection) {</span>
+<span class="lineNum">     628 </span><span class="lineNoCov">          0 :                             continue;</span>
+<span class="lineNum">     629 </span>            :                         }
+<span class="lineNum">     630 </span>            : 
+<span class="lineNum">     631 </span>            :                         // Calculate coefficient that belongs to the current coordinate
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :                         scalar_t val_basis = triple_1.value() * triple_2.value(); // coefficient</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :                         if (sym.reflection != NA &amp;&amp; !skip_reflection) {</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :                             val_basis /= std::sqrt(2);</span>
+<span class="lineNum">     635 </span>            :                         }
+<span class="lineNum">     636 </span><span class="lineNoCov">          0 :                         if (sym.inversion != NA &amp;&amp; col_1 != col_2) {</span>
+<span class="lineNum">     637 </span><span class="lineNoCov">          0 :                             val_basis /= std::sqrt(2);</span>
+<span class="lineNum">     638 </span>            :                         }
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :                         if (sym.permutation != NA &amp;&amp; col_1 != col_2 &amp;&amp; !skip_permutation) {</span>
+<span class="lineNum">     640 </span><span class="lineNoCov">          0 :                             val_basis /= std::sqrt(2);</span>
+<span class="lineNum">     641 </span>            :                         }
+<span class="lineNum">     642 </span>            : 
+<span class="lineNum">     643 </span>            :                         // Save the coefficient taking into account the symmetrization
+<span class="lineNum">     644 </span><span class="lineNoCov">          0 :                         mat.addBasis(row, col, val_basis);</span>
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span><span class="lineNoCov">          0 :                         if (sym.reflection != NA &amp;&amp; !skip_reflection) {</span>
+<span class="lineNum">     647 </span><span class="lineNoCov">          0 :                             size_t r = mapping[row];</span>
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :                             scalar_t v = val_basis;</span>
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :                             v *= (sym.reflection == EVEN) ? parityL * parityJ * parityM</span>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :                                                           : -parityL * parityJ * parityM;</span>
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :                             mat.addBasis(r, col, v);</span>
+<span class="lineNum">     652 </span>            :                         }
+<span class="lineNum">     653 </span>            : 
+<span class="lineNum">     654 </span><span class="lineNoCov">          0 :                         if (sym.inversion != NA &amp;&amp; col_1 != col_2) {</span>
+<span class="lineNum">     655 </span><span class="lineNoCov">          0 :                             size_t r = rhs.num_coordinates() * triple_2.row() + triple_1.row();</span>
+<span class="lineNum">     656 </span><span class="lineNoCov">          0 :                             scalar_t v = val_basis;</span>
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :                             v *= (sym.inversion == EVEN) ? -parityL : parityL;</span>
+<span class="lineNum">     658 </span><span class="lineNoCov">          0 :                             mat.addBasis(r, col, v);</span>
+<span class="lineNum">     659 </span>            :                         }
+<span class="lineNum">     660 </span>            : 
+<span class="lineNum">     661 </span><span class="lineNoCov">          0 :                         if (sym.inversion != NA &amp;&amp; col_1 != col_2 &amp;&amp; sym.reflection != NA &amp;&amp;</span>
+<span class="lineNum">     662 </span><span class="lineNoCov">          0 :                             !skip_reflection) {</span>
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :                             size_t r = rhs.num_coordinates() * triple_2.row() + triple_1.row();</span>
+<span class="lineNum">     664 </span><span class="lineNoCov">          0 :                             r = mapping[r];</span>
+<span class="lineNum">     665 </span><span class="lineNoCov">          0 :                             scalar_t v = val_basis;</span>
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 :                             v *= (sym.reflection == EVEN) ? parityL * parityJ * parityM</span>
+<span class="lineNum">     667 </span><span class="lineNoCov">          0 :                                                           : -parityL * parityJ * parityM;</span>
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :                             v *= (sym.inversion == EVEN) ? -parityL : parityL;</span>
+<span class="lineNum">     669 </span><span class="lineNoCov">          0 :                             mat.addBasis(r, col, v);</span>
+<span class="lineNum">     670 </span>            :                         }
+<span class="lineNum">     671 </span>            : 
+<span class="lineNum">     672 </span><span class="lineNoCov">          0 :                         if (sym.permutation != NA &amp;&amp; col_1 != col_2 &amp;&amp; !skip_permutation) {</span>
+<span class="lineNum">     673 </span><span class="lineNoCov">          0 :                             size_t r = rhs.num_coordinates() * triple_2.row() + triple_1.row();</span>
+<span class="lineNum">     674 </span><span class="lineNoCov">          0 :                             scalar_t v = val_basis;</span>
+<span class="lineNum">     675 </span><span class="lineNoCov">          0 :                             v *= (sym.permutation == EVEN) ? -1 : 1;</span>
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :                             mat.addBasis(r, col, v);</span>
+<span class="lineNum">     677 </span>            :                         }
+<span class="lineNum">     678 </span>            : 
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :                         if (sym.permutation != NA &amp;&amp; col_1 != col_2 &amp;&amp; !skip_permutation &amp;&amp;</span>
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :                             sym.reflection != NA &amp;&amp; !skip_reflection) {</span>
+<span class="lineNum">     681 </span><span class="lineNoCov">          0 :                             size_t r = rhs.num_coordinates() * triple_2.row() + triple_1.row();</span>
+<span class="lineNum">     682 </span><span class="lineNoCov">          0 :                             r = mapping[r];</span>
+<span class="lineNum">     683 </span><span class="lineNoCov">          0 :                             scalar_t v = val_basis;</span>
+<span class="lineNum">     684 </span><span class="lineNoCov">          0 :                             v *= (sym.reflection == EVEN) ? parityL * parityJ * parityM</span>
+<span class="lineNum">     685 </span><span class="lineNoCov">          0 :                                                           : -parityL * parityJ * parityM;</span>
+<span class="lineNum">     686 </span><span class="lineNoCov">          0 :                             v *= (sym.permutation == EVEN) ? -1 : 1;</span>
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :                             mat.addBasis(r, col, v);</span>
+<span class="lineNum">     688 </span>            :                         }
+<span class="lineNum">     689 </span>            : 
+<span class="lineNum">     690 </span><span class="lineNoCov">          0 :                         existing = true;</span>
+<span class="lineNum">     691 </span>            :                     }
+<span class="lineNum">     692 </span>            :                 }
+<span class="lineNum">     693 </span>            : 
+<span class="lineNum">     694 </span>            :                 // Save the combined diagonal element if the corresponding combined basis vector is
+<span class="lineNum">     695 </span>            :                 // valid
+<span class="lineNum">     696 </span><span class="lineNoCov">          0 :                 if (existing) {</span>
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :                     mat.addEntries(col, col, val_entries);</span>
+<span class="lineNum">     698 </span><span class="lineNoCov">          0 :                     ++col;</span>
+<span class="lineNum">     699 </span>            :                 }
+<span class="lineNum">     700 </span>            :             }
+<span class="lineNum">     701 </span>            :         }
+<span class="lineNum">     702 </span>            :     }
+<span class="lineNum">     703 </span>            : 
+<span class="lineNum">     704 </span>            :     // Finalize the Hamiltonian matrix
+<span class="lineNum">     705 </span><span class="lineCov">          2 :     num_basisvectors = col;</span>
+<span class="lineNum">     706 </span><span class="lineCov">          2 :     mat.compress(num_basisvectors, num_coordinates);</span>
+<span class="lineNum">     707 </span><span class="lineCov">          4 :     return mat;</span>
+<a name="708"><span class="lineNum">     708 </span>            : }</a>
+<span class="lineNum">     709 </span>            : 
+<span class="lineNum">     710 </span><span class="lineCov">          1 : void energycutoff(const Hamiltonianmatrix &amp;lhs, const Hamiltonianmatrix &amp;rhs, const double &amp;deltaE,</span>
+<span class="lineNum">     711 </span>            :                   std::vector&lt;bool&gt; &amp;necessary) {
+<span class="lineNum">     712 </span><span class="lineCov">          2 :     eigen_vector_t diag1 = lhs.entries().diagonal();</span>
+<span class="lineNum">     713 </span><span class="lineCov">          2 :     eigen_vector_t diag2 = rhs.entries().diagonal();</span>
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span><span class="lineCov">          1 :     for (int col_1 = 0; col_1 &lt; lhs.basis().outerSize();</span>
+<span class="lineNum">     716 </span>            :          ++col_1) { // outerSize() == num_cols = num_basisvectors()
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :         for (int col_2 = 0; col_2 &lt; rhs.basis().outerSize(); ++col_2) {</span>
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :             scalar_t val_entries = diag1[col_1] + diag2[col_2]; // diag(V) x I + I x diag(V)</span>
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :             if (std::abs(val_entries) &lt; deltaE + 1e-11 ||</span>
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :                 deltaE &lt; 0) { // TODO make +1e-11 unnecessary</span>
+<span class="lineNum">     721 </span><span class="lineNoCov">          0 :                 for (eigen_iterator_t triple_1(lhs.basis(), col_1); triple_1; ++triple_1) {</span>
+<span class="lineNum">     722 </span><span class="lineNoCov">          0 :                     for (eigen_iterator_t triple_2(rhs.basis(), col_2); triple_2; ++triple_2) {</span>
+<span class="lineNum">     723 </span>            :                         size_t row =
+<span class="lineNum">     724 </span><span class="lineNoCov">          0 :                             rhs.num_coordinates() * triple_1.row() + triple_2.row(); // coordinate</span>
+<span class="lineNum">     725 </span><span class="lineNoCov">          0 :                         necessary[row] = true;</span>
+<span class="lineNum">     726 </span>            :                     }
+<span class="lineNum">     727 </span>            :                 }
+<span class="lineNum">     728 </span>            :             }
+<span class="lineNum">     729 </span>            :         }
+<span class="lineNum">     730 </span>            :     }
+<span class="lineNum">     731 </span><span class="lineCov">          1 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

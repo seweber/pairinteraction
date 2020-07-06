@@ -1,0 +1,30 @@
+pairinteraction package
+=======================
+
+Submodules
+----------
+
+pairinteraction.picomplex module
+--------------------------------
+
+.. automodule:: pairinteraction.picomplex
+    :members:
+    :inherited-members:
+    :show-inheritance:
+
+pairinteraction.pireal module
+-----------------------------
+
+.. automodule:: pairinteraction.pireal
+    :members:
+    :inherited-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: pairinteraction
+    :members:
+    :inherited-members:
+    :show-inheritance:

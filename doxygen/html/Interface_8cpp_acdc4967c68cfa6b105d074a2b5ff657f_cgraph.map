@@ -1,0 +1,12 @@
+<map id="compute" name="compute">
+<area shape="rect" id="node2" href="$classConfiguration.html#abe48f0d77849495ff50e92a51b6da4ed" title="Number of elements matching specific key. " alt="" coords="161,5,316,32"/>
+<area shape="rect" id="node3" href="$classBasisnamesOne.html#ab3030f74ccafcc178f38e7a8ada13b9b" title="BasisnamesOne::fromBoth" alt="" coords="141,157,337,184"/>
+<area shape="rect" id="node9" href="$classBasisnamesOne.html#a37fe3571090885a8a594eed4019befa9" title="BasisnamesOne::fromFirst" alt="" coords="141,56,336,83"/>
+<area shape="rect" id="node10" href="$classBasisnamesOne.html#a683ae34cba3c56f9a0185e932de62078" title="BasisnamesOne::fromSecond" alt="" coords="132,107,345,133"/>
+<area shape="rect" id="node11" href="$classConfiguration.html#a545d28b3d64edc05331ee71898acfd1c" title="Load configuration from JSON file. " alt="" coords="165,209,312,250"/>
+<area shape="rect" id="node4" href="$classBasisnames.html#a534f7e2dcc2987a1f969cb89c070da04" title="Basisnames::configure" alt="" coords="393,81,564,108"/>
+<area shape="rect" id="node5" href="$classStateTwoOld.html#a1d7ff079f51711e8a6f40946e5677be8" title="StateTwoOld::order" alt="" coords="406,183,551,209"/>
+<area shape="rect" id="node7" href="$classStateTwoOld.html#a6efa9c8f92e433004b778f6f5ce212d9" title="StateTwoOld::second" alt="" coords="629,233,787,260"/>
+<area shape="rect" id="node8" href="$classStateTwoOld.html#aad5fb4307dec316a5b602c2e8bfae0a8" title="StateTwoOld::first" alt="" coords="639,132,777,159"/>
+<area shape="rect" id="node6" href="$classStateTwoOld.html#a33b595b744249754cb86bde5cd125c06" title="StateTwoOld::StateTwoOld" alt="" coords="612,183,804,209"/>
+</map>

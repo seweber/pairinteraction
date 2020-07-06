@@ -1,0 +1,403 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/State.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - State.cpp<span style="font-size: 80%;"> (source / <a href="State.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">180</td>
+            <td class="headerCovTableEntry">207</td>
+            <td class="headerCovTableEntryMed">87.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">62</td>
+            <td class="headerCovTableEntry">71</td>
+            <td class="headerCovTableEntryMed">87.3 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &quot;State.h&quot;
+<span class="lineNum">      21 </span>            : #include &quot;QuantumDefect.h&quot;
+<span class="lineNum">      22 </span>            : #include &quot;dtypes.h&quot;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #include &lt;array&gt;
+<span class="lineNum">      25 </span>            : #include &lt;cctype&gt;
+<span class="lineNum">      26 </span>            : #include &lt;iomanip&gt;
+<span class="lineNum">      27 </span>            : #include &lt;iostream&gt;
+<span class="lineNum">      28 </span>            : #include &lt;string&gt;
+<span class="lineNum">      29 </span>            : #include &lt;utility&gt;
+<span class="lineNum">      30 </span>            : 
+<a name="31"><span class="lineNum">      31 </span>            : namespace {</a>
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span><span class="lineCov">         14 : inline boost::variant&lt;char, int&gt; getMomentumLabel(int l) {</span>
+<span class="lineNum">      34 </span><span class="lineCov">         14 :     switch (l) {</span>
+<span class="lineNum">      35 </span><span class="lineCov">         10 :     case 0:</span>
+<span class="lineNum">      36 </span><span class="lineCov">         10 :         return 'S';</span>
+<span class="lineNum">      37 </span><span class="lineCov">          3 :     case 1:</span>
+<span class="lineNum">      38 </span><span class="lineCov">          3 :         return 'P';</span>
+<span class="lineNum">      39 </span><span class="lineCov">          1 :     case 2:</span>
+<span class="lineNum">      40 </span><span class="lineCov">          1 :         return 'D';</span>
+<span class="lineNum">      41 </span><span class="lineNoCov">          0 :     case 3:</span>
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :         return 'F';</span>
+<span class="lineNum">      43 </span><span class="lineNoCov">          0 :     case 4:</span>
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :         return 'G';</span>
+<span class="lineNum">      45 </span><span class="lineNoCov">          0 :     case 5:</span>
+<span class="lineNum">      46 </span><span class="lineNoCov">          0 :         return 'H';</span>
+<span class="lineNum">      47 </span><span class="lineNoCov">          0 :     case 6:</span>
+<span class="lineNum">      48 </span><span class="lineNoCov">          0 :         return 'I';</span>
+<span class="lineNum">      49 </span><span class="lineNoCov">          0 :     default:</span>
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 :         return l;</span>
+<span class="lineNum">      51 </span>            :     }
+<span class="lineNum">      52 </span>            : }
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            : } // namespace
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : ////////////////////////////////////////////////////////////////////
+<span class="lineNum">      57 </span>            : /// Implementation of one-atom state ///////////////////////////////
+<a name="58"><span class="lineNum">      58 </span>            : ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span><span class="lineCov">     251126 : StateOne::StateOne(std::string species, int n, int l, float j, float m)</span>
+<span class="lineNum">      61 </span><span class="lineCov">     251126 :     : species(std::move(species)), n(n), l(l), j(j), m(m) {</span>
+<span class="lineNum">      62 </span><span class="lineCov">     251126 :     this-&gt;analyzeSpecies();</span>
+<span class="lineNum">      63 </span><span class="lineCov">     251126 :     hashvalue = 0;</span>
+<span class="lineNum">      64 </span><span class="lineCov">     251126 :     boost::hash_combine(hashvalue, this-&gt;getSpecies());</span>
+<span class="lineNum">      65 </span><span class="lineCov">     251126 :     boost::hash_combine(hashvalue, this-&gt;getN());</span>
+<span class="lineNum">      66 </span><span class="lineCov">     251126 :     boost::hash_combine(hashvalue, this-&gt;getL());</span>
+<span class="lineNum">      67 </span><span class="lineCov">     251126 :     boost::hash_combine(hashvalue, this-&gt;getJ());</span>
+<span class="lineNum">      68 </span><span class="lineCov">     251126 :     boost::hash_combine(hashvalue, this-&gt;getM());</span>
+<a name="69"><span class="lineNum">      69 </span><span class="lineCov">     251126 : }</span></a>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span><span class="lineCov">        192 : StateOne::StateOne(std::string label)</span>
+<span class="lineNum">      72 </span><span class="lineCov">        192 :     : species(std::move(label)), element(&quot;&quot;), n(0), l(0), j(0), m(0), s(0) {</span>
+<span class="lineNum">      73 </span><span class="lineCov">        192 :     hashvalue = std::hash&lt;std::string&gt;{}(this-&gt;getLabel());</span>
+<span class="lineNum">      74 </span><span class="lineCov">        192 : }</span>
+<a name="75"><span class="lineNum">      75 </span>            : </a>
+<span class="lineNum">      76 </span>            : // Methods for printing the state
+<span class="lineNum">      77 </span><span class="lineCov">         14 : std::ostream &amp;operator&lt;&lt;(std::ostream &amp;out, const StateOne &amp;state) {</span>
+<span class="lineNum">      78 </span><span class="lineCov">         14 :     out &lt;&lt; &quot;|&quot;;</span>
+<span class="lineNum">      79 </span><span class="lineCov">         14 :     if (state.isArtificial()) {</span>
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 :         out &lt;&lt; state.getLabel();</span>
+<span class="lineNum">      81 </span>            :     } else {
+<span class="lineNum">      82 </span><span class="lineCov">         42 :         out &lt;&lt; state.getSpecies() &lt;&lt; &quot;, &quot; &lt;&lt; state.getN() &lt;&lt; &quot; &quot; &lt;&lt; getMomentumLabel(state.getL())</span>
+<span class="lineNum">      83 </span><span class="lineCov">         28 :             &lt;&lt; &quot;_&quot;;</span>
+<span class="lineNum">      84 </span><span class="lineCov">         14 :         if (std::ceil(state.getJ()) == state.getJ()) {</span>
+<span class="lineNum">      85 </span><span class="lineCov">          4 :             out &lt;&lt; state.getJ() &lt;&lt; &quot;, &quot;;</span>
+<span class="lineNum">      86 </span><span class="lineCov">          4 :             out &lt;&lt; &quot;mj=&quot; &lt;&lt; state.getM();</span>
+<span class="lineNum">      87 </span>            :         } else {
+<span class="lineNum">      88 </span><span class="lineCov">         10 :             out &lt;&lt; 2 * state.getJ() &lt;&lt; &quot;/2, &quot;;</span>
+<span class="lineNum">      89 </span><span class="lineCov">         10 :             out &lt;&lt; &quot;mj=&quot; &lt;&lt; 2 * state.getM() &lt;&lt; &quot;/2&quot;;</span>
+<span class="lineNum">      90 </span>            :         }
+<span class="lineNum">      91 </span>            :     }
+<span class="lineNum">      92 </span><span class="lineCov">         14 :     out &lt;&lt; &quot;&gt;&quot;;</span>
+<span class="lineNum">      93 </span><span class="lineCov">         14 :     return out;</span>
+<a name="94"><span class="lineNum">      94 </span>            : }</a>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span><span class="lineCov">          1 : std::string StateOne::str() const {</span>
+<span class="lineNum">      97 </span><span class="lineCov">          2 :     std::stringstream ss;</span>
+<span class="lineNum">      98 </span><span class="lineCov">          1 :     ss &lt;&lt; *this;</span>
+<span class="lineNum">      99 </span><span class="lineCov">          2 :     return ss.str();</span>
+<span class="lineNum">     100 </span>            : }
+<a name="101"><span class="lineNum">     101 </span>            : </a>
+<span class="lineNum">     102 </span>            : // Getters
+<span class="lineNum">     103 </span><span class="lineCov">    1518200 : const int &amp;StateOne::getN() const {</span>
+<span class="lineNum">     104 </span><span class="lineCov">    1518200 :     this-&gt;shouldBeArtificial(false);</span>
+<a name="105"><span class="lineNum">     105 </span><span class="lineCov">    1518200 :     return n;</span></a>
+<span class="lineNum">     106 </span>            : }
+<span class="lineNum">     107 </span><span class="lineCov">   12971358 : const int &amp;StateOne::getL() const {</span>
+<span class="lineNum">     108 </span><span class="lineCov">   12971358 :     this-&gt;shouldBeArtificial(false);</span>
+<a name="109"><span class="lineNum">     109 </span><span class="lineCov">   12971358 :     return l;</span></a>
+<span class="lineNum">     110 </span>            : }
+<span class="lineNum">     111 </span><span class="lineCov">   13358194 : const float &amp;StateOne::getJ() const {</span>
+<span class="lineNum">     112 </span><span class="lineCov">   13358194 :     this-&gt;shouldBeArtificial(false);</span>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">   13358194 :     return j;</span></a>
+<span class="lineNum">     114 </span>            : }
+<span class="lineNum">     115 </span><span class="lineCov">   13913306 : const float &amp;StateOne::getM() const {</span>
+<span class="lineNum">     116 </span><span class="lineCov">   13913306 :     this-&gt;shouldBeArtificial(false);</span>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">   13913306 :     return m;</span></a>
+<span class="lineNum">     118 </span>            : }
+<span class="lineNum">     119 </span><span class="lineCov">     500067 : const float &amp;StateOne::getS() const {</span>
+<span class="lineNum">     120 </span><span class="lineCov">     500067 :     this-&gt;shouldBeArtificial(false);</span>
+<a name="121"><span class="lineNum">     121 </span><span class="lineCov">     500067 :     return s;</span></a>
+<span class="lineNum">     122 </span>            : }
+<span class="lineNum">     123 </span><span class="lineCov">    1953251 : const std::string &amp;StateOne::getSpecies() const {</span>
+<span class="lineNum">     124 </span><span class="lineCov">    1953251 :     this-&gt;shouldBeArtificial(false);</span>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">    1953251 :     return species;</span></a>
+<span class="lineNum">     126 </span>            : }
+<span class="lineNum">     127 </span><span class="lineCov">         10 : const std::string &amp;StateOne::getElement() const {</span>
+<span class="lineNum">     128 </span><span class="lineCov">         10 :     this-&gt;shouldBeArtificial(false);</span>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">         10 :     return element;</span></a>
+<span class="lineNum">     130 </span>            : }
+<span class="lineNum">     131 </span><span class="lineCov">        607 : double StateOne::getEnergy() const {</span>
+<span class="lineNum">     132 </span><span class="lineCov">        607 :     this-&gt;shouldBeArtificial(false);</span>
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">        607 :     return energy_level(species, n, l, j);</span></a>
+<span class="lineNum">     134 </span>            : }
+<span class="lineNum">     135 </span><span class="lineCov">     142129 : double StateOne::getEnergy(MatrixElementCache &amp;cache) const {</span>
+<span class="lineNum">     136 </span><span class="lineCov">     142129 :     this-&gt;shouldBeArtificial(false);</span>
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">     142129 :     return energy_level(species, n, l, j, cache.getDefectDB());</span></a>
+<span class="lineNum">     138 </span>            : }
+<span class="lineNum">     139 </span><span class="lineCov">          1 : double StateOne::getNStar() const {</span>
+<span class="lineNum">     140 </span><span class="lineCov">          1 :     this-&gt;shouldBeArtificial(false);</span>
+<a name="141"><span class="lineNum">     141 </span><span class="lineCov">          1 :     return nstar(species, n, l, j);</span></a>
+<span class="lineNum">     142 </span>            : }
+<span class="lineNum">     143 </span><span class="lineCov">      14000 : double StateOne::getNStar(MatrixElementCache &amp;cache) const {</span>
+<span class="lineNum">     144 </span><span class="lineCov">      14000 :     this-&gt;shouldBeArtificial(false);</span>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">      14000 :     return nstar(species, n, l, j, cache.getDefectDB());</span></a>
+<span class="lineNum">     146 </span>            : }
+<span class="lineNum">     147 </span><span class="lineCov">        202 : const std::string &amp;StateOne::getLabel() const {</span>
+<span class="lineNum">     148 </span><span class="lineCov">        202 :     this-&gt;shouldBeArtificial(true);</span>
+<a name="149"><span class="lineNum">     149 </span><span class="lineCov">        202 :     return species;</span></a>
+<a name="150"><span class="lineNum">     150 </span>            : }</a>
+<span class="lineNum">     151 </span><span class="lineCov">   50739093 : bool StateOne::isArtificial() const { return (n == 0); }</span>
+<span class="lineNum">     152 </span><span class="lineCov">        456 : bool StateOne::isGeneralized() const {</span>
+<span class="lineNum">     153 </span><span class="lineCov">        456 :     return (n == ARB) || (l == ARB) || (j == ARB) || (m == ARB);</span>
+<a name="154"><span class="lineNum">     154 </span>            : }</a>
+<span class="lineNum">     155 </span>            : 
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">    4348559 : const size_t &amp;StateOne::getHash() const { return hashvalue; }</span></a>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span><span class="lineCov">     195278 : StateOne StateOne::getReflected() const {</span>
+<span class="lineNum">     159 </span><span class="lineCov">     195278 :     return StateOne(this-&gt;getSpecies(), this-&gt;getN(), this-&gt;getL(), this-&gt;getJ(), -this-&gt;getM());</span>
+<span class="lineNum">     160 </span>            : }
+<a name="161"><span class="lineNum">     161 </span>            : </a>
+<span class="lineNum">     162 </span>            : // Comparators
+<span class="lineNum">     163 </span><span class="lineCov">    4936478 : bool StateOne::operator==(StateOne const &amp;rhs) const {</span>
+<a name="164"><span class="lineNum">     164 </span><span class="lineCov">    4936478 :     return (species == rhs.species) &amp;&amp; (n == rhs.n) &amp;&amp; (l == rhs.l) &amp;&amp; (j == rhs.j) &amp;&amp; (m == rhs.m);</span></a>
+<span class="lineNum">     165 </span>            : }
+<span class="lineNum">     166 </span><span class="lineCov">        166 : bool StateOne::operator^(StateOne const &amp;rhs) const {</span>
+<span class="lineNum">     167 </span><span class="lineCov">        332 :     return (species == rhs.species) &amp;&amp; (rhs.n == ARB || n == rhs.n) &amp;&amp;</span>
+<span class="lineNum">     168 </span><span class="lineCov">        392 :         (rhs.l == ARB || l == rhs.l) &amp;&amp; (rhs.j == ARB || j == rhs.j) &amp;&amp;</span>
+<a name="169"><span class="lineNum">     169 </span><span class="lineCov">        226 :         (rhs.m == ARB || m == rhs.m);</span></a>
+<span class="lineNum">     170 </span>            : }
+<span class="lineNum">     171 </span><span class="lineCov">          6 : bool StateOne::operator!=(StateOne const &amp;rhs) const {</span>
+<a name="172"><span class="lineNum">     172 </span><span class="lineCov">          6 :     return (species != rhs.species) || (n != rhs.n) || (l != rhs.l) || (j != rhs.j) || (m != rhs.m);</span></a>
+<span class="lineNum">     173 </span>            : }
+<span class="lineNum">     174 </span><span class="lineCov">         50 : bool StateOne::operator&lt;(const StateOne &amp;rhs) const {</span>
+<span class="lineNum">     175 </span><span class="lineCov">        150 :     return (species &lt; rhs.species) ||</span>
+<span class="lineNum">     176 </span><span class="lineCov">         50 :         ((species == rhs.species) &amp;&amp;</span>
+<span class="lineNum">     177 </span><span class="lineCov">         50 :          ((n &lt; rhs.n) ||</span>
+<span class="lineNum">     178 </span><span class="lineCov">         50 :           ((n == rhs.n) &amp;&amp;</span>
+<a name="179"><span class="lineNum">     179 </span><span class="lineCov">        100 :            ((l &lt; rhs.l) || ((l == rhs.l) &amp;&amp; ((j &lt; rhs.j) || ((j == rhs.j) &amp;&amp; (m &lt; rhs.m))))))));</span></a>
+<span class="lineNum">     180 </span>            : }
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 : bool StateOne::operator&lt;=(const StateOne &amp;rhs) const { return (*this &lt; rhs) || (*this == rhs); }</span>
+<a name="182"><span class="lineNum">     182 </span>            : </a>
+<span class="lineNum">     183 </span>            : // Utility methods
+<span class="lineNum">     184 </span><span class="lineCov">     251126 : void StateOne::analyzeSpecies() {</span>
+<span class="lineNum">     185 </span><span class="lineCov">     251126 :     s = 0.5;</span>
+<span class="lineNum">     186 </span><span class="lineCov">     251126 :     element = species;</span>
+<span class="lineNum">     187 </span><span class="lineCov">     251126 :     if (std::isdigit(species.back()) != 0) {</span>
+<span class="lineNum">     188 </span><span class="lineCov">         62 :         s = ((species.back() - '0') - 1) / 2.;</span>
+<span class="lineNum">     189 </span><span class="lineCov">         62 :         element = species.substr(0, species.size() - 1);</span>
+<a name="190"><span class="lineNum">     190 </span>            :     }</a>
+<span class="lineNum">     191 </span><span class="lineCov">     251126 : }</span>
+<span class="lineNum">     192 </span><span class="lineCov">   44371325 : void StateOne::shouldBeArtificial(bool opinion) const {</span>
+<span class="lineNum">     193 </span><span class="lineCov">   44371325 :     if (this-&gt;isArtificial() != opinion) {</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :         throw std::runtime_error(&quot;The state does not have this property.&quot;);</span>
+<span class="lineNum">     195 </span>            :     }
+<span class="lineNum">     196 </span><span class="lineCov">   44371325 : }</span>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            : ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     199 </span>            : /// Implementation of two-atom state ///////////////////////////////
+<a name="200"><span class="lineNum">     200 </span>            : ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     201 </span>            : 
+<span class="lineNum">     202 </span><span class="lineCov">      25098 : StateTwo::StateTwo(std::array&lt;std::string, 2&gt; species, std::array&lt;int, 2&gt; n, std::array&lt;int, 2&gt; l,</span>
+<span class="lineNum">     203 </span><span class="lineCov">      25098 :                    std::array&lt;float, 2&gt; j, std::array&lt;float, 2&gt; m)</span>
+<span class="lineNum">     204 </span><span class="lineCov">     125490 :     : state_array({{StateOne(species[0], n[0], l[0], j[0], m[0]),</span>
+<span class="lineNum">     205 </span><span class="lineCov">      25098 :                     StateOne(species[1], n[1], l[1], j[1], m[1])}}) {</span>
+<span class="lineNum">     206 </span><span class="lineCov">      25098 :     hashvalue = 0;</span>
+<span class="lineNum">     207 </span><span class="lineCov">      25098 :     boost::hash_combine(hashvalue, state_array[0].getHash());</span>
+<a name="208"><span class="lineNum">     208 </span><span class="lineCov">      25098 :     boost::hash_combine(hashvalue, state_array[1].getHash());</span></a>
+<span class="lineNum">     209 </span><span class="lineCov">      25098 : }</span>
+<span class="lineNum">     210 </span><span class="lineCov">         93 : StateTwo::StateTwo(std::array&lt;std::string, 2&gt; label)</span>
+<span class="lineNum">     211 </span><span class="lineCov">         93 :     : state_array({{StateOne(label[0]), StateOne(label[1])}}) {</span>
+<span class="lineNum">     212 </span><span class="lineCov">         93 :     hashvalue = 0;</span>
+<span class="lineNum">     213 </span><span class="lineCov">         93 :     boost::hash_combine(hashvalue, state_array[0].getHash());</span>
+<a name="214"><span class="lineNum">     214 </span><span class="lineCov">         93 :     boost::hash_combine(hashvalue, state_array[1].getHash());</span></a>
+<span class="lineNum">     215 </span><span class="lineCov">         93 : }</span>
+<span class="lineNum">     216 </span><span class="lineCov">    2130509 : StateTwo::StateTwo(StateOne first_state, StateOne second_state)</span>
+<span class="lineNum">     217 </span><span class="lineCov">    2130509 :     : state_array({{std::move(first_state), std::move(second_state)}}) {</span>
+<span class="lineNum">     218 </span><span class="lineCov">    2130509 :     hashvalue = 0;</span>
+<span class="lineNum">     219 </span><span class="lineCov">    2130509 :     boost::hash_combine(hashvalue, state_array[0].getHash());</span>
+<span class="lineNum">     220 </span><span class="lineCov">    2130509 :     boost::hash_combine(hashvalue, state_array[1].getHash());</span>
+<span class="lineNum">     221 </span><span class="lineCov">    2130509 : }</span>
+<a name="222"><span class="lineNum">     222 </span>            : </a>
+<span class="lineNum">     223 </span>            : // Methods for printing the state
+<span class="lineNum">     224 </span><span class="lineCov">          5 : std::ostream &amp;operator&lt;&lt;(std::ostream &amp;out, const StateTwo &amp;state) {</span>
+<span class="lineNum">     225 </span><span class="lineCov">          5 :     out &lt;&lt; state.state_array[0] &lt;&lt; state.state_array[1];</span>
+<span class="lineNum">     226 </span><span class="lineCov">          5 :     return out;</span>
+<a name="227"><span class="lineNum">     227 </span>            : }</a>
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 : std::string StateTwo::str() const {</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :     std::stringstream ss;</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :     ss &lt;&lt; *this;</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :     return ss.str();</span>
+<span class="lineNum">     233 </span>            : }
+<a name="234"><span class="lineNum">     234 </span>            : </a>
+<span class="lineNum">     235 </span>            : // Getters
+<span class="lineNum">     236 </span><span class="lineCov">       6875 : std::array&lt;int, 2&gt; StateTwo::getN() const {</span>
+<a name="237"><span class="lineNum">     237 </span><span class="lineCov">       6875 :     return {{state_array[0].getN(), state_array[1].getN()}};</span></a>
+<span class="lineNum">     238 </span>            : }
+<span class="lineNum">     239 </span><span class="lineCov">      13875 : std::array&lt;int, 2&gt; StateTwo::getL() const {</span>
+<a name="240"><span class="lineNum">     240 </span><span class="lineCov">      13875 :     return {{state_array[0].getL(), state_array[1].getL()}};</span></a>
+<span class="lineNum">     241 </span>            : }
+<span class="lineNum">     242 </span><span class="lineCov">       6875 : std::array&lt;float, 2&gt; StateTwo::getJ() const {</span>
+<a name="243"><span class="lineNum">     243 </span><span class="lineCov">       6875 :     return {{state_array[0].getJ(), state_array[1].getJ()}};</span></a>
+<span class="lineNum">     244 </span>            : }
+<span class="lineNum">     245 </span><span class="lineCov">          9 : std::array&lt;float, 2&gt; StateTwo::getM() const {</span>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">          9 :     return {{state_array[0].getM(), state_array[1].getM()}};</span></a>
+<span class="lineNum">     247 </span>            : }
+<span class="lineNum">     248 </span><span class="lineCov">         32 : std::array&lt;float, 2&gt; StateTwo::getS() const {</span>
+<a name="249"><span class="lineNum">     249 </span><span class="lineCov">         32 :     return {{state_array[0].getS(), state_array[1].getS()}};</span></a>
+<span class="lineNum">     250 </span>            : }
+<span class="lineNum">     251 </span><span class="lineCov">       8107 : std::array&lt;std::string, 2&gt; StateTwo::getSpecies() const {</span>
+<a name="252"><span class="lineNum">     252 </span><span class="lineCov">       8107 :     return {{state_array[0].getSpecies(), state_array[1].getSpecies()}};</span></a>
+<span class="lineNum">     253 </span>            : }
+<span class="lineNum">     254 </span><span class="lineCov">          2 : std::array&lt;std::string, 2&gt; StateTwo::getElement() const {</span>
+<a name="255"><span class="lineNum">     255 </span><span class="lineCov">          2 :     return {{state_array[0].getElement(), state_array[1].getElement()}};</span></a>
+<span class="lineNum">     256 </span>            : }
+<span class="lineNum">     257 </span><span class="lineCov">        216 : double StateTwo::getEnergy() const {</span>
+<a name="258"><span class="lineNum">     258 </span><span class="lineCov">        216 :     return state_array[0].getEnergy() + state_array[1].getEnergy();</span></a>
+<span class="lineNum">     259 </span>            : }
+<span class="lineNum">     260 </span><span class="lineCov">      70316 : double StateTwo::getEnergy(MatrixElementCache &amp;cache) const {</span>
+<a name="261"><span class="lineNum">     261 </span><span class="lineCov">      70316 :     return state_array[0].getEnergy(cache) + state_array[1].getEnergy(cache);</span></a>
+<span class="lineNum">     262 </span>            : }
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 : std::array&lt;double, 2&gt; StateTwo::getNStar() const {</span>
+<a name="264"><span class="lineNum">     264 </span><span class="lineNoCov">          0 :     return {{state_array[0].getNStar(), state_array[1].getNStar()}};</span></a>
+<span class="lineNum">     265 </span>            : }
+<span class="lineNum">     266 </span><span class="lineCov">       7000 : std::array&lt;double, 2&gt; StateTwo::getNStar(MatrixElementCache &amp;cache) const {</span>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">       7000 :     return {{state_array[0].getNStar(cache), state_array[1].getNStar(cache)}};</span></a>
+<span class="lineNum">     268 </span>            : }
+<span class="lineNum">     269 </span><span class="lineCov">         55 : double StateTwo::getLeRoyRadius(MatrixElementCache &amp;cache) const {</span>
+<span class="lineNum">     270 </span>            :     return 2 *
+<span class="lineNum">     271 </span><span class="lineCov">         55 :         (std::sqrt(cache.getRadial(state_array[0], state_array[0], 2)) +</span>
+<a name="272"><span class="lineNum">     272 </span><span class="lineCov">         55 :          std::sqrt(cache.getRadial(state_array[1], state_array[1], 2)));</span></a>
+<span class="lineNum">     273 </span>            : }
+<span class="lineNum">     274 </span><span class="lineCov">          2 : std::array&lt;std::string, 2&gt; StateTwo::getLabel() const {</span>
+<a name="275"><span class="lineNum">     275 </span><span class="lineCov">          2 :     return {{state_array[0].getLabel(), state_array[1].getLabel()}};</span></a>
+<span class="lineNum">     276 </span>            : }
+<span class="lineNum">     277 </span><span class="lineCov">          2 : std::array&lt;bool, 2&gt; StateTwo::isArtificial() const {</span>
+<a name="278"><span class="lineNum">     278 </span><span class="lineCov">          2 :     return {{state_array[0].isArtificial(), state_array[1].isArtificial()}};</span></a>
+<span class="lineNum">     279 </span>            : }
+<span class="lineNum">     280 </span><span class="lineCov">        169 : std::array&lt;bool, 2&gt; StateTwo::isGeneralized() const {</span>
+<span class="lineNum">     281 </span><span class="lineCov">        169 :     return {{state_array[0].isGeneralized(), state_array[1].isGeneralized()}};</span>
+<a name="282"><span class="lineNum">     282 </span>            : }</a>
+<a name="283"><span class="lineNum">     283 </span>            : </a>
+<a name="284"><span class="lineNum">     284 </span><span class="lineCov">        426 : const int &amp;StateTwo::getN(int idx) const { return state_array[idx].getN(); }</span></a>
+<a name="285"><span class="lineNum">     285 </span><span class="lineCov">      11295 : const int &amp;StateTwo::getL(int idx) const { return state_array[idx].getL(); }</span></a>
+<a name="286"><span class="lineNum">     286 </span><span class="lineCov">      13573 : const float &amp;StateTwo::getJ(int idx) const { return state_array[idx].getJ(); }</span></a>
+<a name="287"><span class="lineNum">     287 </span><span class="lineCov">    6215485 : const float &amp;StateTwo::getM(int idx) const { return state_array[idx].getM(); }</span></a>
+<a name="288"><span class="lineNum">     288 </span><span class="lineCov">       3547 : const float &amp;StateTwo::getS(int idx) const { return state_array[idx].getS(); }</span></a>
+<a name="289"><span class="lineNum">     289 </span><span class="lineCov">        124 : const std::string &amp;StateTwo::getSpecies(int idx) const { return state_array[idx].getSpecies(); }</span></a>
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">          4 : const std::string &amp;StateTwo::getElement(int idx) const { return state_array[idx].getElement(); }</span></a>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 : double StateTwo::getEnergy(int idx) const { return state_array[idx].getEnergy(); }</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 : double StateTwo::getEnergy(int idx, MatrixElementCache &amp;cache) const {</span>
+<a name="293"><span class="lineNum">     293 </span><span class="lineNoCov">          0 :     return state_array[idx].getEnergy(cache);</span></a>
+<a name="294"><span class="lineNum">     294 </span>            : }</a>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 : double StateTwo::getNStar(int idx) const { return state_array[idx].getNStar(); }</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 : double StateTwo::getNStar(int idx, MatrixElementCache &amp;cache) const {</span>
+<a name="297"><span class="lineNum">     297 </span><span class="lineNoCov">          0 :     return state_array[idx].getNStar(cache);</span></a>
+<a name="298"><span class="lineNum">     298 </span>            : }</a>
+<a name="299"><span class="lineNum">     299 </span><span class="lineCov">          4 : const std::string &amp;StateTwo::getLabel(int idx) const { return state_array[idx].getLabel(); }</span></a>
+<span class="lineNum">     300 </span><span class="lineCov">    6132982 : bool StateTwo::isArtificial(int idx) const { return state_array[idx].isArtificial(); }</span>
+<a name="301"><span class="lineNum">     301 </span><span class="lineNoCov">          0 : bool StateTwo::isGeneralized(int idx) const { return state_array[idx].isGeneralized(); }</span></a>
+<a name="302"><span class="lineNum">     302 </span>            : </a>
+<span class="lineNum">     303 </span><span class="lineCov">    3285751 : const StateOne &amp;StateTwo::getFirstState() const { return state_array[0]; }</span>
+<a name="304"><span class="lineNum">     304 </span><span class="lineCov">     932319 : const StateOne &amp;StateTwo::getSecondState() const { return state_array[1]; }</span></a>
+<span class="lineNum">     305 </span>            : 
+<a name="306"><span class="lineNum">     306 </span><span class="lineCov">    2189424 : const size_t &amp;StateTwo::getHash() const { return hashvalue; }</span></a>
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span><span class="lineCov">          1 : StateTwo StateTwo::getReflected() const {</span>
+<span class="lineNum">     309 </span><span class="lineCov">          2 :     return StateTwo(this-&gt;getSpecies(), this-&gt;getN(), this-&gt;getL(), this-&gt;getJ(),</span>
+<span class="lineNum">     310 </span><span class="lineCov">          3 :                     {{-this-&gt;getM(0), -this-&gt;getM(1)}});</span>
+<span class="lineNum">     311 </span>            : }
+<a name="312"><span class="lineNum">     312 </span>            : </a>
+<span class="lineNum">     313 </span>            : // Comparators
+<span class="lineNum">     314 </span><span class="lineCov">    2788467 : bool StateTwo::operator==(StateTwo const &amp;rhs) const {</span>
+<a name="315"><span class="lineNum">     315 </span><span class="lineCov">    2788467 :     return (state_array[0] == rhs.state_array[0]) &amp;&amp; (state_array[1] == rhs.state_array[1]);</span></a>
+<span class="lineNum">     316 </span>            : }
+<span class="lineNum">     317 </span><span class="lineCov">          4 : bool StateTwo::operator^(StateTwo const &amp;rhs) const {</span>
+<a name="318"><span class="lineNum">     318 </span><span class="lineCov">          4 :     return (state_array[0] ^ rhs.state_array[0]) &amp;&amp; (state_array[1] ^ rhs.state_array[1]);</span></a>
+<span class="lineNum">     319 </span>            : }
+<span class="lineNum">     320 </span><span class="lineCov">          2 : bool StateTwo::operator!=(StateTwo const &amp;rhs) const {</span>
+<a name="321"><span class="lineNum">     321 </span><span class="lineCov">          2 :     return (state_array[0] != rhs.state_array[0]) || (state_array[1] != rhs.state_array[1]);</span></a>
+<span class="lineNum">     322 </span>            : }
+<span class="lineNum">     323 </span><span class="lineCov">         42 : bool StateTwo::operator&lt;(const StateTwo &amp;rhs) const {</span>
+<span class="lineNum">     324 </span><span class="lineCov">         64 :     return (state_array[0] &lt; rhs.state_array[0]) ||</span>
+<a name="325"><span class="lineNum">     325 </span><span class="lineCov">         64 :         ((state_array[0] == rhs.state_array[0]) &amp;&amp; (state_array[1] &lt; rhs.state_array[1]));</span></a>
+<span class="lineNum">     326 </span>            : }
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 : bool StateTwo::operator&lt;=(const StateTwo &amp;rhs) const { return (*this &lt; rhs) || (*this == rhs); }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,953 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/HamiltonianTwo.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - HamiltonianTwo.cpp<span style="font-size: 80%;"> (source / <a href="HamiltonianTwo.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">199</td>
+            <td class="headerCovTableEntry">326</td>
+            <td class="headerCovTableEntryLo">61.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &quot;HamiltonianTwo.h&quot;
+<span class="lineNum">      21 </span>            : #include &lt;stdexcept&gt;
+<span class="lineNum">      22 </span>            : #include &lt;utility&gt;
+<span class="lineNum">      23 </span>            : 
+<a name="24"><span class="lineNum">      24 </span>            : #include &lt;boost/format.hpp&gt;</a>
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span><span class="lineCov">          1 : HamiltonianTwo::HamiltonianTwo(const Configuration &amp;config, boost::filesystem::path &amp;path_cache,</span>
+<span class="lineNum">      27 </span><span class="lineCov">          1 :                                const std::shared_ptr&lt;HamiltonianOne&gt; &amp;hamiltonian_one)</span>
+<span class="lineNum">      28 </span>            :     : hamiltonian_one1(hamiltonian_one), hamiltonian_one2(hamiltonian_one),
+<span class="lineNum">      29 </span><span class="lineCov">          1 :       path_cache(path_cache) { // TODO</span>
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span><span class="lineCov">          1 :     samebasis = true;</span>
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span><span class="lineCov">          1 :     calculate(config);</span>
+<a name="34"><span class="lineNum">      34 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span><span class="lineNoCov">          0 : HamiltonianTwo::HamiltonianTwo(const Configuration &amp;config, boost::filesystem::path &amp;path_cache,</span>
+<span class="lineNum">      37 </span>            :                                std::shared_ptr&lt;HamiltonianOne&gt; hamiltonian_one1,
+<span class="lineNum">      38 </span><span class="lineNoCov">          0 :                                std::shared_ptr&lt;HamiltonianOne&gt; hamiltonian_one2)</span>
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :     : hamiltonian_one1(std::move(hamiltonian_one1)), hamiltonian_one2(std::move(hamiltonian_one2)),</span>
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :       path_cache(path_cache) {</span>
+<span class="lineNum">      41 </span>            : 
+<span class="lineNum">      42 </span><span class="lineNoCov">          0 :     samebasis = false;</span>
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span><span class="lineNoCov">          0 :     calculate(config);</span>
+<a name="45"><span class="lineNum">      45 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">          1 : void HamiltonianTwo::calculate(const Configuration &amp;conf_tot) {</span>
+<span class="lineNum">      48 </span><span class="lineCov">          2 :     boost::filesystem::path path_cache_mat;</span>
+<span class="lineNum">      49 </span>            :     if (utils::is_complex&lt;scalar_t&gt;::value) {
+<span class="lineNum">      50 </span><span class="lineCov">          1 :         path_cache_mat = path_cache / &quot;cache_matrix_complex&quot;;</span>
+<span class="lineNum">      51 </span>            :     } else {
+<span class="lineNum">      52 </span><span class="lineNoCov">          0 :         path_cache_mat = path_cache / &quot;cache_matrix_real&quot;;</span>
+<span class="lineNum">      53 </span>            :     }
+<span class="lineNum">      54 </span><span class="lineCov">          1 :     if (!boost::filesystem::exists(path_cache_mat)) {</span>
+<span class="lineNum">      55 </span><span class="lineNoCov">          0 :         boost::filesystem::create_directory(path_cache_mat);</span>
+<span class="lineNum">      56 </span>            :     }
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineCov">          1 :     double tol = 1e-32;</span>
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span><span class="lineCov">          1 :     if (hamiltonian_one1-&gt;size() != hamiltonian_one2-&gt;size()) {</span>
+<span class="lineNum">      61 </span>            :         throw std::runtime_error(
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 :             &quot;The number of single atom Hamiltonians must be the same for both atoms.&quot;);</span>
+<span class="lineNum">      63 </span>            :     }
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span><span class="lineCov">          1 :     size_t nSteps_one = hamiltonian_one1-&gt;size();</span>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            :     // --- generate configuration ---
+<span class="lineNum">      68 </span><span class="lineCov">          2 :     std::vector&lt;Configuration&gt; conf_mat;</span>
+<span class="lineNum">      69 </span><span class="lineCov">          1 :     conf_mat.reserve(nSteps_one);</span>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            :     // new, pair hamiltonian specific configuration
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span><span class="lineCov">          1 :     if (samebasis) {</span>
+<span class="lineNum">      74 </span><span class="lineCov">          1 :         basis = std::make_shared&lt;BasisnamesTwo&gt;(hamiltonian_one1-&gt;names()); // TODO remove</span>
+<span class="lineNum">      75 </span>            :     } else {
+<span class="lineNum">      76 </span><span class="lineNoCov">          0 :         basis = std::make_shared&lt;BasisnamesTwo&gt;(hamiltonian_one1-&gt;names(),</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :                                                 hamiltonian_one2-&gt;names()); // TODO remove</span>
+<span class="lineNum">      78 </span>            :     }
+<span class="lineNum">      79 </span><span class="lineCov">          2 :     Configuration conf_matpair = basis-&gt;getConf();</span>
+<span class="lineNum">      80 </span><span class="lineCov">          1 :     conf_matpair[&quot;deltaEPair&quot;] = conf_tot[&quot;deltaEPair&quot;];</span>
+<span class="lineNum">      81 </span><span class="lineCov">          1 :     conf_matpair[&quot;deltaNPair&quot;] = conf_tot[&quot;deltaNPair&quot;];</span>
+<span class="lineNum">      82 </span><span class="lineCov">          1 :     conf_matpair[&quot;deltaLPair&quot;] = conf_tot[&quot;deltaLPair&quot;];</span>
+<span class="lineNum">      83 </span><span class="lineCov">          1 :     conf_matpair[&quot;deltaJPair&quot;] = conf_tot[&quot;deltaJPair&quot;];</span>
+<span class="lineNum">      84 </span><span class="lineCov">          1 :     conf_matpair[&quot;deltaMPair&quot;] = conf_tot[&quot;deltaMPair&quot;];</span>
+<span class="lineNum">      85 </span>            :     // conf_matpair[&quot;conserveM&quot;] = conf_tot[&quot;conserveM&quot;];
+<span class="lineNum">      86 </span>            :     // conf_matpair[&quot;conserveParityL&quot;] = conf_tot[&quot;conserveParityL&quot;];
+<span class="lineNum">      87 </span><span class="lineCov">          1 :     conf_matpair[&quot;exponent&quot;] = conf_tot[&quot;exponent&quot;];</span>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineCov">          2 :     for (size_t i = 0; i &lt; nSteps_one; ++i) {</span>
+<span class="lineNum">      90 </span>            :         // old, single atom hamiltonian specific configuration
+<span class="lineNum">      91 </span><span class="lineCov">          2 :         Configuration conf_matsingle = *hamiltonian_one1-&gt;getParams(i); // TODO</span>
+<span class="lineNum">      92 </span><span class="lineCov">          1 :         conf_matsingle += conf_matpair;</span>
+<span class="lineNum">      93 </span><span class="lineCov">          1 :         conf_mat.push_back(conf_matsingle);</span>
+<span class="lineNum">      94 </span>            :         // conf_mat.push_back(conf_matsingle + conf_matpair); // conf_matpair overwrites settings in
+<span class="lineNum">      95 </span>            :         // conf_matsingle // TODO
+<span class="lineNum">      96 </span>            :     }
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            :     // setup variables
+<span class="lineNum">      99 </span><span class="lineCov">          2 :     conf_mat.back()[&quot;species1&quot;] &gt;&gt;</span>
+<span class="lineNum">     100 </span><span class="lineCov">          1 :         species1; // TODO order state inside cinfiguration object config.order()</span>
+<span class="lineNum">     101 </span><span class="lineCov">          1 :     conf_mat.back()[&quot;species2&quot;] &gt;&gt; species2; // TODO order state inside cinfiguration object</span>
+<span class="lineNum">     102 </span><span class="lineCov">          1 :     conf_mat.back()[&quot;deltaEPair&quot;] &gt;&gt; deltaE;</span>
+<span class="lineNum">     103 </span><span class="lineCov">          1 :     conf_mat.back()[&quot;deltaNPair&quot;] &gt;&gt; deltaN;</span>
+<span class="lineNum">     104 </span><span class="lineCov">          1 :     conf_mat.back()[&quot;deltaLPair&quot;] &gt;&gt; deltaL;</span>
+<span class="lineNum">     105 </span><span class="lineCov">          1 :     conf_mat.back()[&quot;deltaJPair&quot;] &gt;&gt; deltaJ;</span>
+<span class="lineNum">     106 </span><span class="lineCov">          1 :     conf_mat.back()[&quot;deltaMPair&quot;] &gt;&gt; deltaM;</span>
+<span class="lineNum">     107 </span>            :     // conserveM = conf_tot[&quot;conserveM&quot;].str() == &quot;true&quot;;
+<span class="lineNum">     108 </span>            :     // conserveParityL = conf_tot[&quot;conserveParityL&quot;].str() == &quot;true&quot;;
+<span class="lineNum">     109 </span><span class="lineCov">          1 :     conf_tot[&quot;steps&quot;] &gt;&gt; nSteps_two;</span>
+<span class="lineNum">     110 </span><span class="lineCov">          1 :     conf_tot[&quot;minR&quot;] &gt;&gt; min_R;</span>
+<span class="lineNum">     111 </span><span class="lineCov">          1 :     conf_tot[&quot;maxR&quot;] &gt;&gt; max_R;</span>
+<span class="lineNum">     112 </span><span class="lineCov">          1 :     conf_tot[&quot;exponent&quot;] &gt;&gt; multipoleexponent;</span>
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span>            :     double minEx, minEy, minEz, maxEx, maxEy, maxEz, minBx, minBy, minBz, maxBx, maxBy, maxBz;
+<span class="lineNum">     115 </span><span class="lineCov">          1 :     conf_tot[&quot;minEx&quot;] &gt;&gt; minEx;</span>
+<span class="lineNum">     116 </span><span class="lineCov">          1 :     conf_tot[&quot;minEy&quot;] &gt;&gt; minEy;</span>
+<span class="lineNum">     117 </span><span class="lineCov">          1 :     conf_tot[&quot;minEz&quot;] &gt;&gt; minEz;</span>
+<span class="lineNum">     118 </span><span class="lineCov">          1 :     conf_tot[&quot;maxEx&quot;] &gt;&gt; maxEx;</span>
+<span class="lineNum">     119 </span><span class="lineCov">          1 :     conf_tot[&quot;maxEy&quot;] &gt;&gt; maxEy;</span>
+<span class="lineNum">     120 </span><span class="lineCov">          1 :     conf_tot[&quot;maxEz&quot;] &gt;&gt; maxEz;</span>
+<span class="lineNum">     121 </span><span class="lineCov">          1 :     conf_tot[&quot;minBx&quot;] &gt;&gt; minBx;</span>
+<span class="lineNum">     122 </span><span class="lineCov">          1 :     conf_tot[&quot;minBy&quot;] &gt;&gt; minBy;</span>
+<span class="lineNum">     123 </span><span class="lineCov">          1 :     conf_tot[&quot;minBz&quot;] &gt;&gt; minBz;</span>
+<span class="lineNum">     124 </span><span class="lineCov">          1 :     conf_tot[&quot;maxBx&quot;] &gt;&gt; maxBx;</span>
+<span class="lineNum">     125 </span><span class="lineCov">          1 :     conf_tot[&quot;maxBy&quot;] &gt;&gt; maxBy;</span>
+<span class="lineNum">     126 </span><span class="lineCov">          1 :     conf_tot[&quot;maxBz&quot;] &gt;&gt; maxBz;</span>
+<span class="lineNum">     127 </span>            :     // bool fields_change_m = (minEx != 0) || (minEy != 0) || (maxEx != 0) || (maxEy != 0) || (minBx
+<span class="lineNum">     128 </span>            :     // != 0) || (minBy != 0) || (maxBx != 0) || (maxBy != 0); // TODO wie richtig? so ist es eine
+<span class="lineNum">     129 </span>            :     // variable, die von mehreren matrizen abhaengt bool fields_change_l = (minEx != 0) || (minEy !=
+<span class="lineNum">     130 </span>            :     // 0) || (minEz != 0) || (maxEx != 0) || (maxEy != 0) || (maxEz != 0); // TODO wie richtig? so
+<span class="lineNum">     131 </span>            :     // ist es eine variable, die von mehreren matrizen abhaengt
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span>            :     // fields_change_m = true; // TODO
+<span class="lineNum">     134 </span>            :     // fields_change_l = true; // TODO
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">          2 :     std::vector&lt;parity_t&gt; sym_inversion;</span>
+<span class="lineNum">     137 </span><span class="lineCov">          1 :     if (conf_tot[&quot;invE&quot;].str() == &quot;true&quot;) {</span>
+<span class="lineNum">     138 </span><span class="lineCov">          1 :         sym_inversion.push_back(EVEN);</span>
+<span class="lineNum">     139 </span>            :     }
+<span class="lineNum">     140 </span><span class="lineCov">          1 :     if (conf_tot[&quot;invO&quot;].str() == &quot;true&quot;) {</span>
+<span class="lineNum">     141 </span><span class="lineCov">          1 :         sym_inversion.push_back(ODD);</span>
+<span class="lineNum">     142 </span>            :     }
+<span class="lineNum">     143 </span><span class="lineCov">          1 :     if (sym_inversion.empty()) {</span>
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :         sym_inversion.push_back(NA);</span>
+<span class="lineNum">     145 </span>            :     }
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span><span class="lineCov">          2 :     std::vector&lt;parity_t&gt; sym_permutation;</span>
+<span class="lineNum">     148 </span><span class="lineCov">          1 :     if (conf_tot[&quot;perE&quot;].str() == &quot;true&quot;) {</span>
+<span class="lineNum">     149 </span><span class="lineCov">          1 :         sym_permutation.push_back(EVEN);</span>
+<span class="lineNum">     150 </span>            :     }
+<span class="lineNum">     151 </span><span class="lineCov">          1 :     if (conf_tot[&quot;perO&quot;].str() == &quot;true&quot;) {</span>
+<span class="lineNum">     152 </span><span class="lineCov">          1 :         sym_permutation.push_back(ODD);</span>
+<span class="lineNum">     153 </span>            :     }
+<span class="lineNum">     154 </span><span class="lineCov">          1 :     if (sym_permutation.empty()) {</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :         sym_permutation.push_back(NA);</span>
+<span class="lineNum">     156 </span>            :     }
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span><span class="lineCov">          2 :     std::vector&lt;parity_t&gt; sym_reflection;</span>
+<span class="lineNum">     159 </span><span class="lineCov">          1 :     if (conf_tot[&quot;refE&quot;].str() == &quot;true&quot;) {</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :         sym_reflection.push_back(EVEN);</span>
+<span class="lineNum">     161 </span>            :     }
+<span class="lineNum">     162 </span><span class="lineCov">          1 :     if (conf_tot[&quot;refO&quot;].str() == &quot;true&quot;) {</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :         sym_reflection.push_back(ODD);</span>
+<span class="lineNum">     164 </span>            :     }
+<span class="lineNum">     165 </span><span class="lineCov">          1 :     if (sym_reflection.empty()) {</span>
+<span class="lineNum">     166 </span><span class="lineCov">          1 :         sym_reflection.push_back(NA);</span>
+<span class="lineNum">     167 </span>            :     }
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span><span class="lineCov">          1 :     bool conserveM = conf_tot[&quot;conserveM&quot;].str() == &quot;true&quot;;</span>
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span><span class="lineCov">          1 :     bool sametrafo = conf_tot[&quot;sametrafo&quot;].str() == &quot;true&quot;;</span>
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span><span class="lineCov">          1 :     bool zerotheta = conf_tot[&quot;zerotheta&quot;].str() == &quot;true&quot;;</span>
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span><span class="lineCov">          1 :     if (min_R == max_R &amp;&amp; nSteps_one == 1) {</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :         nSteps_two = 1;</span>
+<span class="lineNum">     177 </span>            :     }
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     180 </span>            :     ////// Restrict single atom states /////////////////////
+<span class="lineNum">     181 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span>            :     // === Restrict states of atom 1 ===
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span><span class="lineCov">          2 :     auto basis_one1 = hamiltonian_one1-&gt;names();</span>
+<span class="lineNum">     186 </span><span class="lineCov">          2 :     std::vector&lt;StateOneOld&gt; initial1 = basis_one1-&gt;initial();</span>
+<span class="lineNum">     187 </span><span class="lineCov">          2 :     std::vector&lt;bool&gt; necessary1(basis_one1-&gt;size(), false);</span>
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineCov">          1 :     for (const auto &amp;state : *basis_one1) {</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :         bool validN = false;</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :         bool validL = false;</span>
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :         bool validJ = false;</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :         bool validM = false;</span>
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span><span class="lineNoCov">          0 :         for (const auto &amp;initial : initial1) {</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :             if (deltaN &lt; 0 || std::abs(state.n - initial.n) &lt;= deltaN) {</span>
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 :                 validN = true;</span>
+<span class="lineNum">     198 </span>            :             }
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :             if (deltaL &lt; 0 || std::abs(state.l - initial.l) &lt;= deltaL) {</span>
+<span class="lineNum">     200 </span><span class="lineNoCov">          0 :                 validL = true;</span>
+<span class="lineNum">     201 </span>            :             }
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :             if (deltaJ &lt; 0 || std::abs(state.j - initial.j) &lt;= deltaJ) {</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :                 validJ = true;</span>
+<span class="lineNum">     204 </span>            :             }
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :             if (deltaM &lt; 0 || std::abs(state.m - initial.m) &lt;= deltaM) {</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                 validM = true;</span>
+<span class="lineNum">     207 </span>            :             }
+<span class="lineNum">     208 </span>            :         }
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineNoCov">          0 :         if (validN &amp;&amp; validL &amp;&amp; validJ &amp;&amp; validM) {</span>
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :             necessary1[state.idx] = true;</span>
+<span class="lineNum">     212 </span>            :         }
+<span class="lineNum">     213 </span>            :     }
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span><span class="lineCov">          1 :     hamiltonian_one1-&gt;removeUnnecessaryStates(necessary1);</span>
+<span class="lineNum">     216 </span>            : 
+<span class="lineNum">     217 </span>            :     // === Restrict states of atom 2 ===
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineCov">          1 :     if (!samebasis) {</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :         auto basis_one2 = hamiltonian_one2-&gt;names();</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :         std::vector&lt;StateOneOld&gt; initial2 = basis_one2-&gt;initial();</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :         std::vector&lt;bool&gt; necessary2(basis_one2-&gt;size(), false);</span>
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :         for (const auto &amp;state : *basis_one2) {</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :             bool validN = false;</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :             bool validL = false;</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :             bool validJ = false;</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :             bool validM = false;</span>
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :             for (const auto &amp;initial : initial2) {</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :                 if (deltaN &lt; 0 || std::abs(state.n - initial.n) &lt;= deltaN) {</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :                     validN = true;</span>
+<span class="lineNum">     233 </span>            :                 }
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :                 if (deltaL &lt; 0 || std::abs(state.l - initial.l) &lt;= deltaL) {</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :                     validL = true;</span>
+<span class="lineNum">     236 </span>            :                 }
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :                 if (deltaJ &lt; 0 || std::abs(state.j - initial.j) &lt;= deltaJ) {</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :                     validJ = true;</span>
+<span class="lineNum">     239 </span>            :                 }
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :                 if (deltaM &lt; 0 || std::abs(state.m - initial.m) &lt;= deltaM) {</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :                     validM = true;</span>
+<span class="lineNum">     242 </span>            :                 }
+<span class="lineNum">     243 </span>            :             }
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :             if (validN &amp;&amp; validL &amp;&amp; validJ &amp;&amp; validM) {</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                 necessary2[state.idx] = true;</span>
+<span class="lineNum">     247 </span>            :             }
+<span class="lineNum">     248 </span>            :         }
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :         hamiltonian_one2-&gt;removeUnnecessaryStates(necessary2);</span>
+<span class="lineNum">     251 </span>            :     }
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     254 </span>            :     ////// Build pair state basis //////////////////////////
+<span class="lineNum">     255 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     256 </span>            : 
+<span class="lineNum">     257 </span>            :     // === Build pair state basis ===
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span><span class="lineCov">          1 :     std::cout &lt;&lt; &quot;Two-atom Hamiltonian, build pair state basis&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     260 </span>            : 
+<span class="lineNum">     261 </span><span class="lineCov">          1 :     if (samebasis) {</span>
+<span class="lineNum">     262 </span><span class="lineCov">          1 :         basis = std::make_shared&lt;BasisnamesTwo&gt;(hamiltonian_one1-&gt;names());</span>
+<span class="lineNum">     263 </span>            :     } else {
+<span class="lineNum">     264 </span>            :         basis =
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :             std::make_shared&lt;BasisnamesTwo&gt;(hamiltonian_one1-&gt;names(), hamiltonian_one2-&gt;names());</span>
+<span class="lineNum">     266 </span>            :     }
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span><span class="lineCov">          1 :     std::cout &lt;&lt; &quot;Two-atom Hamiltonian, basis size without restrictions: &quot; &lt;&lt; basis-&gt;size()</span>
+<span class="lineNum">     269 </span><span class="lineCov">          1 :               &lt;&lt; std::endl;</span>
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            :     // === Determine necessary symmetries ===
+<span class="lineNum">     272 </span><span class="lineCov">          1 :     std::cout &lt;&lt; &quot;Two-atom Hamiltonian, determine symmetrized subspaces&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span><span class="lineCov">          2 :     StateTwoOld initial = basis-&gt;initial();</span>
+<span class="lineNum">     275 </span><span class="lineCov">          1 :     parity_t initalParityL = (std::pow(-1, initial.l[0] + initial.l[1]) &gt; 0) ? EVEN : ODD;</span>
+<span class="lineNum">     276 </span><span class="lineCov">          1 :     int initalM = initial.m[0] + initial.m[1];</span>
+<span class="lineNum">     277 </span><span class="lineCov">          1 :     int initalJ = initial.j[0] + initial.j[1];</span>
+<span class="lineNum">     278 </span><span class="lineCov">          1 :     bool samestates = initial.first() == initial.second();</span>
+<span class="lineNum">     279 </span>            : 
+<span class="lineNum">     280 </span><span class="lineCov">          2 :     std::vector&lt;int&gt; sym_rotation;</span>
+<span class="lineNum">     281 </span><span class="lineCov">          1 :     if (conserveM) {</span>
+<span class="lineNum">     282 </span><span class="lineCov">          1 :         if (!sametrafo) {</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :             for (const auto &amp;state : *basis) {</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :                 sym_rotation.push_back(state.m[0] + state.m[1]);</span>
+<span class="lineNum">     285 </span>            :             }
+<span class="lineNum">     286 </span><span class="lineCov">          1 :         } else if (!zerotheta) {</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :             for (int M = -initalJ; M &lt;= initalJ; ++M) {</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                 sym_rotation.push_back(M);</span>
+<span class="lineNum">     289 </span>            :             }
+<span class="lineNum">     290 </span>            :         } else {
+<span class="lineNum">     291 </span><span class="lineCov">          1 :             sym_rotation.push_back(initalM);</span>
+<span class="lineNum">     292 </span>            :         }
+<span class="lineNum">     293 </span>            :     } else {
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :         sym_rotation.push_back(NA);</span>
+<span class="lineNum">     295 </span>            :     }
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span>            :     Symmetry sym;
+<span class="lineNum">     298 </span><span class="lineCov">          2 :     std::set&lt;Symmetry&gt; symmetries_set;</span>
+<span class="lineNum">     299 </span><span class="lineCov">          3 :     for (const parity_t &amp;inv : sym_inversion) {</span>
+<span class="lineNum">     300 </span><span class="lineCov">          2 :         sym.inversion = inv;</span>
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span>            :         // In case of even inversion symmetry and the same inital state for the first and second
+<span class="lineNum">     303 </span>            :         // atom: the inital state ist not contained in the corresponding block
+<span class="lineNum">     304 </span><span class="lineCov">          2 :         if (sym.inversion == EVEN &amp;&amp; samestates &amp;&amp; sametrafo) {</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">     306 </span>            :         }
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span><span class="lineCov">          6 :         for (const parity_t &amp;per : sym_permutation) {</span>
+<span class="lineNum">     309 </span><span class="lineCov">          4 :             sym.permutation = per;</span>
+<span class="lineNum">     310 </span>            : 
+<span class="lineNum">     311 </span>            :             // In case of even permutation symmetry and the same inital state for the first and
+<span class="lineNum">     312 </span>            :             // second atom: the inital state ist not contained in the corresponding block
+<span class="lineNum">     313 </span><span class="lineCov">          4 :             if (sym.permutation == EVEN &amp;&amp; samestates &amp;&amp; sametrafo) {</span>
+<span class="lineNum">     314 </span><span class="lineNoCov">          0 :                 continue;</span>
+<span class="lineNum">     315 </span>            :             }
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span>            :             // In case of inversion and permutation symmetry: the orbital parity is conserved and we
+<span class="lineNum">     318 </span>            :             // just use the blocks with the same parity as the inital state
+<span class="lineNum">     319 </span><span class="lineCov">          4 :             if (sym.inversion != NA &amp;&amp; sym.permutation != NA &amp;&amp; sametrafo) {</span>
+<span class="lineNum">     320 </span><span class="lineCov">          4 :                 if (sym.inversion * sym.permutation != initalParityL) {</span>
+<span class="lineNum">     321 </span><span class="lineCov">          2 :                     continue;</span>
+<span class="lineNum">     322 </span>            :                 }
+<span class="lineNum">     323 </span>            :             }
+<span class="lineNum">     324 </span>            : 
+<span class="lineNum">     325 </span><span class="lineCov">          4 :             for (const parity_t &amp;ref : sym_reflection) {</span>
+<span class="lineNum">     326 </span><span class="lineCov">          2 :                 sym.reflection = ref;</span>
+<span class="lineNum">     327 </span><span class="lineCov">          4 :                 for (const int &amp;rot : sym_rotation) {</span>
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span>            :                     // In case of reflection symmetry: do just use the absolute value of rot
+<span class="lineNum">     330 </span><span class="lineCov">          2 :                     if (sym.reflection != NA) {</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :                         sym.rotation = std::abs(rot);</span>
+<span class="lineNum">     332 </span>            :                     } else {
+<span class="lineNum">     333 </span><span class="lineCov">          2 :                         sym.rotation = rot;</span>
+<span class="lineNum">     334 </span>            :                     }
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span><span class="lineCov">          2 :                     symmetries_set.insert(sym);</span>
+<span class="lineNum">     337 </span>            :                 }
+<span class="lineNum">     338 </span>            :             }
+<span class="lineNum">     339 </span>            :         }
+<span class="lineNum">     340 </span>            :     }
+<span class="lineNum">     341 </span><span class="lineCov">          2 :     std::vector&lt;Symmetry&gt; symmetries(symmetries_set.begin(), symmetries_set.end());</span>
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span>            :     // === Build up the list of necessary pair states ===
+<span class="lineNum">     344 </span><span class="lineCov">          1 :     std::cout &lt;&lt; &quot;Two-atom Hamiltonian, build up the list of necessary pair states&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span>            :     // Apply energy cutoff
+<span class="lineNum">     347 </span><span class="lineCov">          2 :     std::vector&lt;bool&gt; necessary_tmp(basis-&gt;size(), false);</span>
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span><span class="lineCov">          1 :     auto nSteps_one_i = static_cast&lt;int&gt;(nSteps_one);</span>
+<span class="lineNum">     350 </span>            : 
+<span class="lineNum">     351 </span><span class="lineCov">          1 : #pragma omp parallel for</span>
+<span class="lineNum">     352 </span>            :     for (int i = 0; i &lt; nSteps_one_i; ++i) {
+<span class="lineNum">     353 </span>            :         energycutoff(*(hamiltonian_one1-&gt;get(i)), *(hamiltonian_one2-&gt;get(i)), deltaE,
+<span class="lineNum">     354 </span>            :                      necessary_tmp);
+<span class="lineNum">     355 </span>            :     }
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span>            :     // Apply restrictions due to symmetries
+<span class="lineNum">     358 </span><span class="lineCov">          2 :     std::vector&lt;bool&gt; necessary(basis-&gt;size(), false);</span>
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span><span class="lineCov">          1 :     for (const auto &amp;state : *basis) {</span>
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :         for (Symmetry sym : symmetries) {</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :             float M = state.m[0] + state.m[1];</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :             int parityL = std::pow(-1, state.l[0] + state.l[1]);</span>
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span>            :             // In case of rotation symmetry: skip pair states with wrong total magnetic momentum
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :             if (sym.rotation != NA &amp;&amp; sym.rotation != M &amp;&amp;</span>
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :                 (sym.reflection == NA || sym.rotation != -M)) {</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :                 continue;</span>
+<span class="lineNum">     369 </span>            :             }
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span>            :             // In case of inversion and permutation symmetry: skip pair states with wrong orbital
+<span class="lineNum">     372 </span>            :             // parity
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :             if (sym.inversion != NA &amp;&amp; sym.permutation != NA &amp;&amp; parityL != initalParityL &amp;&amp;</span>
+<span class="lineNum">     374 </span>            :                 sametrafo) {
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :                 continue;</span>
+<span class="lineNum">     376 </span>            :             }
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :             necessary[state.idx] = necessary_tmp[state.idx];</span>
+<span class="lineNum">     379 </span>            :         }
+<span class="lineNum">     380 </span>            :     }
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span><span class="lineCov">          1 :     int numNecessary = std::count(necessary.begin(), necessary.end(), true);</span>
+<span class="lineNum">     383 </span><span class="lineCov">          1 :     std::cout &lt;&lt; &quot;Two-atom Hamiltonian, basis size with restrictions: &quot; &lt;&lt; numNecessary</span>
+<span class="lineNum">     384 </span><span class="lineCov">          1 :               &lt;&lt; std::endl;</span>
+<span class="lineNum">     385 </span><span class="lineCov">          1 :     std::cout &lt;&lt; boost::format(&quot;&gt;&gt;BAS%7d&quot;) % numNecessary &lt;&lt; std::endl;</span>
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span>            :     // === Save pair state basis ===
+<span class="lineNum">     388 </span><span class="lineCov">          1 :     std::cout &lt;&lt; &quot;Two-atom Hamiltonian, save pair state basis&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span>            :     // initialize uuid generator
+<span class="lineNum">     391 </span>            :     boost::uuids::random_generator generator;
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span>            :     // generate uuid
+<span class="lineNum">     394 </span><span class="lineCov">          2 :     std::string uuid;</span>
+<span class="lineNum">     395 </span><span class="lineCov">          1 :     boost::uuids::uuid u = generator();</span>
+<span class="lineNum">     396 </span><span class="lineCov">          1 :     boost::algorithm::hex(u.begin(), u.end(), std::back_inserter(uuid));</span>
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span>            :     // save pair state basis
+<span class="lineNum">     399 </span><span class="lineCov">          2 :     boost::filesystem::path path_basis = boost::filesystem::temp_directory_path();</span>
+<span class="lineNum">     400 </span><span class="lineCov">          1 :     path_basis /= &quot;basis_two_&quot; + uuid + &quot;.csv&quot;;</span>
+<span class="lineNum">     401 </span><span class="lineCov">          1 :     basis-&gt;save(</span>
+<span class="lineNum">     402 </span>            :         path_basis
+<span class="lineNum">     403 </span>            :             .string()); // TODO save only necessary entries, i.e. save pair state basis in sparse
+<span class="lineNum">     404 </span>            :                         // format (possibility, remove basis states but keep their idx - this would
+<span class="lineNum">     405 </span>            :                         // also make &quot;if (necessary) continue&quot; unneeded; then, &quot;combine&quot; has to
+<span class="lineNum">     406 </span>            :                         // check existence of basis element and the python script has to be adapted)
+<span class="lineNum">     407 </span>            : 
+<span class="lineNum">     408 </span><span class="lineCov">          1 :     std::cout &lt;&lt; boost::format(&quot;&gt;&gt;STA %s&quot;) % path_basis.string() &lt;&lt; std::endl;</span>
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     411 </span>            :     ////// Construct atom-atom interaction /////////////////
+<span class="lineNum">     412 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span>            :     // Construct pair Hamiltonians for all orders of the multipole expansion
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span><span class="lineCov">          2 :     std::vector&lt;int&gt; exponent_multipole;</span>
+<span class="lineNum">     417 </span><span class="lineCov">          2 :     std::vector&lt;Hamiltonianmatrix&gt; mat_multipole;</span>
+<span class="lineNum">     418 </span><span class="lineCov">          1 :     MatrixElements matrixelements_atom1(conf_tot, species1,</span>
+<span class="lineNum">     419 </span><span class="lineCov">          3 :                                         (path_cache / &quot;cache_elements.db&quot;).string());</span>
+<span class="lineNum">     420 </span><span class="lineCov">          1 :     MatrixElements matrixelements_atom2(conf_tot, species2,</span>
+<span class="lineNum">     421 </span><span class="lineCov">          3 :                                         (path_cache / &quot;cache_elements.db&quot;).string());</span>
+<span class="lineNum">     422 </span><span class="lineCov">          2 :     std::vector&lt;idx_t&gt; size_mat_multipole;</span>
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span><span class="lineCov">          1 :     int idx_multipole_max = -1;</span>
+<span class="lineNum">     425 </span>            : 
+<span class="lineNum">     426 </span><span class="lineCov">          1 :     if (multipoleexponent &gt; 2) {</span>
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span>            :         // --- Initialize two-atom interaction Hamiltonians ---
+<span class="lineNum">     429 </span><span class="lineCov">          1 :         std::cout &lt;&lt; &quot;Two-atom Hamiltonian, initialize interaction Hamiltonians&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span><span class="lineCov">          1 :         int kappa_min = 1; // spherical dipole operators</span>
+<span class="lineNum">     432 </span><span class="lineCov">          1 :         int kappa_max = multipoleexponent - kappa_min - 1;</span>
+<span class="lineNum">     433 </span><span class="lineCov">          1 :         int sumOfKappas_min = kappa_min + kappa_min;</span>
+<span class="lineNum">     434 </span><span class="lineCov">          1 :         int sumOfKappas_max = kappa_max + kappa_min;</span>
+<span class="lineNum">     435 </span><span class="lineCov">          1 :         idx_multipole_max = sumOfKappas_max - sumOfKappas_min;</span>
+<span class="lineNum">     436 </span>            : 
+<span class="lineNum">     437 </span><span class="lineCov">          1 :         exponent_multipole.reserve(idx_multipole_max + 1);</span>
+<span class="lineNum">     438 </span><span class="lineCov">          1 :         mat_multipole.reserve(idx_multipole_max + 1);</span>
+<span class="lineNum">     439 </span><span class="lineCov">          1 :         size_mat_multipole.resize(idx_multipole_max + 1);</span>
+<span class="lineNum">     440 </span>            : 
+<span class="lineNum">     441 </span>            :         // --- Precalculate matrix elements --- // TODO parallelization
+<span class="lineNum">     442 </span><span class="lineCov">          1 :         std::cout &lt;&lt; &quot;Two-atom Hamiltonian, get one-atom states needed for the pair state basis&quot;</span>
+<span class="lineNum">     443 </span><span class="lineCov">          1 :                   &lt;&lt; std::endl;</span>
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span><span class="lineCov">          3 :         auto basis_one1_needed = std::make_shared&lt;BasisnamesOne&gt;(BasisnamesOne::fromFirst(basis));</span>
+<span class="lineNum">     446 </span><span class="lineCov">          3 :         auto basis_one2_needed = std::make_shared&lt;BasisnamesOne&gt;(BasisnamesOne::fromSecond(basis));</span>
+<span class="lineNum">     447 </span>            : 
+<span class="lineNum">     448 </span><span class="lineCov">          2 :         for (int kappa = kappa_min; kappa &lt;= kappa_max; ++kappa) {</span>
+<span class="lineNum">     449 </span><span class="lineCov">          1 :             std::cout &lt;&lt; &quot;Two-atom Hamiltonian, precalculate matrix elements for kappa = &quot; &lt;&lt; kappa</span>
+<span class="lineNum">     450 </span><span class="lineCov">          1 :                       &lt;&lt; std::endl;</span>
+<span class="lineNum">     451 </span><span class="lineCov">          1 :             matrixelements_atom1.precalculateMultipole(basis_one1_needed, kappa);</span>
+<span class="lineNum">     452 </span><span class="lineCov">          1 :             matrixelements_atom2.precalculateMultipole(basis_one2_needed, kappa);</span>
+<span class="lineNum">     453 </span>            :         }
+<span class="lineNum">     454 </span>            : 
+<span class="lineNum">     455 </span>            :         // TODO if (samebasis) ...
+<span class="lineNum">     456 </span>            : 
+<span class="lineNum">     457 </span>            :         // --- Count entries of two-atom interaction Hamiltonians ---
+<span class="lineNum">     458 </span>            :         std::cout
+<span class="lineNum">     459 </span><span class="lineCov">          1 :             &lt;&lt; &quot;Two-atom Hamiltonian, count number of entries within the interaction Hamiltonians&quot;</span>
+<span class="lineNum">     460 </span><span class="lineCov">          1 :             &lt;&lt; std::endl;</span>
+<span class="lineNum">     461 </span>            : 
+<span class="lineNum">     462 </span><span class="lineCov">          2 :         for (int sumOfKappas = sumOfKappas_min; sumOfKappas &lt;= sumOfKappas_max; ++sumOfKappas) {</span>
+<span class="lineNum">     463 </span><span class="lineCov">          1 :             int idx_multipole = sumOfKappas - sumOfKappas_min;</span>
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span><span class="lineCov">          1 :             for (const auto &amp;state_col : *basis) { // TODO parallelization</span>
+<span class="lineNum">     466 </span><span class="lineNoCov">          0 :                 if (!necessary[state_col.idx]) {</span>
+<span class="lineNum">     467 </span><span class="lineNoCov">          0 :                     continue;</span>
+<span class="lineNum">     468 </span>            :                 }
+<span class="lineNum">     469 </span>            : 
+<span class="lineNum">     470 </span><span class="lineNoCov">          0 :                 int M_col = state_col.first().m + state_col.second().m;</span>
+<span class="lineNum">     471 </span>            : 
+<span class="lineNum">     472 </span><span class="lineNoCov">          0 :                 for (const auto &amp;state_row : *basis) {</span>
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :                     if (!necessary[state_row.idx]) {</span>
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     475 </span>            :                     }
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span><span class="lineNoCov">          0 :                     if (state_row.idx &lt; state_col.idx) {</span>
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     479 </span>            :                     }
+<span class="lineNum">     480 </span><span class="lineNoCov">          0 :                     int M_row = state_row.first().m + state_row.second().m;</span>
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :                     if (M_col != M_row) {</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     483 </span>            :                     }
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span>            :                     // multipole interaction with 1/R^(sumOfKappas+1) = 1/R^(idx_multipole+3) decay
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :                     for (int kappa1 = kappa_min; kappa1 &lt;= sumOfKappas - 1; ++kappa1) {</span>
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :                         int kappa2 = sumOfKappas - kappa1;</span>
+<span class="lineNum">     488 </span>            : 
+<span class="lineNum">     489 </span>            :                         // allowed deltaL, deltaJ, and deltaM?
+<span class="lineNum">     490 </span><span class="lineNoCov">          0 :                         if (selectionRulesMultipole(state_row.first(), state_col.first(), kappa1) &amp;&amp;</span>
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                             selectionRulesMultipole(state_row.second(), state_col.second(),</span>
+<span class="lineNum">     492 </span>            :                                                     kappa2)) {
+<span class="lineNum">     493 </span><span class="lineNoCov">          0 :                             int q1 = state_row.first().m - state_col.first().m;</span>
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :                             int q2 = state_row.second().m - state_col.second().m;</span>
+<span class="lineNum">     495 </span>            : 
+<span class="lineNum">     496 </span>            :                             // total momentum preserved?
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :                             if (q1 == -q2) {</span>
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :                                 size_mat_multipole[idx_multipole]++;</span>
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     500 </span>            :                             }
+<span class="lineNum">     501 </span>            :                         }
+<span class="lineNum">     502 </span>            :                     }
+<span class="lineNum">     503 </span>            :                 }
+<span class="lineNum">     504 </span>            :             }
+<span class="lineNum">     505 </span>            :         }
+<span class="lineNum">     506 </span>            : 
+<span class="lineNum">     507 </span>            :         // --- Construct two-atom interaction Hamiltonians ---
+<span class="lineNum">     508 </span><span class="lineCov">          1 :         size_t size_basis = basis-&gt;size();</span>
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span><span class="lineCov">          2 :         for (int sumOfKappas = sumOfKappas_min; sumOfKappas &lt;= sumOfKappas_max; ++sumOfKappas) {</span>
+<span class="lineNum">     511 </span>            :             std::cout
+<span class="lineNum">     512 </span><span class="lineCov">          1 :                 &lt;&lt; &quot;Two-atom Hamiltonian, construct interaction Hamiltonian that belongs to 1/R^&quot;</span>
+<span class="lineNum">     513 </span><span class="lineCov">          1 :                 &lt;&lt; sumOfKappas + 1 &lt;&lt; std::endl;</span>
+<span class="lineNum">     514 </span>            : 
+<span class="lineNum">     515 </span><span class="lineCov">          1 :             int idx_multipole = sumOfKappas - sumOfKappas_min;</span>
+<span class="lineNum">     516 </span>            : 
+<span class="lineNum">     517 </span><span class="lineCov">          1 :             exponent_multipole.push_back(sumOfKappas + 1);</span>
+<span class="lineNum">     518 </span>            :             mat_multipole.emplace_back(
+<span class="lineNum">     519 </span>            :                 size_basis,
+<span class="lineNum">     520 </span><span class="lineCov">          1 :                 2 * size_mat_multipole[idx_multipole]); // factor of 2 because triangular matrix is</span>
+<span class="lineNum">     521 </span>            :                                                         // not sufficient
+<span class="lineNum">     522 </span>            : 
+<span class="lineNum">     523 </span><span class="lineCov">          1 :             for (const auto &amp;state_col : *basis) { // TODO parallelization</span>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 :                 if (!necessary[state_col.idx]) {</span>
+<span class="lineNum">     525 </span><span class="lineNoCov">          0 :                     continue;</span>
+<span class="lineNum">     526 </span>            :                 }
+<span class="lineNum">     527 </span>            : 
+<span class="lineNum">     528 </span><span class="lineNoCov">          0 :                 int M_col = state_col.first().m + state_col.second().m;</span>
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :                 for (const auto &amp;state_row : *basis) {</span>
+<span class="lineNum">     531 </span><span class="lineNoCov">          0 :                     if (!necessary[state_row.idx]) {</span>
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     533 </span>            :                     }
+<span class="lineNum">     534 </span>            : 
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :                     if (state_row.idx &lt; state_col.idx) {</span>
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     537 </span>            :                     }
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :                     int M_row = state_row.first().m + state_row.second().m;</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :                     if (M_col != M_row) {</span>
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     541 </span>            :                     }
+<span class="lineNum">     542 </span>            : 
+<span class="lineNum">     543 </span>            :                     // construct basis
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :                     if (state_row.idx == state_col.idx) {</span>
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :                         mat_multipole[idx_multipole].addBasis(state_row.idx, state_col.idx, 1);</span>
+<span class="lineNum">     546 </span>            :                     }
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span>            :                     // multipole interaction with 1/R^(sumOfKappas+1) = 1/R^(idx_multipole+3) decay
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :                     double val = 0;</span>
+<span class="lineNum">     550 </span>            : 
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :                     for (int kappa1 = kappa_min; kappa1 &lt;= sumOfKappas - 1; ++kappa1) {</span>
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :                         int kappa2 = sumOfKappas - kappa1;</span>
+<span class="lineNum">     553 </span>            : 
+<span class="lineNum">     554 </span>            :                         // allowed deltaL, deltaJ, and deltaM?
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :                         if (selectionRulesMultipole(state_row.first(), state_col.first(), kappa1) &amp;&amp;</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :                             selectionRulesMultipole(state_row.second(), state_col.second(),</span>
+<span class="lineNum">     557 </span>            :                                                     kappa2)) {
+<span class="lineNum">     558 </span><span class="lineNoCov">          0 :                             int q1 = state_row.first().m - state_col.first().m;</span>
+<span class="lineNum">     559 </span><span class="lineNoCov">          0 :                             int q2 = state_row.second().m - state_col.second().m;</span>
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span>            :                             // total momentum preserved?
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 :                             if (q1 == -q2) {</span>
+<span class="lineNum">     563 </span><span class="lineNoCov">          0 :                                 double binomials = boost::math::binomial_coefficient&lt;double&gt;(</span>
+<span class="lineNum">     564 </span><span class="lineNoCov">          0 :                                                        kappa1 + kappa2, kappa1 + q1) *</span>
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :                                     boost::math::binomial_coefficient&lt;double&gt;(kappa1 + kappa2,</span>
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :                                                                               kappa2 - q2);</span>
+<span class="lineNum">     567 </span><span class="lineNoCov">          0 :                                 val += inverse_electric_constant * std::pow(-1, kappa2) *</span>
+<span class="lineNum">     568 </span><span class="lineNoCov">          0 :                                     std::sqrt(binomials) *</span>
+<span class="lineNum">     569 </span><span class="lineNoCov">          0 :                                     matrixelements_atom1.getMultipole(state_row.first(),</span>
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :                                                                       state_col.first(), kappa1) *</span>
+<span class="lineNum">     571 </span><span class="lineNoCov">          0 :                                     matrixelements_atom2.getMultipole(state_row.second(),</span>
+<span class="lineNum">     572 </span><span class="lineNoCov">          0 :                                                                       state_col.second(), kappa2);</span>
+<span class="lineNum">     573 </span>            :                             }
+<span class="lineNum">     574 </span>            :                         }
+<span class="lineNum">     575 </span>            :                     }
+<span class="lineNum">     576 </span>            : 
+<span class="lineNum">     577 </span><span class="lineNoCov">          0 :                     if (std::abs(val) &gt; tol) {</span>
+<span class="lineNum">     578 </span><span class="lineNoCov">          0 :                         mat_multipole[idx_multipole].addEntries(state_row.idx, state_col.idx, val);</span>
+<span class="lineNum">     579 </span><span class="lineNoCov">          0 :                         if (state_row.idx != state_col.idx) {</span>
+<span class="lineNum">     580 </span><span class="lineNoCov">          0 :                             mat_multipole[idx_multipole].addEntries(</span>
+<span class="lineNum">     581 </span><span class="lineNoCov">          0 :                                 state_col.idx, state_row.idx,</span>
+<span class="lineNum">     582 </span>            :                                 val); // triangular matrix is not sufficient because of basis change
+<span class="lineNum">     583 </span>            :                         }
+<span class="lineNum">     584 </span>            :                     }
+<span class="lineNum">     585 </span>            : 
+<span class="lineNum">     586 </span>            :                     // TODO state_two soll std::array&lt;state_one, 2&gt; sein! Dann geht auch die Abfrage
+<span class="lineNum">     587 </span>            :                     // der selection rules eindeutiger
+<span class="lineNum">     588 </span>            :                 }
+<span class="lineNum">     589 </span>            :             }
+<span class="lineNum">     590 </span>            : 
+<span class="lineNum">     591 </span>            :             std::cout
+<span class="lineNum">     592 </span><span class="lineCov">          1 :                 &lt;&lt; &quot;Two-atom Hamiltonian, compress interaction Hamiltonian that belongs to 1/R^&quot;</span>
+<span class="lineNum">     593 </span><span class="lineCov">          1 :                 &lt;&lt; sumOfKappas + 1 &lt;&lt; std::endl;</span>
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span><span class="lineCov">          2 :             mat_multipole[idx_multipole].compress(basis-&gt;dim(),</span>
+<span class="lineNum">     596 </span><span class="lineCov">          1 :                                                   basis-&gt;dim()); // TODO substitute dim() by size()</span>
+<span class="lineNum">     597 </span>            :         }
+<span class="lineNum">     598 </span>            :     }
+<span class="lineNum">     599 </span>            : 
+<span class="lineNum">     600 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     601 </span>            :     ////// Prepare processing of Hamiltonians //////////////
+<span class="lineNum">     602 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     603 </span>            : 
+<span class="lineNum">     604 </span>            :     // TODO Put the logic in its own class
+<span class="lineNum">     605 </span>            : 
+<span class="lineNum">     606 </span><span class="lineCov">          1 :     std::cout &lt;&lt; &quot;Two-atom Hamiltonian, process Hamiltonians&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     607 </span>            : 
+<span class="lineNum">     608 </span>            :     // === Open database ===
+<span class="lineNum">     609 </span><span class="lineCov">          2 :     boost::filesystem::path path_db;</span>
+<span class="lineNum">     610 </span>            : 
+<span class="lineNum">     611 </span>            :     if (utils::is_complex&lt;scalar_t&gt;::value) {
+<span class="lineNum">     612 </span><span class="lineCov">          1 :         path_db = path_cache / &quot;cache_matrix_complex.db&quot;;</span>
+<span class="lineNum">     613 </span>            :     } else {
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :         path_db = path_cache / &quot;cache_matrix_real.db&quot;;</span>
+<span class="lineNum">     615 </span>            :     }
+<span class="lineNum">     616 </span><span class="lineCov">          2 :     sqlite::handle db(path_db.string());</span>
+<span class="lineNum">     617 </span><span class="lineCov">          2 :     sqlite::statement stmt(db);</span>
+<span class="lineNum">     618 </span>            : 
+<span class="lineNum">     619 </span>            :     // === Initialize variables ===
+<span class="lineNum">     620 </span><span class="lineCov">          1 :     bool flag_perhapsmissingtable = true;</span>
+<span class="lineNum">     621 </span>            : 
+<span class="lineNum">     622 </span><span class="lineCov">          1 :     matrix_path.resize(nSteps_two * symmetries.size());</span>
+<span class="lineNum">     623 </span>            : 
+<span class="lineNum">     624 </span><span class="lineCov">          1 :     auto indices_symmetry_i = static_cast&lt;int&gt;(symmetries.size());</span>
+<span class="lineNum">     625 </span>            : 
+<span class="lineNum">     626 </span>            :     // --- Determine combined single atom matrices ---
+<span class="lineNum">     627 </span>            :     // Construct pair Hamiltonian consistent of combined one-atom Hamiltonians (1 x Hamiltonian2 +
+<span class="lineNum">     628 </span>            :     // Hamiltonian1 x 1)
+<span class="lineNum">     629 </span>            : 
+<span class="lineNum">     630 </span><span class="lineCov">          2 :     std::vector&lt;Hamiltonianmatrix&gt; mat_single;</span>
+<span class="lineNum">     631 </span>            : 
+<span class="lineNum">     632 </span>            :     // Check if one_atom Hamiltonians change with step_two
+<span class="lineNum">     633 </span>            :     // It is assumed that nSteps_one = 1 if nSteps_two != nSteps_one // TODO introduce variable
+<span class="lineNum">     634 </span>            :     // &quot;is_mat_single_const&quot; to improve readability
+<span class="lineNum">     635 </span><span class="lineCov">          1 :     if (nSteps_two != nSteps_one) {</span>
+<span class="lineNum">     636 </span>            :         std::cout
+<span class="lineNum">     637 </span><span class="lineCov">          1 :             &lt;&lt; &quot;Two-atom Hamiltonian, construct contribution of combined one-atom Hamiltonians&quot;</span>
+<span class="lineNum">     638 </span><span class="lineCov">          1 :             &lt;&lt; std::endl;</span>
+<span class="lineNum">     639 </span>            : 
+<span class="lineNum">     640 </span><span class="lineCov">          1 :         mat_single.resize(symmetries.size());</span>
+<span class="lineNum">     641 </span>            : 
+<span class="lineNum">     642 </span><span class="lineCov">          1 : #pragma omp parallel for</span>
+<span class="lineNum">     643 </span>            :         for (int idx_symmetry = 0; idx_symmetry &lt; indices_symmetry_i; ++idx_symmetry) {
+<span class="lineNum">     644 </span>            :             Symmetry sym = symmetries[idx_symmetry];
+<span class="lineNum">     645 </span>            : 
+<span class="lineNum">     646 </span>            :             // Combine the Hamiltonians of the two atoms
+<span class="lineNum">     647 </span>            :             mat_single[idx_symmetry] = combine(*(hamiltonian_one1-&gt;get(0)),
+<span class="lineNum">     648 </span>            :                                                *(hamiltonian_one2-&gt;get(0)), deltaE, basis, sym);
+<span class="lineNum">     649 </span>            : 
+<span class="lineNum">     650 </span>            :             // Remove more or less empty basis vectors
+<span class="lineNum">     651 </span>            :             mat_single[idx_symmetry].removeUnnecessaryBasisvectors();
+<span class="lineNum">     652 </span>            :         }
+<span class="lineNum">     653 </span>            :     }
+<span class="lineNum">     654 </span>            : 
+<span class="lineNum">     655 </span>            :     // --- Determine transformed interaction matrices ---
+<span class="lineNum">     656 </span><span class="lineCov">          2 :     std::vector&lt;Hamiltonianmatrix&gt; mat_multipole_transformed;</span>
+<span class="lineNum">     657 </span>            : 
+<span class="lineNum">     658 </span>            :     // Check if one_atom Hamiltonians change with step_two
+<span class="lineNum">     659 </span><span class="lineCov">          1 :     if (nSteps_two != nSteps_one) {</span>
+<span class="lineNum">     660 </span><span class="lineCov">          1 :         std::cout &lt;&lt; &quot;Two-atom Hamiltonian, construct transformed interaction matrices&quot;</span>
+<span class="lineNum">     661 </span><span class="lineCov">          1 :                   &lt;&lt; std::endl;</span>
+<span class="lineNum">     662 </span>            : 
+<span class="lineNum">     663 </span><span class="lineCov">          1 :         mat_multipole_transformed.resize(symmetries.size() * (idx_multipole_max + 1));</span>
+<span class="lineNum">     664 </span>            : 
+<span class="lineNum">     665 </span><span class="lineCov">          1 : #pragma omp parallel for</span>
+<span class="lineNum">     666 </span>            :         for (int idx_symmetry = 0; idx_symmetry &lt; indices_symmetry_i; ++idx_symmetry) {
+<span class="lineNum">     667 </span>            :             for (int idx_multipole = 0; idx_multipole &lt;= idx_multipole_max; ++idx_multipole) {
+<span class="lineNum">     668 </span>            :                 mat_multipole_transformed[idx_symmetry * (idx_multipole_max + 1) + idx_multipole] =
+<span class="lineNum">     669 </span>            :                     mat_multipole[idx_multipole].changeBasis(mat_single[idx_symmetry].basis());
+<span class="lineNum">     670 </span>            :             }
+<span class="lineNum">     671 </span>            :         }
+<span class="lineNum">     672 </span>            :     }
+<span class="lineNum">     673 </span>            : 
+<span class="lineNum">     674 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     675 </span>            :     ////// Loop through steps and symmetries ///////////////
+<span class="lineNum">     676 </span>            :     ////////////////////////////////////////////////////////
+<span class="lineNum">     677 </span>            : 
+<span class="lineNum">     678 </span><span class="lineCov">          1 :     std::cout &lt;&lt; boost::format(&quot;&gt;&gt;TOT%7d&quot;) % (nSteps_two * symmetries.size()) &lt;&lt; std::endl;</span>
+<span class="lineNum">     679 </span>            : 
+<span class="lineNum">     680 </span><span class="lineCov">          1 :     auto nSteps_two_i = static_cast&lt;int&gt;(nSteps_two);</span>
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span><span class="lineCov">          1 : #pragma omp parallel for schedule(static, 1)</span>
+<span class="lineNum">     683 </span>            : 
+<span class="lineNum">     684 </span>            :     // Loop through steps
+<span class="lineNum">     685 </span>            :     for (int step_two = 0; step_two &lt; nSteps_two_i; ++step_two) {
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span>            :         // Loop through symmetries
+<span class="lineNum">     688 </span>            :         for (size_t idx_symmetry = 0; idx_symmetry &lt; symmetries.size(); ++idx_symmetry) {
+<span class="lineNum">     689 </span>            :             Symmetry sym = symmetries[idx_symmetry];
+<span class="lineNum">     690 </span>            : 
+<span class="lineNum">     691 </span>            :             size_t step = step_two * symmetries.size() + idx_symmetry;
+<span class="lineNum">     692 </span>            : 
+<span class="lineNum">     693 </span>            :             // === Get parameters for the current position inside the loop ===
+<span class="lineNum">     694 </span>            :             int single_idx = (nSteps_two == nSteps_one) ? step_two : 0;
+<span class="lineNum">     695 </span>            : 
+<span class="lineNum">     696 </span>            :             // Get interatomic distance
+<span class="lineNum">     697 </span>            :             double normalized_position = (nSteps_two &gt; 1) ? step_two / (nSteps_two - 1.) : 0;
+<span class="lineNum">     698 </span>            :             double position = min_R + normalized_position * (max_R - min_R);
+<span class="lineNum">     699 </span>            : 
+<span class="lineNum">     700 </span>            :             // Get configuration and save postions and symmetries
+<span class="lineNum">     701 </span>            :             Configuration conf = conf_mat[single_idx];
+<span class="lineNum">     702 </span>            :             conf[&quot;R&quot;] &lt;&lt; position;
+<span class="lineNum">     703 </span>            :             conf[&quot;inversion&quot;] &lt;&lt; ((sym.inversion == NA) ? &quot;&quot; : std::to_string(sym.inversion));
+<span class="lineNum">     704 </span>            :             conf[&quot;permutation&quot;] &lt;&lt; ((sym.permutation == NA) ? &quot;&quot; : std::to_string(sym.permutation));
+<span class="lineNum">     705 </span>            :             conf[&quot;reflection&quot;] &lt;&lt; ((sym.reflection == NA) ? &quot;&quot; : std::to_string(sym.reflection));
+<span class="lineNum">     706 </span>            :             conf[&quot;rotation&quot;] &lt;&lt; ((sym.rotation == NA) ? &quot;&quot; : std::to_string(sym.rotation));
+<span class="lineNum">     707 </span>            : 
+<span class="lineNum">     708 </span>            :             // === Create table if necessary ===
+<span class="lineNum">     709 </span>            :             std::stringstream query;
+<span class="lineNum">     710 </span>            :             std::string spacer;
+<span class="lineNum">     711 </span>            : 
+<span class="lineNum">     712 </span>            :             if (flag_perhapsmissingtable) {
+<span class="lineNum">     713 </span>            :                 query &lt;&lt; &quot;CREATE TABLE IF NOT EXISTS cache_two (uuid text NOT NULL PRIMARY KEY, &quot;
+<span class="lineNum">     714 </span>            :                          &quot;created TIMESTAMP DEFAULT CURRENT_TIMESTAMP, &quot;
+<span class="lineNum">     715 </span>            :                          &quot;accessed TIMESTAMP DEFAULT CURRENT_TIMESTAMP&quot;;
+<span class="lineNum">     716 </span>            :                 for (auto p : conf) {
+<span class="lineNum">     717 </span>            :                     query &lt;&lt; &quot;, &quot; &lt;&lt; p.first &lt;&lt; &quot; text&quot;;
+<span class="lineNum">     718 </span>            :                 }
+<span class="lineNum">     719 </span>            :                 query &lt;&lt; &quot;, UNIQUE (&quot;;
+<span class="lineNum">     720 </span>            :                 for (auto p : conf) {
+<span class="lineNum">     721 </span>            :                     query &lt;&lt; spacer &lt;&lt; p.first;
+<span class="lineNum">     722 </span>            :                     spacer = &quot;, &quot;;
+<span class="lineNum">     723 </span>            :                 }
+<span class="lineNum">     724 </span>            :                 query &lt;&lt; &quot;));&quot;;
+<span class="lineNum">     725 </span>            : 
+<span class="lineNum">     726 </span>            : #pragma omp critical(database)
+<span class="lineNum">     727 </span>            :                 stmt.exec(query.str());
+<span class="lineNum">     728 </span>            : 
+<span class="lineNum">     729 </span>            :                 flag_perhapsmissingtable = false;
+<span class="lineNum">     730 </span>            :             }
+<span class="lineNum">     731 </span>            : 
+<span class="lineNum">     732 </span>            :             // === Get uuid as filename ===
+<span class="lineNum">     733 </span>            :             std::string uuid;
+<span class="lineNum">     734 </span>            :             query.str(std::string());
+<span class="lineNum">     735 </span>            :             spacer = &quot;&quot;;
+<span class="lineNum">     736 </span>            :             query &lt;&lt; &quot;SELECT uuid FROM cache_two WHERE &quot;;
+<span class="lineNum">     737 </span>            :             for (auto p : conf) {
+<span class="lineNum">     738 </span>            :                 query &lt;&lt; spacer &lt;&lt; p.first &lt;&lt; &quot;='&quot; &lt;&lt; p.second.str() &lt;&lt; &quot;'&quot;;
+<span class="lineNum">     739 </span>            :                 spacer = &quot; AND &quot;;
+<span class="lineNum">     740 </span>            :             }
+<span class="lineNum">     741 </span>            :             query &lt;&lt; &quot;;&quot;;
+<span class="lineNum">     742 </span>            : 
+<span class="lineNum">     743 </span>            : #pragma omp critical(database)
+<span class="lineNum">     744 </span>            :             {
+<span class="lineNum">     745 </span>            :                 sqlite::statement stmt(db, query.str());
+<span class="lineNum">     746 </span>            :                 stmt.prepare();
+<span class="lineNum">     747 </span>            :                 if (stmt.step()) {
+<span class="lineNum">     748 </span>            :                     uuid = stmt.get&lt;std::string&gt;(0);
+<span class="lineNum">     749 </span>            :                 }
+<span class="lineNum">     750 </span>            :             }
+<span class="lineNum">     751 </span>            : 
+<span class="lineNum">     752 </span>            :             if (!uuid.empty()) {
+<span class="lineNum">     753 </span>            :                 query.str(std::string());
+<span class="lineNum">     754 </span>            :                 query &lt;&lt; &quot;UPDATE cache_two SET accessed = CURRENT_TIMESTAMP WHERE uuid = '&quot; &lt;&lt; uuid
+<span class="lineNum">     755 </span>            :                       &lt;&lt; &quot;';&quot;;
+<span class="lineNum">     756 </span>            : #pragma omp critical(database)
+<span class="lineNum">     757 </span>            :                 stmt.exec(query.str()); // TODO check whether this slows down the program
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span>            :             } else {
+<span class="lineNum">     760 </span>            :                 boost::uuids::uuid u = generator();
+<span class="lineNum">     761 </span>            :                 boost::algorithm::hex(u.begin(), u.end(), std::back_inserter(uuid));
+<span class="lineNum">     762 </span>            : 
+<span class="lineNum">     763 </span>            :                 query.str(std::string());
+<span class="lineNum">     764 </span>            :                 query &lt;&lt; &quot;INSERT INTO cache_two (uuid&quot;;
+<span class="lineNum">     765 </span>            :                 for (auto p : conf) {
+<span class="lineNum">     766 </span>            :                     query &lt;&lt; &quot;, &quot; &lt;&lt; p.first;
+<span class="lineNum">     767 </span>            :                 }
+<span class="lineNum">     768 </span>            :                 query &lt;&lt; &quot;) values ( '&quot; &lt;&lt; uuid &lt;&lt; &quot;'&quot;;
+<span class="lineNum">     769 </span>            :                 for (auto p : conf) {
+<span class="lineNum">     770 </span>            :                     query &lt;&lt; &quot;, &quot;
+<span class="lineNum">     771 </span>            :                           &lt;&lt; &quot;'&quot; &lt;&lt; p.second.str() &lt;&lt; &quot;'&quot;;
+<span class="lineNum">     772 </span>            :                 }
+<span class="lineNum">     773 </span>            :                 query &lt;&lt; &quot;);&quot;;
+<span class="lineNum">     774 </span>            : #pragma omp critical(database)
+<span class="lineNum">     775 </span>            :                 stmt.exec(query.str());
+<span class="lineNum">     776 </span>            :             }
+<span class="lineNum">     777 </span>            : 
+<span class="lineNum">     778 </span>            :             // === Check existence of files ===
+<span class="lineNum">     779 </span>            : 
+<span class="lineNum">     780 </span>            :             // Check whether .mat and .json file exists and compare settings in program with
+<span class="lineNum">     781 </span>            :             // settings in .json file
+<span class="lineNum">     782 </span>            :             boost::filesystem::path path, path_mat, path_json;
+<span class="lineNum">     783 </span>            : 
+<span class="lineNum">     784 </span>            :             path = path_cache_mat / (&quot;two_&quot; + uuid);
+<span class="lineNum">     785 </span>            :             path_mat = path;
+<span class="lineNum">     786 </span>            :             path_mat.replace_extension(&quot;.mat&quot;);
+<span class="lineNum">     787 </span>            :             path_json = path;
+<span class="lineNum">     788 </span>            :             path_json.replace_extension(&quot;.json&quot;);
+<span class="lineNum">     789 </span>            : 
+<span class="lineNum">     790 </span>            :             bool is_existing = false;
+<span class="lineNum">     791 </span>            :             if (boost::filesystem::exists(path_mat)) {
+<span class="lineNum">     792 </span>            :                 if (boost::filesystem::exists(path_json)) {
+<span class="lineNum">     793 </span>            :                     Configuration params_loaded;
+<span class="lineNum">     794 </span>            :                     params_loaded.load_from_json(path_json.string());
+<span class="lineNum">     795 </span>            :                     if (conf == params_loaded) {
+<span class="lineNum">     796 </span>            :                         is_existing = true;
+<span class="lineNum">     797 </span>            :                     }
+<span class="lineNum">     798 </span>            :                 }
+<span class="lineNum">     799 </span>            :             }
+<span class="lineNum">     800 </span>            : 
+<span class="lineNum">     801 </span>            :             // Create .json file if &quot;is_existing&quot; is false
+<span class="lineNum">     802 </span>            :             if (!is_existing) {
+<span class="lineNum">     803 </span>            :                 conf.save_to_json(path_json.string());
+<span class="lineNum">     804 </span>            :             }
+<span class="lineNum">     805 </span>            : 
+<span class="lineNum">     806 </span>            :             // === Build and diagonalize total matrix if not existent ===
+<span class="lineNum">     807 </span>            :             Hamiltonianmatrix totalmatrix;
+<span class="lineNum">     808 </span>            : 
+<span class="lineNum">     809 </span>            :             if (!is_existing || !totalmatrix.load(path_mat.string())) {
+<span class="lineNum">     810 </span>            : 
+<span class="lineNum">     811 </span>            :                 // --- Combine single atom matrices ---
+<span class="lineNum">     812 </span>            :                 if (nSteps_two == nSteps_one) {
+<span class="lineNum">     813 </span>            :                     totalmatrix = combine(*(hamiltonian_one1-&gt;get(step_two)),
+<span class="lineNum">     814 </span>            :                                           *(hamiltonian_one2-&gt;get(step_two)), deltaE, basis, sym);
+<span class="lineNum">     815 </span>            :                     totalmatrix.removeUnnecessaryBasisvectors();
+<span class="lineNum">     816 </span>            :                 } else {
+<span class="lineNum">     817 </span>            :                     totalmatrix = mat_single[idx_symmetry];
+<span class="lineNum">     818 </span>            :                 }
+<span class="lineNum">     819 </span>            : 
+<span class="lineNum">     820 </span>            :                 // --- Add interaction ---
+<span class="lineNum">     821 </span>            :                 for (int idx_multipole = 0; idx_multipole &lt;= idx_multipole_max; ++idx_multipole) {
+<span class="lineNum">     822 </span>            :                     double pos = 1. / std::pow(position, exponent_multipole[idx_multipole]);
+<span class="lineNum">     823 </span>            :                     if (nSteps_two == nSteps_one) {
+<span class="lineNum">     824 </span>            :                         totalmatrix +=
+<span class="lineNum">     825 </span>            :                             mat_multipole[idx_multipole].changeBasis(totalmatrix.basis()) * pos;
+<span class="lineNum">     826 </span>            :                     } else {
+<span class="lineNum">     827 </span>            :                         totalmatrix +=
+<span class="lineNum">     828 </span>            :                             mat_multipole_transformed[idx_symmetry * (idx_multipole_max + 1) +
+<span class="lineNum">     829 </span>            :                                                       idx_multipole] *
+<span class="lineNum">     830 </span>            :                             pos;
+<span class="lineNum">     831 </span>            :                     }
+<span class="lineNum">     832 </span>            :                 }
+<span class="lineNum">     833 </span>            : 
+<span class="lineNum">     834 </span>            :                 // Stdout: Hamiltonian assembled
+<span class="lineNum">     835 </span>            : #pragma omp critical(textoutput)
+<span class="lineNum">     836 </span>            :                 {
+<span class="lineNum">     837 </span>            :                     std::cout &lt;&lt; boost::format(&quot;&gt;&gt;DIM%7d&quot;) % totalmatrix.num_basisvectors()
+<span class="lineNum">     838 </span>            :                               &lt;&lt; std::endl;
+<span class="lineNum">     839 </span>            :                     std::cout &lt;&lt; &quot;Two-atom Hamiltonian, &quot; &lt;&lt; step + 1 &lt;&lt; &quot;. Hamiltonian assembled&quot;
+<span class="lineNum">     840 </span>            :                               &lt;&lt; std::endl;
+<span class="lineNum">     841 </span>            :                 }
+<span class="lineNum">     842 </span>            : 
+<span class="lineNum">     843 </span>            :                 // --- Diagonalize matrix and save diagonalized matrix ---
+<span class="lineNum">     844 </span>            :                 totalmatrix.diagonalize();
+<span class="lineNum">     845 </span>            :                 totalmatrix.save(path_mat.string());
+<span class="lineNum">     846 </span>            : 
+<span class="lineNum">     847 </span>            :                 // Stdout: Hamiltonian diagonalized
+<span class="lineNum">     848 </span>            : #pragma omp critical(textoutput)
+<span class="lineNum">     849 </span>            :                 {
+<span class="lineNum">     850 </span>            :                     std::cout &lt;&lt; boost::format(&quot;&gt;&gt;OUT%7d%7d%7d%7d %s&quot;) % (step + 1) % step_two %
+<span class="lineNum">     851 </span>            :                             symmetries.size() % idx_symmetry % path.string()
+<span class="lineNum">     852 </span>            :                               &lt;&lt; std::endl;
+<span class="lineNum">     853 </span>            :                     std::cout &lt;&lt; &quot;Two-atom Hamiltonian, &quot; &lt;&lt; step + 1
+<span class="lineNum">     854 </span>            :                               &lt;&lt; &quot;. Hamiltonian diagonalized&quot; &lt;&lt; std::endl;
+<span class="lineNum">     855 </span>            :                 }
+<span class="lineNum">     856 </span>            :             } else {
+<span class="lineNum">     857 </span>            : 
+<span class="lineNum">     858 </span>            :                 // Stdout: Hamiltonian loaded
+<span class="lineNum">     859 </span>            : #pragma omp critical(textoutput)
+<span class="lineNum">     860 </span>            :                 {
+<span class="lineNum">     861 </span>            :                     std::cout &lt;&lt; boost::format(&quot;&gt;&gt;DIM%7d&quot;) % totalmatrix.num_basisvectors()
+<span class="lineNum">     862 </span>            :                               &lt;&lt; std::endl;
+<span class="lineNum">     863 </span>            :                     std::cout &lt;&lt; boost::format(&quot;&gt;&gt;OUT%7d%7d%7d%7d %s&quot;) % (step + 1) % step_two %
+<span class="lineNum">     864 </span>            :                             symmetries.size() % idx_symmetry % path.string()
+<span class="lineNum">     865 </span>            :                               &lt;&lt; std::endl;
+<span class="lineNum">     866 </span>            :                     std::cout &lt;&lt; &quot;Two-atom Hamiltonian, &quot; &lt;&lt; step + 1 &lt;&lt; &quot;. Hamiltonian loaded&quot;
+<span class="lineNum">     867 </span>            :                               &lt;&lt; std::endl;
+<span class="lineNum">     868 </span>            :                 }
+<span class="lineNum">     869 </span>            :             }
+<span class="lineNum">     870 </span>            : 
+<span class="lineNum">     871 </span>            :             // === Store path to configuration and diagonalized matrix ===
+<span class="lineNum">     872 </span>            :             matrix_path[step] = path.string();
+<span class="lineNum">     873 </span>            :         }
+<span class="lineNum">     874 </span>            :     }
+<span class="lineNum">     875 </span>            : 
+<span class="lineNum">     876 </span><span class="lineCov">          1 :     std::cout &lt;&lt; &quot;Two-atom Hamiltonian, all Hamiltonians processed&quot; &lt;&lt; std::endl;</span>
+<span class="lineNum">     877 </span><span class="lineCov">          1 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

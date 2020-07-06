@@ -1,0 +1,250 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/QuantumDefect.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - QuantumDefect.h<span style="font-size: 80%;"> (source / <a href="QuantumDefect.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef QUANTUM_DEFECT_H
+<span class="lineNum">      21 </span>            : #define QUANTUM_DEFECT_H
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &quot;Cache.h&quot;
+<span class="lineNum">      24 </span>            : #include &quot;SQLite.h&quot;
+<span class="lineNum">      25 </span>            : #include &quot;dtypes.h&quot;
+<span class="lineNum">      26 </span>            : #include &lt;mutex&gt;
+<span class="lineNum">      27 </span>            : #include &lt;string&gt;
+<span class="lineNum">      28 </span>            : #include &lt;tuple&gt;
+<span class="lineNum">      29 </span>            : #include &lt;unordered_map&gt;
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #include &lt;boost/functional/hash.hpp&gt;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : /** \brief Quantum defect storage
+<span class="lineNum">      34 </span>            :  *
+<span class="lineNum">      35 </span>            :  * The quantum defect queries a database for Rydberg-Ritz coefficients and
+<span class="lineNum">      36 </span>            :  * model potential parameters. The Rydberg-Ritz coefficients are not exposed to
+<span class="lineNum">      37 </span>            :  * the outside but included in the energy data member.
+<span class="lineNum">      38 </span>            :  *
+<span class="lineNum">      39 </span>            :  * The slight deviation from the hydrogen atom for Rydberg atoms are captured
+<span class="lineNum">      40 </span>            :  * in the so-called quantum defect. The hydrogen energy is given by \f$ E =
+<span class="lineNum">      41 </span>            :  * \mathrm{Ry}/n^2 \f$. For Rydberg atoms this is slightly modified to \f$ E^*
+<span class="lineNum">      42 </span>            :  * = \mathrm{Ry}/n^{*2} \f$ where \f$ n^* = n - \delta_{nlj} \f$. This
+<span class="lineNum">      43 </span>            :  * correction can be expanded in a series
+<span class="lineNum">      44 </span>            :  * \f[
+<span class="lineNum">      45 </span>            :  *      \delta_{nlj} = \delta_0
+<span class="lineNum">      46 </span>            :  *      + \frac{\delta_2}{(n-\delta_0)^2}
+<span class="lineNum">      47 </span>            :  *      + \frac{\delta_4}{(n-\delta_0)^4}
+<span class="lineNum">      48 </span>            :  *      + \frac{\delta_6}{(n-\delta_0)^6}
+<span class="lineNum">      49 </span>            :  *      + \cdots \;
+<span class="lineNum">      50 </span>            :  * \f]
+<span class="lineNum">      51 </span>            :  * The coefficients of the series \f$ \delta_i \f$ (Rydberg-Ritz coefficients)
+<span class="lineNum">      52 </span>            :  * are loaded from the database.
+<span class="lineNum">      53 </span>            :  *
+<span class="lineNum">      54 </span>            :  * The object also loads the parameters for the model potentials which are used
+<span class="lineNum">      55 </span>            :  * in the Numerov object.
+<span class="lineNum">      56 </span>            :  */
+<span class="lineNum">      57 </span>            : class QuantumDefect {
+<span class="lineNum">      58 </span>            : private:
+<span class="lineNum">      59 </span>            :     /** \brief Key type for quantum defect cache */
+<span class="lineNum">      60 </span>            :     struct Key {
+<span class="lineNum">      61 </span>            :         std::string species;
+<span class="lineNum">      62 </span>            :         int n;
+<span class="lineNum">      63 </span>            :         int l;
+<span class="lineNum">      64 </span>            :         double j;
+<a name="65"><span class="lineNum">      65 </span>            : </a>
+<span class="lineNum">      66 </span>            :         /** \brief Comparison for keys */
+<span class="lineNum">      67 </span><span class="lineCov">     160442 :         bool operator==(Key const &amp;o) const {</span>
+<span class="lineNum">      68 </span><span class="lineCov">     160442 :             return (species == o.species &amp;&amp; n == o.n &amp;&amp; l == o.l &amp;&amp; j == o.j);</span>
+<span class="lineNum">      69 </span>            :         }
+<span class="lineNum">      70 </span>            :     };
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            :     //** \brief Hash for Key */
+<a name="73"><span class="lineNum">      73 </span>            :     struct Hash {</a>
+<span class="lineNum">      74 </span>            :         /** \brief Hash the key using boost::hash_combine */
+<span class="lineNum">      75 </span><span class="lineCov">     161598 :         std::size_t operator()(Key const &amp;key) const {</span>
+<span class="lineNum">      76 </span><span class="lineCov">     161598 :             std::size_t seed = 0;</span>
+<span class="lineNum">      77 </span><span class="lineCov">     161598 :             boost::hash_combine(seed, key.species);</span>
+<span class="lineNum">      78 </span><span class="lineCov">     161598 :             boost::hash_combine(seed, key.n);</span>
+<span class="lineNum">      79 </span><span class="lineCov">     161598 :             boost::hash_combine(seed, key.l);</span>
+<span class="lineNum">      80 </span><span class="lineCov">     161598 :             boost::hash_combine(seed, key.j);</span>
+<span class="lineNum">      81 </span><span class="lineCov">     161598 :             return seed;</span>
+<span class="lineNum">      82 </span>            :         }
+<span class="lineNum">      83 </span>            :     };
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span>            :     /** \brief Element in the quantum defect cache */
+<span class="lineNum">      86 </span>            :     struct Element {
+<span class="lineNum">      87 </span>            :         double ac;
+<span class="lineNum">      88 </span>            :         int Z;
+<span class="lineNum">      89 </span>            :         double a1, a2, a3, a4;
+<span class="lineNum">      90 </span>            :         double rc;
+<span class="lineNum">      91 </span>            :         double nstar;
+<span class="lineNum">      92 </span>            :         double energy;
+<span class="lineNum">      93 </span>            :     };
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span>            :     Element e;
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            :     void setup(sqlite3 * /*db*/);
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span>            :     QuantumDefect(std::string _species, int _n, int _l, double _j, std::nullptr_t);
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : public:
+<span class="lineNum">     102 </span>            :     /** \brief Constructor
+<span class="lineNum">     103 </span>            :      *
+<span class="lineNum">     104 </span>            :      * Save the input and query the database.
+<span class="lineNum">     105 </span>            :      *
+<span class="lineNum">     106 </span>            :      * \param[in] species   atomic species of the atom
+<span class="lineNum">     107 </span>            :      * \param[in] n         principal quantum number
+<span class="lineNum">     108 </span>            :      * \param[in] l         angular quantum number
+<span class="lineNum">     109 </span>            :      * \param[in] j         magnetic quantum number
+<span class="lineNum">     110 </span>            :      */
+<span class="lineNum">     111 </span>            :     QuantumDefect(std::string const &amp;species, int n, int l, double j);
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            :     /** \overload QuantumDefect(std::string const&amp; species, int n, int l, double
+<span class="lineNum">     114 </span>            :      * j) */
+<span class="lineNum">     115 </span>            :     QuantumDefect(std::string const &amp;species, int n, int l, double j, std::string const &amp;database);
+<span class="lineNum">     116 </span>            : 
+<span class="lineNum">     117 </span>            :     /** \brief Atomic species */
+<span class="lineNum">     118 </span>            :     const std::string species;
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            :     /** \brief Principal quantum number */
+<span class="lineNum">     121 </span>            :     const int n;
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            :     /** \brief Angular quantum number */
+<span class="lineNum">     124 </span>            :     const int l;
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span>            :     /** \brief Magnetic quantum number */
+<span class="lineNum">     127 </span>            :     const double j;
+<span class="lineNum">     128 </span>            : 
+<span class="lineNum">     129 </span>            :     /** \brief Polarizability */
+<span class="lineNum">     130 </span>            :     const double &amp;ac;
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            :     /** \brief Core charge */
+<span class="lineNum">     133 </span>            :     const int &amp;Z;
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :     /** \brief Parameter of effective Coulomb potential */
+<span class="lineNum">     136 </span>            :     const double &amp;a1;
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span>            :     /** \brief Parameter of effective Coulomb potential */
+<span class="lineNum">     139 </span>            :     const double &amp;a2;
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            :     /** \brief Parameter of effective Coulomb potential */
+<span class="lineNum">     142 </span>            :     const double &amp;a3;
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :     /** \brief Parameter of effective Coulomb potential */
+<span class="lineNum">     145 </span>            :     const double &amp;a4;
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            :     /** \brief Effective core size */
+<span class="lineNum">     148 </span>            :     const double &amp;rc;
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :     /** \brief Effective principal quantum number */
+<span class="lineNum">     151 </span>            :     const double &amp;nstar;
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span>            :     /** \brief State energy */
+<span class="lineNum">     154 </span>            :     const double &amp;energy;
+<span class="lineNum">     155 </span>            : };
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            : /** \brief Returns only the energy of a state
+<span class="lineNum">     158 </span>            :  *
+<span class="lineNum">     159 </span>            :  * \warning This function has a considerable overhead because it allocates a new
+<span class="lineNum">     160 </span>            :  * quantum defect which triggers a database query. Use this function only for
+<span class="lineNum">     161 </span>            :  * debugging because many successive calls to this will cause a massive slow
+<span class="lineNum">     162 </span>            :  * down.
+<span class="lineNum">     163 </span>            :  *
+<span class="lineNum">     164 </span>            :  * \param[in] species   atomic species of the atom
+<span class="lineNum">     165 </span>            :  * \param[in] n         principal quantum number
+<span class="lineNum">     166 </span>            :  * \param[in] l         angular quantum number
+<span class="lineNum">     167 </span>            :  * \param[in] j         magnetic quantum number
+<span class="lineNum">     168 </span>            :  */
+<span class="lineNum">     169 </span>            : double energy_level(std::string const &amp;species, int n, int l, double j,
+<span class="lineNum">     170 </span>            :                     std::string const &amp;database = &quot;&quot;);
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span>            : double nstar(std::string const &amp;species, int n, int l, double j, std::string const &amp;database = &quot;&quot;);
+<span class="lineNum">     173 </span>            : 
+<span class="lineNum">     174 </span>            : #endif // QUANTUM_DEFECT_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

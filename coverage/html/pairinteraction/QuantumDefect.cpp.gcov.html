@@ -1,0 +1,270 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/QuantumDefect.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - QuantumDefect.cpp<span style="font-size: 80%;"> (source / <a href="QuantumDefect.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">92</td>
+            <td class="headerCovTableEntry">97</td>
+            <td class="headerCovTableEntryHi">94.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &quot;QuantumDefect.h&quot;
+<span class="lineNum">      21 </span>            : #include &quot;EmbeddedDatabase.h&quot;
+<span class="lineNum">      22 </span>            : #include &quot;SQLite.h&quot;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      25 </span>            : #include &lt;cmath&gt;
+<span class="lineNum">      26 </span>            : #include &lt;exception&gt;
+<span class="lineNum">      27 </span>            : #include &lt;iostream&gt;
+<span class="lineNum">      28 </span>            : #include &lt;sstream&gt;
+<span class="lineNum">      29 </span>            : #include &lt;string&gt;
+<span class="lineNum">      30 </span>            : #include &lt;utility&gt;
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : struct no_defect : public std::exception {
+<span class="lineNum">      33 </span>            : private:
+<span class="lineNum">      34 </span>            :     std::string msg;
+<a name="35"><span class="lineNum">      35 </span>            : </a>
+<span class="lineNum">      36 </span>            : public:
+<span class="lineNum">      37 </span><span class="lineCov">          2 :     no_defect(QuantumDefect const &amp;qd)</span>
+<span class="lineNum">      38 </span><span class="lineCov">          4 :         : msg{&quot;There is no defect available for &quot; + qd.species + &quot;, l = &quot; + std::to_string(qd.l) +</span>
+<a name="39"><span class="lineNum">      39 </span><span class="lineCov">          6 :               &quot;, j = &quot; + std::to_string(qd.j)} {}</span></a>
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span><span class="lineCov">          1 :     const char *what() const noexcept override { return msg.c_str(); }</span>
+<span class="lineNum">      42 </span>            : };
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : struct no_potential : public std::exception {
+<span class="lineNum">      45 </span>            : private:
+<span class="lineNum">      46 </span>            :     std::string msg;
+<a name="47"><span class="lineNum">      47 </span>            : </a>
+<span class="lineNum">      48 </span>            : public:
+<span class="lineNum">      49 </span><span class="lineCov">          2 :     no_potential(QuantumDefect const &amp;qd)</span>
+<span class="lineNum">      50 </span><span class="lineCov">          4 :         : msg{&quot;There is no model potential available for &quot; + qd.species +</span>
+<a name="51"><span class="lineNum">      51 </span><span class="lineCov">          6 :               &quot;, l = &quot; + std::to_string(qd.l)} {}</span></a>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineCov">          1 :     const char *what() const noexcept override { return msg.c_str(); }</span>
+<a name="54"><span class="lineNum">      54 </span>            : };</a>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span><span class="lineCov">     161022 : QuantumDefect::QuantumDefect(std::string _species, int _n, int _l, double _j, std::nullptr_t)</span>
+<span class="lineNum">      57 </span><span class="lineCov">     805110 :     : e(), species(std::move(_species)), n(_n), l(_l), j(_j), ac(e.ac), Z(e.Z), a1(e.a1), a2(e.a2),</span>
+<a name="58"><span class="lineNum">      58 </span><span class="lineCov">     161022 :       a3(e.a3), a4(e.a4), rc(e.rc), nstar(e.nstar), energy(e.energy) {}</span></a>
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span><span class="lineCov">         19 : QuantumDefect::QuantumDefect(std::string const &amp;species, int n, int l, double j)</span>
+<span class="lineNum">      61 </span><span class="lineCov">         23 :     : QuantumDefect(species, n, l, j, nullptr) {</span>
+<span class="lineNum">      62 </span><span class="lineCov">         19 :     static thread_local EmbeddedDatabase embedded_database{};</span>
+<span class="lineNum">      63 </span><span class="lineCov">         19 :     setup(embedded_database);</span>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">         15 : }</span></a>
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span><span class="lineCov">     161003 : QuantumDefect::QuantumDefect(std::string const &amp;species, int n, int l, double j,</span>
+<span class="lineNum">      67 </span><span class="lineCov">     161003 :                              std::string const &amp;database)</span>
+<span class="lineNum">      68 </span><span class="lineCov">     161003 :     : QuantumDefect(species, n, l, j, nullptr) {</span>
+<span class="lineNum">      69 </span><span class="lineCov">     161003 :     if (database.empty()) {</span>
+<span class="lineNum">      70 </span><span class="lineCov">     161003 :         static thread_local EmbeddedDatabase embedded_database{};</span>
+<span class="lineNum">      71 </span><span class="lineCov">     161003 :         setup(embedded_database);</span>
+<span class="lineNum">      72 </span>            :     } else {
+<span class="lineNum">      73 </span><span class="lineNoCov">          0 :         sqlite::handle db(database, SQLITE_OPEN_READONLY);</span>
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :         setup(db);</span>
+<span class="lineNum">      75 </span>            :     }
+<a name="76"><span class="lineNum">      76 </span><span class="lineCov">     161003 : }</span></a>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span><span class="lineCov">     161022 : void QuantumDefect::setup(sqlite3 *db) {</span>
+<span class="lineNum">      79 </span><span class="lineCov">     161022 :     static Cache&lt;Key, Element, Hash&gt; cache;</span>
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span><span class="lineCov">     161026 :     Key const key{species, n, l, j};</span>
+<span class="lineNum">      82 </span><span class="lineCov">     322044 :     if (auto oe = cache.restore(key)) {</span>
+<span class="lineNum">      83 </span><span class="lineCov">     160442 :         e = oe.get(); // Restore cache</span>
+<span class="lineNum">      84 </span><span class="lineCov">     160442 :         return;       // Return early</span>
+<span class="lineNum">      85 </span>            :     }
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span><span class="lineCov">       1160 :     std::stringstream ss;</span>
+<span class="lineNum">      88 </span><span class="lineCov">       1160 :     sqlite::statement stmt(db);</span>
+<span class="lineNum">      89 </span>            :     int pot_max_l, ryd_max_l;
+<span class="lineNum">      90 </span>            :     int pot_l, ryd_l;
+<span class="lineNum">      91 </span>            :     double ryd_max_j;
+<span class="lineNum">      92 </span>            :     double ryd_j;
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :     // Determine maximal L for model potentials
+<span class="lineNum">      95 </span><span class="lineCov">        580 :     stmt.set(&quot;select MAX(L) from model_potential where (element = ?);&quot;);</span>
+<span class="lineNum">      96 </span><span class="lineCov">        580 :     stmt.prepare();</span>
+<span class="lineNum">      97 </span><span class="lineCov">        580 :     stmt.bind(1, species);</span>
+<span class="lineNum">      98 </span><span class="lineCov">        580 :     if (stmt.step()) {</span>
+<span class="lineNum">      99 </span><span class="lineCov">        580 :         pot_max_l = stmt.get&lt;int&gt;(0);</span>
+<span class="lineNum">     100 </span>            :     } else {
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :         throw no_potential(*this);</span>
+<span class="lineNum">     102 </span>            :     }
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :     // The l to be used is the minimum of the two below
+<span class="lineNum">     105 </span><span class="lineCov">        580 :     pot_l = std::min(l, pot_max_l);</span>
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            :     // Determine maximal L for Rydberg-Ritz coefficients
+<span class="lineNum">     108 </span><span class="lineCov">        580 :     stmt.reset();</span>
+<span class="lineNum">     109 </span><span class="lineCov">        580 :     stmt.set(&quot;select MAX(L) from rydberg_ritz where (element = ?);&quot;);</span>
+<span class="lineNum">     110 </span><span class="lineCov">        580 :     stmt.prepare();</span>
+<span class="lineNum">     111 </span><span class="lineCov">        580 :     stmt.bind(1, species);</span>
+<span class="lineNum">     112 </span><span class="lineCov">        580 :     if (stmt.step()) {</span>
+<span class="lineNum">     113 </span><span class="lineCov">        580 :         ryd_max_l = stmt.get&lt;int&gt;(0);</span>
+<span class="lineNum">     114 </span>            :     } else {
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :         throw no_defect(*this);</span>
+<span class="lineNum">     116 </span>            :     }
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            :     // The l to be used is the minimum of the two below
+<span class="lineNum">     119 </span><span class="lineCov">        580 :     ryd_l = std::min(l, ryd_max_l);</span>
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span>            :     // Determine maximal J for Rydberg-Ritz coefficients
+<span class="lineNum">     122 </span><span class="lineCov">        580 :     stmt.reset();</span>
+<span class="lineNum">     123 </span><span class="lineCov">        580 :     stmt.set(&quot;select MAX(J) from rydberg_ritz where  ((element = ?1) and (L = &quot;</span>
+<span class="lineNum">     124 </span>            :              &quot;?2));&quot;);
+<span class="lineNum">     125 </span><span class="lineCov">        580 :     stmt.prepare();</span>
+<span class="lineNum">     126 </span><span class="lineCov">        580 :     stmt.bind(1, species);</span>
+<span class="lineNum">     127 </span><span class="lineCov">        580 :     stmt.bind(2, ryd_l);</span>
+<span class="lineNum">     128 </span><span class="lineCov">        580 :     if (stmt.step()) {</span>
+<span class="lineNum">     129 </span><span class="lineCov">        580 :         ryd_max_j = stmt.get&lt;double&gt;(0);</span>
+<span class="lineNum">     130 </span>            :     } else {
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :         throw no_defect(*this);</span>
+<span class="lineNum">     132 </span>            :     }
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            :     // The j to be used is the minimum of the two below
+<span class="lineNum">     135 </span><span class="lineCov">        580 :     ryd_j = std::min(j, ryd_max_j);</span>
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span>            :     // Load model potentials from database
+<span class="lineNum">     138 </span><span class="lineCov">        580 :     stmt.reset();</span>
+<span class="lineNum">     139 </span><span class="lineCov">        580 :     stmt.set(&quot;select ac,Z,a1,a2,a3,a4,rc from model_potential where ((element &quot;</span>
+<span class="lineNum">     140 </span>            :              &quot;= ?1) and (L = ?2));&quot;);
+<span class="lineNum">     141 </span><span class="lineCov">        580 :     stmt.prepare();</span>
+<span class="lineNum">     142 </span><span class="lineCov">        580 :     stmt.bind(1, species);</span>
+<span class="lineNum">     143 </span><span class="lineCov">        580 :     stmt.bind(2, pot_l);</span>
+<span class="lineNum">     144 </span><span class="lineCov">        580 :     if (stmt.step()) {</span>
+<span class="lineNum">     145 </span><span class="lineCov">        578 :         e.ac = stmt.get&lt;double&gt;(0);</span>
+<span class="lineNum">     146 </span><span class="lineCov">        578 :         e.Z = stmt.get&lt;int&gt;(1);</span>
+<span class="lineNum">     147 </span><span class="lineCov">        578 :         e.a1 = stmt.get&lt;double&gt;(2);</span>
+<span class="lineNum">     148 </span><span class="lineCov">        578 :         e.a2 = stmt.get&lt;double&gt;(3);</span>
+<span class="lineNum">     149 </span><span class="lineCov">        578 :         e.a3 = stmt.get&lt;double&gt;(4);</span>
+<span class="lineNum">     150 </span><span class="lineCov">        578 :         e.a4 = stmt.get&lt;double&gt;(5);</span>
+<span class="lineNum">     151 </span><span class="lineCov">        578 :         e.rc = stmt.get&lt;double&gt;(6);</span>
+<span class="lineNum">     152 </span>            :     } else {
+<span class="lineNum">     153 </span><span class="lineCov">          2 :         throw no_potential(*this);</span>
+<span class="lineNum">     154 </span>            :     }
+<span class="lineNum">     155 </span>            : 
+<span class="lineNum">     156 </span>            :     // Load Rydberg-Ritz coefficients from database
+<span class="lineNum">     157 </span><span class="lineCov">        578 :     stmt.reset();</span>
+<span class="lineNum">     158 </span><span class="lineCov">        578 :     stmt.set(&quot;select d0,d2,d4,d6,d8,Ry from rydberg_ritz where ((element = ?1) &quot;</span>
+<span class="lineNum">     159 </span>            :              &quot;and (L = ?2) and (J = ?3));&quot;);
+<span class="lineNum">     160 </span><span class="lineCov">        578 :     stmt.prepare();</span>
+<span class="lineNum">     161 </span><span class="lineCov">        578 :     stmt.bind(1, species);</span>
+<span class="lineNum">     162 </span><span class="lineCov">        578 :     stmt.bind(2, ryd_l);</span>
+<span class="lineNum">     163 </span><span class="lineCov">        578 :     stmt.bind(3, ryd_j);</span>
+<span class="lineNum">     164 </span><span class="lineCov">        578 :     e.nstar = n;</span>
+<span class="lineNum">     165 </span><span class="lineCov">        578 :     double Ry_inf = 109737.31568525;</span>
+<span class="lineNum">     166 </span>            :     double Ry;
+<span class="lineNum">     167 </span><span class="lineCov">        578 :     if (stmt.step()) {</span>
+<span class="lineNum">     168 </span><span class="lineCov">        576 :         double d0 = stmt.get&lt;double&gt;(0);</span>
+<span class="lineNum">     169 </span><span class="lineCov">        576 :         double d2 = stmt.get&lt;double&gt;(1);</span>
+<span class="lineNum">     170 </span><span class="lineCov">        576 :         double d4 = stmt.get&lt;double&gt;(2);</span>
+<span class="lineNum">     171 </span><span class="lineCov">        576 :         double d6 = stmt.get&lt;double&gt;(3);</span>
+<span class="lineNum">     172 </span><span class="lineCov">        576 :         double d8 = stmt.get&lt;double&gt;(4);</span>
+<span class="lineNum">     173 </span><span class="lineCov">        576 :         Ry = stmt.get&lt;double&gt;(5);</span>
+<span class="lineNum">     174 </span><span class="lineCov">        576 :         e.nstar -= d0 + d2 / pow(n - d0, 2) + d4 / pow(n - d0, 4) + d6 / pow(n - d0, 6) +</span>
+<span class="lineNum">     175 </span><span class="lineCov">        576 :             d8 / pow(n - d0, 8);</span>
+<span class="lineNum">     176 </span>            :     } else {
+<span class="lineNum">     177 </span><span class="lineCov">          2 :         throw no_defect(*this);</span>
+<span class="lineNum">     178 </span>            :     }
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineCov">        576 :     e.energy = -.5 * (Ry / Ry_inf) / (e.nstar * e.nstar) * au2GHz;</span>
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span><span class="lineCov">        576 :     cache.save(key, e);</span>
+<a name="183"><span class="lineNum">     183 </span>            : }</a>
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span><span class="lineCov">     143120 : double energy_level(std::string const &amp;species, int n, int l, double j,</span>
+<span class="lineNum">     186 </span>            :                     std::string const &amp;database) {
+<span class="lineNum">     187 </span><span class="lineCov">     143120 :     QuantumDefect qd(species, n, l, j, database);</span>
+<span class="lineNum">     188 </span><span class="lineCov">     286240 :     return qd.energy;</span>
+<a name="189"><span class="lineNum">     189 </span>            : }</a>
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span><span class="lineCov">      14001 : double nstar(std::string const &amp;species, int n, int l, double j, std::string const &amp;database) {</span>
+<span class="lineNum">     192 </span><span class="lineCov">      14001 :     QuantumDefect qd(species, n, l, j, database);</span>
+<span class="lineNum">     193 </span><span class="lineCov">      28002 :     return qd.nstar;</span>
+<span class="lineNum">     194 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

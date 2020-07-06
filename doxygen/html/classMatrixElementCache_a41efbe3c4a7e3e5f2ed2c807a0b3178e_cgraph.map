@@ -1,0 +1,8 @@
+<map id="MatrixElementCache::precalculateDiamagnetism" name="MatrixElementCache::precalculateDiamagnetism">
+<area shape="rect" id="node2" href="$namespaceutils.html#a1ba9020d51335d2ddd62e877803e9e31" title="utils::get_pid" alt="" coords="317,5,423,32"/>
+<area shape="rect" id="node3" href="$MatrixElementCache_8cpp.html#a15aabd3025cfa0ca9485cd672c0a1a4a" title="selectionRulesMomentumNew" alt="" coords="260,107,480,133"/>
+<area shape="rect" id="node7" href="$MatrixElementCache_8cpp.html#a06a268e07e2a0edb3fca096b8c941c78" title="selectionRulesMultipoleNew" alt="" coords="267,56,473,83"/>
+<area shape="rect" id="node4" href="$classStateOne.html#aedba5bfce70f73fa324b9d5ae1115578" title="StateOne::getJ" alt="" coords="532,31,647,57"/>
+<area shape="rect" id="node5" href="$classStateOne.html#a3783cebe5bbd63f072caf8450fea4aca" title="StateOne::getL" alt="" coords="530,81,649,108"/>
+<area shape="rect" id="node6" href="$classStateOne.html#aab2b41262381d67893113ed6f5ad18bc" title="StateOne::getM" alt="" coords="528,132,651,159"/>
+</map>

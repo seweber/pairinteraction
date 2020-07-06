@@ -1,0 +1,311 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/MatrixElementCache.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - MatrixElementCache.h<span style="font-size: 80%;"> (source / <a href="MatrixElementCache.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">55</td>
+            <td class="headerCovTableEntry">75</td>
+            <td class="headerCovTableEntryLo">73.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryLo">64.3 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef MATRIXELEMENTCACHE_H
+<span class="lineNum">      21 </span>            : #define MATRIXELEMENTCACHE_H
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &quot;Basisnames.h&quot;
+<span class="lineNum">      24 </span>            : #include &quot;State.h&quot;
+<span class="lineNum">      25 </span>            : #include &quot;Wavefunction.h&quot;
+<span class="lineNum">      26 </span>            : #include &quot;dtypes.h&quot;
+<span class="lineNum">      27 </span>            : #include &quot;utils.h&quot;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : #include &lt;boost/filesystem.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;boost/functional/hash.hpp&gt;
+<span class="lineNum">      31 </span>            : #include &lt;boost/serialization/unordered_map.hpp&gt;
+<span class="lineNum">      32 </span>            : #include &lt;boost/serialization/unordered_set.hpp&gt;
+<span class="lineNum">      33 </span>            : #include &lt;wignerSymbols/wignerSymbols-cpp.h&gt;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #include &lt;memory&gt;
+<span class="lineNum">      36 </span>            : #include &lt;sstream&gt;
+<span class="lineNum">      37 </span>            : #include &lt;string&gt;
+<span class="lineNum">      38 </span>            : #include &lt;tuple&gt;
+<span class="lineNum">      39 </span>            : #include &lt;unordered_map&gt;
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : class StateOne;
+<span class="lineNum">      42 </span>            : class StateTwo;
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : bool selectionRulesMomentumNew(
+<span class="lineNum">      45 </span>            :     StateOne const &amp;state1, StateOne const &amp;state2,
+<span class="lineNum">      46 </span>            :     int q); // TODO rename, integrate into the MatrixElementCache namespace
+<span class="lineNum">      47 </span>            : bool selectionRulesMomentumNew(StateOne const &amp;state1, StateOne const &amp;state2);
+<span class="lineNum">      48 </span>            : bool selectionRulesMultipoleNew(StateOne const &amp;state1, StateOne const &amp;state2, int kappa, int q);
+<span class="lineNum">      49 </span>            : bool selectionRulesMultipoleNew(StateOne const &amp;state1, StateOne const &amp;state2, int kappa);
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : class MatrixElementCache {
+<span class="lineNum">      52 </span>            : public:
+<span class="lineNum">      53 </span>            :     MatrixElementCache();
+<span class="lineNum">      54 </span>            :     MatrixElementCache(std::string const &amp;cachedir);
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :     double getElectricDipole(StateOne const &amp;state_row,
+<span class="lineNum">      57 </span>            :                              StateOne const &amp;state_col); // return value in GHz/(V/cm)
+<span class="lineNum">      58 </span>            :     double getElectricMultipole(StateOne const &amp;state_row, StateOne const &amp;state_col,
+<span class="lineNum">      59 </span>            :                                 int k); // return value in GHz/(V/cm)*um^(kappa-1)
+<span class="lineNum">      60 </span>            :     double getDiamagnetism(StateOne const &amp;state_row, StateOne const &amp;state_col,
+<span class="lineNum">      61 </span>            :                            int k); // return value in GHz/(V/cm)*um
+<span class="lineNum">      62 </span>            :     double getMagneticDipole(StateOne const &amp;state_row,
+<span class="lineNum">      63 </span>            :                              StateOne const &amp;state_col); // return value in GHz/G
+<span class="lineNum">      64 </span>            :     double
+<span class="lineNum">      65 </span>            :     getElectricMultipole(StateOne const &amp;state_row, StateOne const &amp;state_col, int kappa_radial,
+<span class="lineNum">      66 </span>            :                          int kappa_angular); // return value in GHz/(V/cm)*um^(kappa_radial-1)
+<span class="lineNum">      67 </span>            :     double getRadial(StateOne const &amp;state_row, StateOne const &amp;state_col,
+<span class="lineNum">      68 </span>            :                      int kappa); // return value in um^kappa
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            :     void precalculateElectricMomentum(const std::vector&lt;StateOne&gt; &amp;basis_one, int q);
+<span class="lineNum">      71 </span>            :     void precalculateMagneticMomentum(const std::vector&lt;StateOne&gt; &amp;basis_one, int q);
+<span class="lineNum">      72 </span>            :     void precalculateDiamagnetism(const std::vector&lt;StateOne&gt; &amp;basis_one, int k, int q);
+<span class="lineNum">      73 </span>            :     void precalculateMultipole(const std::vector&lt;StateOne&gt; &amp;basis_one, int k);
+<span class="lineNum">      74 </span>            :     void precalculateRadial(const std::vector&lt;StateOne&gt; &amp;basis_one, int k);
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            :     void setDefectDB(std::string const &amp;path);
+<span class="lineNum">      77 </span>            :     const std::string &amp;getDefectDB() const;
+<span class="lineNum">      78 </span>            :     void setMethod(method_t const &amp;m);
+<span class="lineNum">      79 </span>            :     void loadElectricDipoleDB(std::string const &amp;path, std::string const &amp;species);
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span>            :     size_t size();
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            : private:
+<span class="lineNum">      84 </span>            :     int update();
+<span class="lineNum">      85 </span>            :     void precalculate(std::shared_ptr&lt;const BasisnamesOne&gt; basis_one, int kappa, int q, int kappar,
+<span class="lineNum">      86 </span>            :                       bool calcMultipole, bool calcMomentum, bool calcRadial);
+<span class="lineNum">      87 </span>            :     double calcRadialElement(const QuantumDefect &amp;qd1, int power, const QuantumDefect &amp;qd2);
+<span class="lineNum">      88 </span>            :     void precalculate(const std::vector&lt;StateOne&gt; &amp;basis_one, int kappa_angular, int q,
+<span class="lineNum">      89 </span>            :                       int kappa_radial, bool calcElectricMultipole, bool calcMagneticMomentum,
+<span class="lineNum">      90 </span>            :                       bool calcRadial);
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">      93 </span>            :     /// Keys ///////////////////////////////////////////////////////////
+<a name="94"><span class="lineNum">      94 </span>            :     ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span><span class="lineCov">        570 :     struct CacheKey_cache_radial {</span>
+<span class="lineNum">      97 </span>            :         CacheKey_cache_radial(method_t method, std::string species, int kappa, int n1, int n2,
+<span class="lineNum">      98 </span>            :                               int l1, int l2, float j1, float j2);
+<span class="lineNum">      99 </span>            :         CacheKey_cache_radial();
+<span class="lineNum">     100 </span>            :         bool operator==(const CacheKey_cache_radial &amp;rhs) const;
+<span class="lineNum">     101 </span>            :         std::string species;
+<span class="lineNum">     102 </span>            :         method_t method;
+<span class="lineNum">     103 </span>            :         int kappa;
+<span class="lineNum">     104 </span>            :         std::array&lt;int, 2&gt; n, l;
+<span class="lineNum">     105 </span>            :         std::array&lt;float, 2&gt; j;
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            :     private:
+<a name="108"><span class="lineNum">     108 </span>            :         friend class boost::serialization::access;</a>
+<span class="lineNum">     109 </span>            :         template &lt;class Archive&gt;
+<span class="lineNum">     110 </span><span class="lineCov">        570 :         void serialize(Archive &amp;ar, const unsigned int /*version*/) {</span>
+<span class="lineNum">     111 </span><span class="lineCov">        570 :             ar &amp;method &amp;species &amp;kappa &amp;n &amp;l &amp;j;</span>
+<span class="lineNum">     112 </span><span class="lineCov">        570 :         }</span>
+<a name="113"><span class="lineNum">     113 </span><span class="lineCov">        570 :     };</span></a>
+<span class="lineNum">     114 </span><span class="lineCov">        570 : </span>
+<span class="lineNum">     115 </span><span class="lineCov">       1490 :     struct CacheKey_cache_angular {</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :         CacheKey_cache_angular(int kappa, float j1, float j2, float m1, float m2);</span>
+<span class="lineNum">     117 </span><span class="lineNoCov">          0 :         CacheKey_cache_angular();</span>
+<span class="lineNum">     118 </span><span class="lineNoCov">          0 :         bool operator==(const CacheKey_cache_angular &amp;rhs) const;</span>
+<span class="lineNum">     119 </span>            :         int kappa;
+<span class="lineNum">     120 </span>            :         std::array&lt;float, 2&gt; j, m;
+<span class="lineNum">     121 </span>            :         int sgn;
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span>            :     private:
+<a name="124"><span class="lineNum">     124 </span>            :         friend class boost::serialization::access;</a>
+<span class="lineNum">     125 </span>            :         template &lt;class Archive&gt;
+<span class="lineNum">     126 </span>            :         void serialize(Archive &amp;ar, const unsigned int /*version*/) {
+<span class="lineNum">     127 </span>            :             ar &amp;kappa &amp;j &amp;m &amp;sgn;
+<span class="lineNum">     128 </span>            :         }
+<a name="129"><span class="lineNum">     129 </span>            :     };</a>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span><span class="lineCov">        120 :     struct CacheKey_cache_reduced_commutes {</span>
+<span class="lineNum">     132 </span><span class="lineCov">        920 :         CacheKey_cache_reduced_commutes(float s, int kappa, int l1, int l2, float j1, float j2);</span>
+<span class="lineNum">     133 </span><span class="lineCov">        920 :         CacheKey_cache_reduced_commutes();</span>
+<span class="lineNum">     134 </span><span class="lineCov">        920 :         bool operator==(const CacheKey_cache_reduced_commutes &amp;rhs) const;</span>
+<span class="lineNum">     135 </span><span class="lineCov">        920 :         float s;</span>
+<span class="lineNum">     136 </span><span class="lineCov">        920 :         int kappa;</span>
+<span class="lineNum">     137 </span><span class="lineCov">        920 :         std::array&lt;int, 2&gt; l;</span>
+<span class="lineNum">     138 </span><span class="lineNoCov">          0 :         std::array&lt;float, 2&gt; j;</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :         int sgn;</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     141 </span>            :     private:
+<a name="142"><span class="lineNum">     142 </span>            :         friend class boost::serialization::access;</a>
+<span class="lineNum">     143 </span>            :         template &lt;class Archive&gt;
+<span class="lineNum">     144 </span>            :         void serialize(Archive &amp;ar, const unsigned int /*version*/) {
+<span class="lineNum">     145 </span>            :             ar &amp;s &amp;kappa &amp;l &amp;j &amp;sgn;
+<span class="lineNum">     146 </span>            :         }
+<a name="147"><span class="lineNum">     147 </span>            :     };</a>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span><span class="lineCov">         40 :     struct CacheKey_cache_reduced_multipole {</span>
+<span class="lineNum">     150 </span>            :         CacheKey_cache_reduced_multipole(int kappa, int l1, int l2);
+<span class="lineNum">     151 </span>            :         CacheKey_cache_reduced_multipole();
+<span class="lineNum">     152 </span>            :         bool operator==(const CacheKey_cache_reduced_multipole &amp;rhs) const;
+<span class="lineNum">     153 </span>            :         int kappa;
+<span class="lineNum">     154 </span>            :         std::array&lt;int, 2&gt; l;
+<span class="lineNum">     155 </span>            :         int sgn;
+<span class="lineNum">     156 </span><span class="lineCov">        120 : </span>
+<span class="lineNum">     157 </span><span class="lineCov">        120 :     private:</span>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">        120 :         friend class boost::serialization::access;</span></a>
+<span class="lineNum">     159 </span><span class="lineCov">        120 :         template &lt;class Archive&gt;</span>
+<span class="lineNum">     160 </span><span class="lineCov">        120 :         void serialize(Archive &amp;ar, const unsigned int /*version*/) {</span>
+<span class="lineNum">     161 </span><span class="lineCov">        120 :             ar &amp;kappa &amp;l &amp;sgn;</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :     };</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     165 </span>            :     struct CacheKeyHasher_cache_radial {
+<span class="lineNum">     166 </span>            :         std::size_t operator()(const CacheKey_cache_radial &amp;c) const;
+<span class="lineNum">     167 </span>            :     };
+<span class="lineNum">     168 </span>            :     struct CacheKeyHasher_cache_angular {
+<span class="lineNum">     169 </span>            :         std::size_t operator()(const CacheKey_cache_angular &amp;c) const;
+<span class="lineNum">     170 </span>            :     };
+<span class="lineNum">     171 </span>            :     struct CacheKeyHasher_cache_reduced_commutes {
+<span class="lineNum">     172 </span>            :         std::size_t operator()(const CacheKey_cache_reduced_commutes &amp;c) const;
+<span class="lineNum">     173 </span>            :     };
+<span class="lineNum">     174 </span>            :     struct CacheKeyHasher_cache_reduced_multipole {
+<span class="lineNum">     175 </span>            :         std::size_t operator()(const CacheKey_cache_reduced_multipole &amp;c) const;
+<span class="lineNum">     176 </span>            :     };
+<span class="lineNum">     177 </span>            : 
+<span class="lineNum">     178 </span><span class="lineCov">         40 :     std::unordered_map&lt;CacheKey_cache_radial, double, CacheKeyHasher_cache_radial&gt; cache_radial;</span>
+<span class="lineNum">     179 </span><span class="lineCov">         40 :     std::unordered_map&lt;CacheKey_cache_angular, double, CacheKeyHasher_cache_angular&gt; cache_angular;</span>
+<span class="lineNum">     180 </span><span class="lineCov">         40 :     std::unordered_map&lt;CacheKey_cache_reduced_commutes, double,</span>
+<span class="lineNum">     181 </span><span class="lineCov">         40 :                        CacheKeyHasher_cache_reduced_commutes&gt;</span>
+<span class="lineNum">     182 </span><span class="lineCov">         40 :         cache_reduced_commutes_s;</span>
+<span class="lineNum">     183 </span><span class="lineCov">         40 :     std::unordered_map&lt;CacheKey_cache_reduced_commutes, double,</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :                        CacheKeyHasher_cache_reduced_commutes&gt;</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :         cache_reduced_commutes_l;</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :     std::unordered_map&lt;CacheKey_cache_reduced_multipole, double,</span>
+<span class="lineNum">     187 </span>            :                        CacheKeyHasher_cache_reduced_multipole&gt;
+<span class="lineNum">     188 </span>            :         cache_reduced_multipole;
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span>            :     std::unordered_set&lt;CacheKey_cache_radial, CacheKeyHasher_cache_radial&gt; cache_radial_missing;
+<span class="lineNum">     191 </span>            :     std::unordered_set&lt;CacheKey_cache_angular, CacheKeyHasher_cache_angular&gt; cache_angular_missing;
+<span class="lineNum">     192 </span>            :     std::unordered_set&lt;CacheKey_cache_reduced_commutes, CacheKeyHasher_cache_reduced_commutes&gt;
+<span class="lineNum">     193 </span>            :         cache_reduced_commutes_s_missing;
+<span class="lineNum">     194 </span>            :     std::unordered_set&lt;CacheKey_cache_reduced_commutes, CacheKeyHasher_cache_reduced_commutes&gt;
+<span class="lineNum">     195 </span>            :         cache_reduced_commutes_l_missing;
+<span class="lineNum">     196 </span>            :     std::unordered_set&lt;CacheKey_cache_reduced_multipole, CacheKeyHasher_cache_reduced_multipole&gt;
+<span class="lineNum">     197 </span>            :         cache_reduced_multipole_missing;
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span>            :     method_t method{NUMEROV};
+<span class="lineNum">     200 </span>            :     std::string defectdbname;
+<span class="lineNum">     201 </span>            :     std::string dbname;
+<span class="lineNum">     202 </span>            :     std::unique_ptr&lt;sqlite::handle&gt; db;
+<span class="lineNum">     203 </span>            :     std::unique_ptr&lt;sqlite::statement&gt; stmt;
+<span class="lineNum">     204 </span>            :     long pid_which_created_db;
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     207 </span>            :     /// Method for serialization ///////////////////////////////////////
+<span class="lineNum">     208 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     209 </span>            : 
+<a name="210"><span class="lineNum">     210 </span>            :     friend class boost::serialization::access;</a>
+<span class="lineNum">     211 </span>            :     template &lt;class Archive&gt;
+<span class="lineNum">     212 </span>            :     void serialize(Archive &amp;ar, const unsigned int /*version*/) {
+<span class="lineNum">     213 </span>            :         ar &amp;method;
+<span class="lineNum">     214 </span>            :         ar &amp;dbname;
+<span class="lineNum">     215 </span>            :         ar &amp;cache_radial &amp;cache_angular &amp;cache_reduced_commutes_s &amp;cache_reduced_commutes_l
+<span class="lineNum">     216 </span>            :             &amp;cache_reduced_multipole;
+<span class="lineNum">     217 </span>            :         ar &amp;cache_radial_missing &amp;cache_angular_missing &amp;cache_reduced_commutes_s_missing
+<span class="lineNum">     218 </span>            :             &amp;cache_reduced_commutes_l_missing &amp;cache_reduced_multipole_missing;
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span>            :         if (Archive::is_loading::value &amp;&amp; !dbname.empty()) {
+<span class="lineNum">     221 </span>            :             // Open database
+<span class="lineNum">     222 </span>            :             db = std::make_unique&lt;sqlite::handle&gt;(dbname);
+<span class="lineNum">     223 </span>            :             stmt = std::make_unique&lt;sqlite::statement&gt;(*db);
+<span class="lineNum">     224 </span>            :             pid_which_created_db = utils::get_pid();
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span>            :             // Speed up database access
+<span class="lineNum">     227 </span>            :             stmt-&gt;exec(
+<span class="lineNum">     228 </span>            :                 &quot;PRAGMA synchronous = OFF&quot;); // do not wait on write, hand off to OS and carry on
+<span class="lineNum">     229 </span>            :             stmt-&gt;exec(&quot;PRAGMA journal_mode = MEMORY&quot;); // keep rollback journal in memory during
+<span class="lineNum">     230 </span>            :                                                         // transaction
+<span class="lineNum">     231 </span>            :         }
+<span class="lineNum">     232 </span>            :     }
+<span class="lineNum">     233 </span>            : };
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

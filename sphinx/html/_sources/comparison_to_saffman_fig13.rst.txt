@@ -1,0 +1,175 @@
+
+Blockade Interaction in a Magnetic Field
+========================================
+
+The interaction between Rydberg atoms is strongly influenced by external
+electric and magnetic fields. A small magnetic field for instance lifts
+the Zeeman degeneracy and thus strengthens the Rydberg blockade,
+especially if there is a non-zero angle between the interatomic and the
+quantization axis. This has been discussed in M. Saffman, T. G. Walker,
+and K. Mølmer, “Quantum information with Rydberg atoms”, `Rev. Mod.
+Phys. 82, 2313
+(2010) <https://dx.doi.org/10.1103/RevModPhys.82.2313>`__. Here we show
+how to reproduce `Fig.
+13 <https://journals.aps.org/rmp/article/10.1103/RevModPhys.82.2313/figures/13/medium>`__
+using pairinteraction. This `Jupyter
+notebook <https://github.com/pairinteraction/pairinteraction/blob/master/doc/sphinx/examples_python/comparison_to_saffman_fig13.ipynb>`__
+and the final `Python
+script <https://github.com/pairinteraction/pairinteraction/blob/master/doc/sphinx/examples_python/comparison_to_saffman_fig13.py>`__
+are available on GitHub.
+
+As described in the
+`introduction <https://pairinteraction.github.io/pairinteraction/sphinx/html/introduction.html>`__,
+we start our code with some preparations. We will make use of
+pairinteraction’s parallel capacities which is why we load the
+``multiprocessing`` module if supported by the operating system (in
+Windows, the module only works with methods defined outside an IPython
+notebook).
+
+.. code:: ipython3
+
+    %matplotlib inline
+    
+    # Arrays
+    import numpy as np
+    
+    # Plotting
+    import matplotlib.pyplot as plt
+    
+    # Operating system interfaces
+    import os, sys
+    
+    # Parallel computing
+    if sys.platform != "win32": from multiprocessing import Pool
+    from functools import partial
+    
+    # pairinteraction :-)
+    from pairinteraction import pireal as pi
+    
+    # Create cache for matrix elements
+    if not os.path.exists("./cache"):
+        os.makedirs("./cache")
+    cache = pi.MatrixElementCache("./cache")
+
+We begin by defining some constants of our calculation: the spatial
+separation of the Rydberg atoms and a range of magnetic field we want to
+iterate over. The units of the respective quantities are given as
+comments.
+
+.. code:: ipython3
+
+    distance = 10 # µm
+    bfields = np.linspace(0, 20, 200) # Gauss
+
+Now, we use pairinteraction’s ``StateOne`` class to define the
+single-atom state :math:`\left|43d_{5/2},m_j=1/2\right\rangle` of a
+Rubudium atom.
+
+.. code:: ipython3
+
+    state_one = pi.StateOne("Rb", 43, 2, 2.5, 0.5)
+
+Next, we define how to set up the single atom system. We do this using a
+function, so we can easily create systems with the magnetic field as a
+parameter. Inside the function we create a new system by passing the
+``state_one`` and the cache directory we created to ``SystemOne``.
+
+To limit the size of the basis, we have to choose cutoffs on states
+which can couple to ``state_one``. This is done by means of the
+``restrict...`` functions in ``SystemOne``.
+
+Finally, we set the magnetic field to point in :math:`z`-direction with
+the magnitude given by the argument.
+
+.. code:: ipython3
+
+    def setup_system_one(bfield):
+        system_one = pi.SystemOne(state_one.getSpecies(), cache)
+        system_one.restrictEnergy(state_one.getEnergy()-100, state_one.getEnergy()+100)
+        system_one.restrictN(state_one.getN()-2, state_one.getN()+2)
+        system_one.restrictL(state_one.getL()-2, state_one.getL()+2)
+        system_one.setBfield([0, 0, bfield])
+        return system_one
+
+To investigate the
+:math:`\left|43d_{5/2},m_j=1/2;43d_{5/2},m_j=1/2\right\rangle` pair
+state, we easily combine the same single-atom state twice into a pair
+state using ``StateTwo``.
+
+.. code:: ipython3
+
+    state_two = pi.StateTwo(state_one, state_one)
+
+Akin to the single atom system, we now define how to create a two atom
+system. We want to parametrize this in terms of the single atom system
+and the interaction angle.
+
+We compose a ``SystemTwo`` from two ``system_one`` because we are
+looking at two identical atoms. Again we have to restrict the energy
+range for coupling. Then we proceed to set the distance between the two
+atoms and the interaction angle.
+
+To speed up the calculation, we can tell pairinteraction that this
+system will have some symmetries.
+
+.. code:: ipython3
+
+    def setup_system_two(system_one, angle):
+        system_two = pi.SystemTwo(system_one, system_one, cache)
+        system_two.restrictEnergy(state_two.getEnergy()-5, state_two.getEnergy()+5)
+        system_two.setDistance(10)
+        system_two.setAngle(angle)
+        if angle == 0: system_two.setConservedMomentaUnderRotation([int(2*state_one.getM())])
+        system_two.setConservedParityUnderInversion(pi.ODD)
+        system_two.setConservedParityUnderPermutation(pi.ODD)
+        return system_two
+
+Now, we can use the definitions from above to compose our calculation.
+
+.. code:: ipython3
+
+    def getEnergies(bfield, angle):
+        # Set up one atom system
+        system_one = setup_system_one(bfield)
+        system_one.diagonalize(1e-3)
+    
+        # Calculate Zeeman shift
+        zeemanshift = 2*system_one.getHamiltonian().diagonal()[system_one.getBasisvectorIndex(state_one)] # GHz
+        
+        # Set up two atom system
+        system_two = setup_system_two(system_one,angle)
+        system_two.diagonalize(1e-3)
+        
+        # Calculate blockade interaction
+        eigenenergies = (system_two.getHamiltonian().diagonal()-zeemanshift)*1e3 # MHz
+        overlaps = system_two.getOverlap(state_two)
+        blockade = 1/np.sqrt(np.sum(overlaps/eigenenergies**2))
+        
+        return blockade
+
+With a little boiler-plate, we can then calculate and plot the result
+with ``matplotlib``.
+
+.. code:: ipython3
+
+    plt.xlabel(r"$B$ (Gauss)")
+    plt.ylabel(r"Blockade (MHz)")
+    plt.xlim(-0.4,20.4)
+    plt.ylim(0,0.4)
+    
+    if sys.platform != "win32":
+        with Pool() as pool:
+            energies1 = pool.map(partial(getEnergies, angle=0), bfields)
+            energies2 = pool.map(partial(getEnergies, angle=np.pi/2), bfields)
+    else:
+        energies1 = list(map(partial(getEnergies, angle=0), bfields))
+        energies2 = list(map(partial(getEnergies, angle=np.pi/2), bfields))
+    
+    plt.plot(bfields, energies1, 'b-', label=r"$\theta = 0$")
+    plt.plot(bfields, energies2, 'g-', label=r"$\theta = \pi/2$")
+    plt.legend(loc=2, bbox_to_anchor=(1.02, 1), borderaxespad=0);
+
+
+
+.. image:: comparison_to_saffman_fig13_files/comparison_to_saffman_fig13_17_0.png
+

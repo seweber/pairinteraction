@@ -1,0 +1,296 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/ConfParser.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - ConfParser.h<span style="font-size: 80%;"> (source / <a href="ConfParser.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">56</td>
+            <td class="headerCovTableEntry">62</td>
+            <td class="headerCovTableEntryHi">90.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2017 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef CONF_PARSER_H
+<span class="lineNum">      21 </span>            : #define CONF_PARSER_H
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &lt;map&gt;
+<span class="lineNum">      24 </span>            : #include &lt;sstream&gt;
+<span class="lineNum">      25 </span>            : #include &lt;string&gt;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #include &lt;boost/lexical_cast.hpp&gt;
+<span class="lineNum">      28 </span>            : 
+<span class="lineNum">      29 </span>            : /** \brief %Configuration storage
+<span class="lineNum">      30 </span>            :  *
+<span class="lineNum">      31 </span>            :  * This class stores the system configuration.  In essence it is a
+<span class="lineNum">      32 </span>            :  * wrapper around a `std::map` which `std::string` key and
+<span class="lineNum">      33 </span>            :  * `Configuration::value` value.  The wrapped value class has some
+<span class="lineNum">      34 </span>            :  * advanced features which make it better than a pure `std::string`
+<span class="lineNum">      35 </span>            :  * value.
+<span class="lineNum">      36 </span>            :  */
+<span class="lineNum">      37 </span>            : class Configuration {
+<span class="lineNum">      38 </span>            : private:
+<span class="lineNum">      39 </span>            :     class value {
+<span class="lineNum">      40 </span>            :         std::string m_value;
+<a name="41"><span class="lineNum">      41 </span>            : </a>
+<span class="lineNum">      42 </span>            :     public:
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">        259 :         value() = default;</span></a>
+<span class="lineNum">      44 </span>            : 
+<a name="45"><span class="lineNum">      45 </span><span class="lineCov">       2268 :         std::string const str() const { return m_value; }</span></a>
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span><span class="lineCov">          5 :         bool operator==(value const &amp;rhs) const { return this-&gt;m_value == rhs.m_value; }</span>
+<a name="48"><span class="lineNum">      48 </span>            : </a>
+<span class="lineNum">      49 </span>            :         template &lt;typename T&gt;
+<span class="lineNum">      50 </span><span class="lineCov">        211 :         value &amp;operator&lt;&lt;(T const &amp;rhs) {</span>
+<span class="lineNum">      51 </span><span class="lineCov">        211 :             m_value = boost::lexical_cast&lt;std::string&gt;(rhs);</span>
+<span class="lineNum">      52 </span><span class="lineCov">        211 :             return *this;</span>
+<span class="lineNum">      53 </span>            :         }
+<a name="54"><span class="lineNum">      54 </span><span class="lineCov">          9 : </span></a>
+<span class="lineNum">      55 </span><span class="lineCov">          9 :         template &lt;typename T&gt;</span>
+<span class="lineNum">      56 </span><span class="lineCov">         41 :         value &amp;operator&gt;&gt;(T &amp;rhs) {</span>
+<span class="lineNum">      57 </span><span class="lineCov">         32 :             rhs = boost::lexical_cast&lt;T&gt;(m_value);</span>
+<span class="lineNum">      58 </span><span class="lineCov">         49 :             return *this;</span>
+<span class="lineNum">      59 </span><span class="lineCov">         17 :         }</span>
+<span class="lineNum">      60 </span><span class="lineCov">         18 : </span>
+<span class="lineNum">      61 </span><span class="lineCov">          1 :         template &lt;typename T&gt;</span>
+<span class="lineNum">      62 </span><span class="lineCov">         20 :         value const &amp;operator&gt;&gt;(T &amp;rhs) const {</span>
+<span class="lineNum">      63 </span><span class="lineCov">         19 :             rhs = boost::lexical_cast&lt;T&gt;(m_value);</span>
+<span class="lineNum">      64 </span><span class="lineCov">         22 :             return *this;</span>
+<a name="65"><span class="lineNum">      65 </span><span class="lineCov">          3 :         }</span></a>
+<span class="lineNum">      66 </span><span class="lineCov">        143 : </span>
+<span class="lineNum">      67 </span><span class="lineCov">        140 :         value &amp;operator&lt;&lt;(value const &amp;rhs) {</span>
+<span class="lineNum">      68 </span><span class="lineCov">        171 :             m_value = rhs.m_value;</span>
+<span class="lineNum">      69 </span><span class="lineCov">         31 :             return *this;</span>
+<a name="70"><span class="lineNum">      70 </span><span class="lineCov">         31 :         }</span></a>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineCov">         58 :         value &amp;operator&gt;&gt;(value &amp;rhs) {</span>
+<span class="lineNum">      73 </span><span class="lineCov">         58 :             rhs.m_value = m_value;</span>
+<span class="lineNum">      74 </span><span class="lineCov">         58 :             return *this;</span>
+<span class="lineNum">      75 </span>            :         }
+<span class="lineNum">      76 </span><span class="lineCov">         17 : </span>
+<span class="lineNum">      77 </span><span class="lineCov">         17 :         value const &amp;operator&gt;&gt;(value &amp;rhs) const {</span>
+<span class="lineNum">      78 </span><span class="lineCov">         17 :             rhs.m_value = m_value;</span>
+<span class="lineNum">      79 </span><span class="lineNoCov">          0 :             return *this;</span>
+<span class="lineNum">      80 </span><span class="lineCov">         42 :         }</span>
+<span class="lineNum">      81 </span><span class="lineCov">         42 :     };</span>
+<span class="lineNum">      82 </span><span class="lineCov">         42 : </span>
+<span class="lineNum">      83 </span>            : public:
+<span class="lineNum">      84 </span>            :     /** \brief Load configuration from JSON file
+<span class="lineNum">      85 </span>            :      *
+<span class="lineNum">      86 </span>            :      * Loads the configuration from a JSON file using Boost's ptree.
+<span class="lineNum">      87 </span>            :      *
+<span class="lineNum">      88 </span>            :      * \param[in] filename    Path to the JSON file
+<span class="lineNum">      89 </span>            :      */
+<span class="lineNum">      90 </span>            :     void load_from_json(std::string const &amp;filename);
+<span class="lineNum">      91 </span><span class="lineCov">         33 : </span>
+<span class="lineNum">      92 </span><span class="lineCov">         33 :     /** \brief Save configuration to JSON file</span>
+<span class="lineNum">      93 </span><span class="lineCov">         33 :      *</span>
+<span class="lineNum">      94 </span>            :      * Saves the configuration to a JSON file using Boost's ptree.
+<span class="lineNum">      95 </span>            :      *
+<span class="lineNum">      96 </span><span class="lineCov">          1 :      * \param[in] filename    Path to the JSON file</span>
+<span class="lineNum">      97 </span><span class="lineCov">          1 :      */</span>
+<span class="lineNum">      98 </span><span class="lineCov">          1 :     void save_to_json(std::string const &amp;filename) const;</span>
+<a name="99"><span class="lineNum">      99 </span>            : </a>
+<span class="lineNum">     100 </span>            :     /** \brief Constructor */
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :     Configuration() = default;</span>
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :     /** \brief Number of elements matching specific key
+<span class="lineNum">     104 </span>            :      *
+<span class="lineNum">     105 </span>            :      * Returns the number of elements matching the key.  This can only
+<span class="lineNum">     106 </span>            :      * be zero or one, because the wrapped `std::map` does not allow
+<span class="lineNum">     107 </span>            :      * duplicates.
+<span class="lineNum">     108 </span>            :      *
+<span class="lineNum">     109 </span>            :      * \param[in] key    Key
+<a name="110"><span class="lineNum">     110 </span>            :      * \returns Number of elements machting key</a>
+<span class="lineNum">     111 </span>            :      */
+<span class="lineNum">     112 </span><span class="lineCov">         11 :     size_t count(std::string const &amp;key) const { return params.count(key); }</span>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     114 </span>            :     /** \brief Number of elements
+<span class="lineNum">     115 </span>            :      *
+<span class="lineNum">     116 </span>            :      * \returns Number of elements
+<span class="lineNum">     117 </span>            :      */
+<span class="lineNum">     118 </span>            :     size_t size() const { return params.size(); }
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span>            :     /** \brief Append operator
+<span class="lineNum">     121 </span>            :      *
+<span class="lineNum">     122 </span>            :      * This will append the right hand side to the left hand side.  If
+<span class="lineNum">     123 </span>            :      * a key exists on both sides, it will be overwritten with the
+<span class="lineNum">     124 </span>            :      * value from the right hand side.
+<span class="lineNum">     125 </span><span class="lineCov">          8 :      *</span>
+<a name="126"><span class="lineNum">     126 </span>            :      * \returns Configuration appended to</a>
+<span class="lineNum">     127 </span>            :      */
+<span class="lineNum">     128 </span>            :     Configuration &amp;operator+=(Configuration const &amp;rhs) {
+<span class="lineNum">     129 </span>            :         for (auto const &amp;p : rhs) {
+<span class="lineNum">     130 </span>            :             (*this)[p.first] = p.second;
+<span class="lineNum">     131 </span>            :         }
+<span class="lineNum">     132 </span>            :         return *this;
+<span class="lineNum">     133 </span>            :     }
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :     /** \brief Element access operator
+<span class="lineNum">     136 </span><span class="lineCov">          2 :      *</span>
+<span class="lineNum">     137 </span>            :      * This returns a reference to the element associated to the key
+<span class="lineNum">     138 </span>            :      * and will insert it if no such key exists.
+<span class="lineNum">     139 </span>            :      *
+<a name="140"><span class="lineNum">     140 </span>            :      * \returns Reference to the value</a>
+<span class="lineNum">     141 </span>            :      */
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :     value &amp;operator[](std::string const &amp;key) { return params[key]; }</span>
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span>            :     /** \brief Constant element access operator
+<span class="lineNum">     145 </span>            :      *
+<span class="lineNum">     146 </span>            :      * This returns a copy of the element associated to the key.  It
+<span class="lineNum">     147 </span>            :      * throws if no such key exists.
+<span class="lineNum">     148 </span>            :      *
+<span class="lineNum">     149 </span>            :      * \returns Copy of the value
+<a name="150"><span class="lineNum">     150 </span>            :      * \throws std::out_of_range</a>
+<span class="lineNum">     151 </span>            :      */
+<span class="lineNum">     152 </span><span class="lineCov">          2 :     value operator[](std::string const &amp;key) const { return params.at(key); }</span>
+<span class="lineNum">     153 </span><span class="lineCov">         30 : </span>
+<span class="lineNum">     154 </span><span class="lineCov">         28 :     /** \brief Comparison operator</span>
+<span class="lineNum">     155 </span>            :      *
+<span class="lineNum">     156 </span><span class="lineCov">          2 :      * Compares two configurations.</span>
+<span class="lineNum">     157 </span>            :      *
+<a name="158"><span class="lineNum">     158 </span>            :      * \returns Truth value for equality</a>
+<span class="lineNum">     159 </span>            :      */
+<span class="lineNum">     160 </span>            :     bool operator==(Configuration const &amp;rhs) const { return this-&gt;params == rhs.params; }
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            :     /** \brief Iterator type
+<span class="lineNum">     163 </span>            :      *
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :      * Instead of implementing an own iterator we use the existing one</span>
+<span class="lineNum">     165 </span>            :      * of the underlying `std::map`.
+<span class="lineNum">     166 </span><span class="lineCov">        279 :      */</span>
+<span class="lineNum">     167 </span>            :     typedef std::map&lt;std::string, value&gt;::iterator iterator;
+<span class="lineNum">     168 </span>            : 
+<span class="lineNum">     169 </span>            :     /** \brief Constant iterator type
+<span class="lineNum">     170 </span>            :      *
+<span class="lineNum">     171 </span>            :      * Instead of implementing an own constant iterator we use the
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :      * existing one of the underlying `std::map`.</span>
+<span class="lineNum">     173 </span>            :      */
+<span class="lineNum">     174 </span>            :     typedef std::map&lt;std::string, value&gt;::const_iterator const_iterator;
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineCov">        117 :     /** \brief Iterator pointing to the beginning</span>
+<span class="lineNum">     177 </span>            :      *
+<a name="178"><span class="lineNum">     178 </span>            :      * \returns iterator</a>
+<span class="lineNum">     179 </span>            :      */
+<span class="lineNum">     180 </span>            :     iterator begin() { return params.begin(); }
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span>            :     /** \brief Iterator pointing to the end
+<span class="lineNum">     183 </span>            :      *
+<a name="184"><span class="lineNum">     184 </span><span class="lineCov">          1 :      * \returns iterator</span></a>
+<span class="lineNum">     185 </span>            :      */
+<span class="lineNum">     186 </span>            :     iterator end() { return params.end(); }
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span>            :     /** \brief Constant iterator pointing to the beginning
+<span class="lineNum">     189 </span>            :      *
+<a name="190"><span class="lineNum">     190 </span>            :      * \returns constant iterator</a>
+<span class="lineNum">     191 </span>            :      */
+<span class="lineNum">     192 </span><span class="lineCov">         91 :     const_iterator begin() const { return params.cbegin(); }</span>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span>            :     /** \brief Constant iterator pointing to the end
+<span class="lineNum">     195 </span>            :      *
+<a name="196"><span class="lineNum">     196 </span>            :      * \returns constant iterator</a>
+<span class="lineNum">     197 </span>            :      */
+<span class="lineNum">     198 </span><span class="lineCov">         91 :     const_iterator end() const { return params.cend(); }</span>
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            :     /** \brief Find an element associated to a key
+<span class="lineNum">     201 </span>            :      *
+<span class="lineNum">     202 </span>            :      * Attempts to find a key in the map and returns an iterator
+<span class="lineNum">     203 </span>            :      * pointing to the element.  If no such key exists it returns
+<span class="lineNum">     204 </span><span class="lineCov">          1 :      * end().</span>
+<span class="lineNum">     205 </span>            :      *
+<a name="206"><span class="lineNum">     206 </span>            :      * \returns iterator</a>
+<span class="lineNum">     207 </span>            :      */
+<span class="lineNum">     208 </span>            :     iterator find(std::string const &amp;key) { return params.find(key); }
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineCov">          1 :     /** \brief Constant version of find(std::string const&amp;)</span>
+<span class="lineNum">     211 </span>            :      *
+<a name="212"><span class="lineNum">     212 </span>            :      * \returns constant iterator</a>
+<span class="lineNum">     213 </span>            :      */
+<span class="lineNum">     214 </span>            :     const_iterator find(std::string const &amp;key) const { return params.find(key); }
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span><span class="lineCov">          2 : private:</span>
+<span class="lineNum">     217 </span>            :     std::map&lt;std::string, value&gt; params;
+<span class="lineNum">     218 </span>            : };
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span>            : #endif // CONF_PARSER_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/SystemTwo.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - SystemTwo.h<span style="font-size: 80%;"> (source / <a href="SystemTwo.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">55</td>
+            <td class="headerCovTableEntry">70</td>
+            <td class="headerCovTableEntryMed">78.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke, Johannes Block. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef SYSTEMTWO_H
+<span class="lineNum">      21 </span>            : #define SYSTEMTWO_H
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &quot;State.h&quot;
+<span class="lineNum">      24 </span>            : #include &quot;SystemBase.h&quot;
+<span class="lineNum">      25 </span>            : #include &quot;SystemOne.h&quot;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #include &lt;Eigen/Sparse&gt;
+<span class="lineNum">      28 </span>            : #include &lt;boost/math/special_functions/binomial.hpp&gt;
+<span class="lineNum">      29 </span>            : #include &lt;boost/serialization/base_object.hpp&gt;
+<span class="lineNum">      30 </span>            : #include &lt;boost/serialization/unordered_map.hpp&gt;
+<span class="lineNum">      31 </span>            : #include &lt;cmath&gt;
+<span class="lineNum">      32 </span>            : #include &lt;set&gt;
+<span class="lineNum">      33 </span>            : #include &lt;type_traits&gt;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : class SystemTwo : public SystemBase&lt;StateTwo&gt; {
+<span class="lineNum">      36 </span>            : public:
+<span class="lineNum">      37 </span>            :     SystemTwo(const SystemOne &amp;b1, const SystemOne &amp;b2, MatrixElementCache &amp;cache);
+<span class="lineNum">      38 </span>            :     SystemTwo(const SystemOne &amp;b1, const SystemOne &amp;b2, MatrixElementCache &amp;cache,
+<span class="lineNum">      39 </span>            :               bool memory_saving);
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            :     const std::array&lt;std::string, 2&gt; &amp;getSpecies();
+<span class="lineNum">      42 </span>            :     std::vector&lt;StateOne&gt; getStatesFirst();
+<span class="lineNum">      43 </span>            :     std::vector&lt;StateOne&gt; getStatesSecond();
+<span class="lineNum">      44 </span>            :     void enableGreenTensor(bool GTboolean);
+<span class="lineNum">      45 </span>            :     void setSurfaceDistance(double d);
+<span class="lineNum">      46 </span>            :     void setAngle(double a);
+<span class="lineNum">      47 </span>            :     void setDistance(double d);
+<span class="lineNum">      48 </span>            :     void setDistanceVector(std::array&lt;double, 3&gt; d);
+<span class="lineNum">      49 </span>            :     void setOrder(double o);
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            :     void setConservedParityUnderPermutation(parity_t parity);
+<span class="lineNum">      52 </span>            :     void setConservedParityUnderInversion(parity_t parity);
+<span class="lineNum">      53 </span>            :     void setConservedParityUnderReflection(parity_t parity);
+<span class="lineNum">      54 </span>            :     void setConservedMomentaUnderRotation(const std::set&lt;int&gt; &amp;momenta);
+<span class="lineNum">      55 </span>            :     void setOneAtomBasisvectors(const std::vector&lt;std::array&lt;size_t, 2&gt;&gt; &amp;indices);
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            : protected:
+<span class="lineNum">      58 </span>            :     void initializeBasis() override;
+<span class="lineNum">      59 </span>            :     void initializeInteraction() override;
+<span class="lineNum">      60 </span>            :     void addInteraction() override;
+<span class="lineNum">      61 </span>            :     void transformInteraction(const eigen_sparse_t &amp;transformator) override;
+<span class="lineNum">      62 </span>            :     void deleteInteraction() override;
+<span class="lineNum">      63 </span>            :     eigen_sparse_t rotateStates(const std::vector&lt;size_t&gt; &amp;states_indices, double alpha,
+<span class="lineNum">      64 </span>            :                                 double beta, double gamma) override;
+<span class="lineNum">      65 </span>            :     eigen_sparse_t buildStaterotator(double alpha, double beta, double gamma) override;
+<span class="lineNum">      66 </span>            :     void incorporate(SystemBase&lt;StateTwo&gt; &amp;system) override;
+<span class="lineNum">      67 </span>            :     void onStatesChange() override;
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            : private:
+<span class="lineNum">      70 </span>            :     std::array&lt;std::string, 2&gt; species;
+<span class="lineNum">      71 </span>            :     SystemOne system1; // is needed in the initializeBasis method and afterwards deleted
+<span class="lineNum">      72 </span>            :     SystemOne system2; // is needed in the initializeBasis method and afterwards deleted
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span>            :     std::unordered_map&lt;int, eigen_sparse_t&gt; interaction_angulardipole;
+<span class="lineNum">      75 </span>            :     std::unordered_map&lt;int, eigen_sparse_t&gt; interaction_multipole;
+<span class="lineNum">      76 </span>            :     std::unordered_map&lt;int, eigen_sparse_t&gt; interaction_greentensor_dd;
+<span class="lineNum">      77 </span>            :     std::unordered_map&lt;int, eigen_sparse_t&gt; interaction_greentensor_dq;
+<span class="lineNum">      78 </span>            :     std::unordered_map&lt;int, eigen_sparse_t&gt; interaction_greentensor_qd;
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :     double minimal_le_roy_radius;
+<span class="lineNum">      81 </span>            :     double distance, distance_x, distance_y, distance_z;
+<span class="lineNum">      82 </span>            :     bool GTbool;
+<span class="lineNum">      83 </span>            :     double surface_distance;
+<span class="lineNum">      84 </span>            :     unsigned int ordermax;
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            :     parity_t sym_permutation;
+<span class="lineNum">      87 </span>            :     parity_t sym_inversion;
+<span class="lineNum">      88 </span>            :     parity_t sym_reflection;
+<span class="lineNum">      89 </span>            :     std::set&lt;int&gt; sym_rotation;
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            :     std::unordered_map&lt;int, double&gt; angle_terms;
+<span class="lineNum">      92 </span>            :     std::unordered_map&lt;int, double&gt; greentensor_terms_dd;
+<span class="lineNum">      93 </span>            :     std::unordered_map&lt;int, double&gt; greentensor_terms_dq;
+<span class="lineNum">      94 </span>            :     std::unordered_map&lt;int, double&gt; greentensor_terms_qd;
+<span class="lineNum">      95 </span>            :     std::vector&lt;std::array&lt;size_t, 2&gt;&gt; one_atom_basisvectors_indices;
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">      98 </span>            :     /// Utility methods ////////////////////////////////////////////////
+<span class="lineNum">      99 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            :     void checkDistance(const double &amp;distance);
+<span class="lineNum">     102 </span>            : 
+<span class="lineNum">     103 </span>            :     void addBasisvectors(const StateTwo &amp;state, const size_t &amp;col_new, const scalar_t &amp;value_new,
+<span class="lineNum">     104 </span>            :                          std::vector&lt;eigen_triplet_t&gt; &amp;basisvectors_triplets,
+<span class="lineNum">     105 </span>            :                          std::vector&lt;double&gt; &amp;sqnorm_list);
+<a name="106"><span class="lineNum">     106 </span>            : </a>
+<span class="lineNum">     107 </span>            :     template &lt;typename T&gt;
+<span class="lineNum">     108 </span><span class="lineCov">     297637 :     void addTriplet(std::vector&lt;Eigen::Triplet&lt;T&gt;&gt; &amp;triplets, size_t r_idx, size_t c_idx, T val) {</span>
+<span class="lineNum">     109 </span><span class="lineCov">     297637 :         triplets.emplace_back(r_idx, c_idx, val);</span>
+<span class="lineNum">     110 </span><span class="lineCov">     297637 :     }</span>
+<a name="111"><span class="lineNum">     111 </span><span class="lineCov">     160937 : </span></a>
+<span class="lineNum">     112 </span><span class="lineCov">     160937 :     template &lt;class T&gt;</span>
+<span class="lineNum">     113 </span><span class="lineCov">     160975 :     void addRotated(const StateTwo &amp;state, const size_t &amp;idx,</span>
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :                     std::vector&lt;Eigen::Triplet&lt;T&gt;&gt; &amp;triplets, WignerD &amp;wigner, const double &amp;alpha,</span>
+<span class="lineNum">     115 </span><span class="lineNoCov">          0 :                     const double &amp;beta, const double &amp;gamma) {</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :         // Check whether the angles are compatible to the used data type</span>
+<span class="lineNum">     117 </span><span class="lineCov">         38 :         double tolerance = 1e-16;</span>
+<span class="lineNum">     118 </span><span class="lineCov">         38 :         if (std::is_same&lt;T, double&gt;::value &amp;&amp;</span>
+<span class="lineNum">     119 </span><span class="lineCov">        307 :             std::abs(std::remainder(alpha, 2 * M_PI)) &gt; tolerance) {</span>
+<span class="lineNum">     120 </span>            :             throw std::runtime_error(
+<span class="lineNum">     121 </span>            :                 &quot;If the Euler angle alpha is not a multiple of 2 pi, the Wigner D matrix element &quot;
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :                 &quot;is complex and cannot be converted to double.&quot;);</span>
+<span class="lineNum">     123 </span><span class="lineCov">        269 :         }</span>
+<span class="lineNum">     124 </span><span class="lineCov">         38 :         if (std::is_same&lt;T, double&gt;::value &amp;&amp;</span>
+<span class="lineNum">     125 </span><span class="lineCov">         38 :             std::abs(std::remainder(gamma, 2 * M_PI)) &gt; tolerance) {</span>
+<span class="lineNum">     126 </span>            :             throw std::runtime_error(
+<span class="lineNum">     127 </span>            :                 &quot;If the Euler angle gamma is not a multiple of 2 pi, the Wigner D matrix element &quot;
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :                 &quot;is complex and cannot be converted to double.&quot;);</span>
+<span class="lineNum">     129 </span>            :         }
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            :         // Add rotated triplet entries
+<span class="lineNum">     132 </span><span class="lineCov">         76 :         std::vector&lt;T&gt; val2_vector;</span>
+<span class="lineNum">     133 </span><span class="lineCov">         38 :         val2_vector.reserve(2 * state.getSecondState().getJ() + 1);</span>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span><span class="lineCov">        114 :         for (float m2 = -state.getSecondState().getJ(); m2 &lt;= state.getSecondState().getJ(); ++m2) {</span>
+<span class="lineNum">     136 </span><span class="lineCov">         76 :             val2_vector.push_back(</span>
+<span class="lineNum">     137 </span><span class="lineCov">         76 :                 utils::convert&lt;T&gt;(wigner(state.getSecondState().getJ(), m2,</span>
+<span class="lineNum">     138 </span><span class="lineCov">        614 :                                          state.getSecondState().getM(), -gamma, -beta, -alpha)));</span>
+<span class="lineNum">     139 </span><span class="lineCov">        269 :         }</span>
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span><span class="lineCov">       1787 :         for (float m1 = -state.getFirstState().getJ(); m1 &lt;= state.getFirstState().getJ(); ++m1) {</span>
+<span class="lineNum">     142 </span><span class="lineCov">       1404 :             auto val1 =</span>
+<span class="lineNum">     143 </span><span class="lineCov">       2884 :                 utils::convert&lt;T&gt;(wigner(state.getFirstState().getJ(), m1,</span>
+<span class="lineNum">     144 </span><span class="lineCov">       1480 :                                          state.getFirstState().getM(), -gamma, -beta, -alpha));</span>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineCov">        228 :             for (float m2 = -state.getSecondState().getJ(); m2 &lt;= state.getSecondState().getJ();</span>
+<span class="lineNum">     147 </span><span class="lineCov">       1673 :                  ++m2) {</span>
+<span class="lineNum">     148 </span><span class="lineCov">        304 :                 StateTwo newstate(state.getSpecies(), state.getN(), state.getL(), state.getJ(),</span>
+<span class="lineNum">     149 </span><span class="lineCov">       1404 :                                   {{m1, m2}});</span>
+<span class="lineNum">     150 </span><span class="lineCov">       1556 :                 auto state_iter = states.get&lt;1&gt;().find(newstate);</span>
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span><span class="lineCov">       8276 :                 if (state_iter != states.get&lt;1&gt;().end()) {</span>
+<span class="lineNum">     153 </span><span class="lineCov">        152 :                     auto val = val1 * val2_vector[m2 + state.getSecondState().getJ()];</span>
+<span class="lineNum">     154 </span><span class="lineCov">      13592 :                     triplets.push_back(Eigen::Triplet&lt;T&gt;(state_iter-&gt;idx, idx, val));</span>
+<span class="lineNum">     155 </span>            :                 } else {
+<span class="lineNum">     156 </span><span class="lineCov">       6720 :                     std::cerr &lt;&lt; &quot;Warning: Incomplete rotation because the basis is lacking some &quot;</span>
+<span class="lineNum">     157 </span>            :                                  &quot;Zeeman levels.&quot;
+<span class="lineNum">     158 </span><span class="lineCov">       6720 :                               &lt;&lt; std::endl;</span>
+<span class="lineNum">     159 </span><span class="lineCov">       6720 :                 }</span>
+<span class="lineNum">     160 </span><span class="lineCov">       6720 :             }</span>
+<span class="lineNum">     161 </span>            :         }
+<span class="lineNum">     162 </span><span class="lineCov">         38 :     }</span>
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :     bool isRefelectionAndRotationCompatible();</span>
+<span class="lineNum">     165 </span>            : 
+<span class="lineNum">     166 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     167 </span>            :     /// Method for serialization ///////////////////////////////////////
+<span class="lineNum">     168 </span><span class="lineCov">        269 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">     169 </span>            : 
+<span class="lineNum">     170 </span>            :     friend class boost::serialization::access;
+<a name="171"><span class="lineNum">     171 </span>            : </a>
+<span class="lineNum">     172 </span>            :     template &lt;class Archive&gt;
+<span class="lineNum">     173 </span><span class="lineCov">          5 :     void serialize(Archive &amp;ar, const unsigned int /*version*/) {</span>
+<span class="lineNum">     174 </span><span class="lineCov">          5 :         ar &amp;boost::serialization::base_object&lt;SystemBase&lt;StateTwo&gt;&gt;(*this);</span>
+<span class="lineNum">     175 </span><span class="lineCov">          5 :         ar &amp;species &amp;system1 &amp;system2;</span>
+<span class="lineNum">     176 </span><span class="lineCov">          5 :         ar &amp;distance &amp;distance_x &amp;distance_y &amp;distance_z &amp;surface_distance &amp;ordermax;</span>
+<span class="lineNum">     177 </span><span class="lineCov">          5 :         ar &amp;sym_permutation &amp;sym_inversion &amp;sym_reflection &amp;sym_rotation;</span>
+<span class="lineNum">     178 </span><span class="lineCov">          5 :         ar &amp;angle_terms &amp;greentensor_terms_dd &amp;greentensor_terms_dq &amp;greentensor_terms_qd;</span>
+<span class="lineNum">     179 </span><span class="lineCov">          5 :         ar &amp;interaction_angulardipole &amp;interaction_multipole &amp;interaction_greentensor_dd</span>
+<span class="lineNum">     180 </span><span class="lineCov">         10 :             &amp;interaction_greentensor_dq &amp;interaction_greentensor_qd;</span>
+<span class="lineNum">     181 </span><span class="lineCov">          5 :     }</span>
+<span class="lineNum">     182 </span><span class="lineCov">          5 : };</span>
+<span class="lineNum">     183 </span><span class="lineCov">          5 : </span>
+<span class="lineNum">     184 </span><span class="lineCov">          5 : #endif</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/NumpyUtils.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - NumpyUtils.h<span style="font-size: 80%;"> (source / <a href="NumpyUtils.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">137</td>
+            <td class="headerCovTableEntry">154</td>
+            <td class="headerCovTableEntryMed">89.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntryHi">95.1 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2017 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef NUMPYUTILS_H
+<span class="lineNum">      21 </span>            : #define NUMPYUTILS_H
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+<span class="lineNum">      24 </span>            : #include &lt;Python.h&gt;
+<span class="lineNum">      25 </span>            : #include &lt;numpy/ndarrayobject.h&gt;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : #include &lt;cstring&gt;
+<span class="lineNum">      28 </span>            : #include &lt;iterator&gt;
+<span class="lineNum">      29 </span>            : #include &lt;numeric&gt;
+<span class="lineNum">      30 </span>            : #include &lt;stdexcept&gt;
+<span class="lineNum">      31 </span>            : #include &lt;tuple&gt;
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span>            : #include &lt;Eigen/Core&gt;
+<span class="lineNum">      34 </span>            : #include &lt;Eigen/SparseCore&gt;
+<span class="lineNum">      35 </span>            : 
+<span class="lineNum">      36 </span>            : #include &quot;Traits.h&quot;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : namespace {
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span>            : #define CONCATENATE_IMPL(s1, s2) s1##s2
+<span class="lineNum">      41 </span>            : #define CONCATENATE(s1, s2) CONCATENATE_IMPL(s1, s2)
+<span class="lineNum">      42 </span>            : #define ANONYMOUS_VARIABLE(str) CONCATENATE(str, __LINE__)
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span>            : enum class ScopeGuardOnExit {};
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : template &lt;typename F&gt;
+<span class="lineNum">      47 </span>            : class ScopeGuard {
+<span class="lineNum">      48 </span>            :     F f;
+<a name="49"><span class="lineNum">      49 </span>            : </a>
+<a name="50"><span class="lineNum">      50 </span>            : public:</a>
+<span class="lineNum">      51 </span><span class="lineCov">        301 :     ScopeGuard(F f) : f(std::move(f)) {}</span>
+<span class="lineNum">      52 </span><span class="lineCov">        301 :     ~ScopeGuard() noexcept { f(); }</span>
+<span class="lineNum">      53 </span>            : };
+<a name="54"><span class="lineNum">      54 </span>            : </a>
+<span class="lineNum">      55 </span>            : template &lt;typename F&gt;
+<span class="lineNum">      56 </span><span class="lineCov">        301 : ScopeGuard&lt;F&gt; operator+(ScopeGuardOnExit, F &amp;&amp;f) {</span>
+<span class="lineNum">      57 </span><span class="lineCov">        301 :     return ScopeGuard&lt;F&gt;(std::forward&lt;F&gt;(f));</span>
+<span class="lineNum">      58 </span>            : }
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : #define SCOPE_EXIT auto ANONYMOUS_VARIABLE(onexit_) = ScopeGuardOnExit{} + [=]()
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : } // namespace
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span>            : namespace numpy {
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            : /** \brief Selector for view or copy
+<span class="lineNum">      67 </span>            :  *
+<span class="lineNum">      68 </span>            :  * Deduction for view and copy should be a template parameter for
+<span class="lineNum">      69 </span>            :  * maximum flexibility.  That is why we make a new type for that.
+<span class="lineNum">      70 </span>            :  */
+<span class="lineNum">      71 </span>            : enum view_or_copy { view, copy };
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : /** \brief Numpy array type
+<span class="lineNum">      74 </span>            :  *
+<span class="lineNum">      75 </span>            :  * Numpy arrays are just usual PyObjects.  However, it doesn't
+<span class="lineNum">      76 </span>            :  * look as nice in return statements as numpy::array.
+<span class="lineNum">      77 </span>            :  */
+<span class="lineNum">      78 </span>            : typedef PyObject *array;
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            : namespace internal {
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : /** \brief Map C++ types to Numpy types
+<span class="lineNum">      83 </span>            :  *
+<span class="lineNum">      84 </span>            :  * This struct has specializations for common C++ types and
+<span class="lineNum">      85 </span>            :  * their Numpy counterparts.
+<span class="lineNum">      86 </span>            :  */
+<span class="lineNum">      87 </span>            : template &lt;typename T&gt;
+<span class="lineNum">      88 </span>            : struct py_type;
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            : /** \brief Specialization of py_type for int */
+<span class="lineNum">      91 </span>            : template &lt;&gt;
+<span class="lineNum">      92 </span>            : struct py_type&lt;int&gt; {
+<span class="lineNum">      93 </span>            :     /** \brief Numpy type identifier */
+<span class="lineNum">      94 </span>            :     static constexpr int type = NPY_INT;
+<span class="lineNum">      95 </span>            : };
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span>            : /** \brief Specialization of py_type for float */
+<span class="lineNum">      98 </span>            : template &lt;&gt;
+<span class="lineNum">      99 </span>            : struct py_type&lt;float&gt; {
+<span class="lineNum">     100 </span>            :     /** \brief Numpy type identifier */
+<span class="lineNum">     101 </span>            :     static constexpr int type = NPY_FLOAT;
+<span class="lineNum">     102 </span>            : };
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            : /** \brief Specialization of py_type for double */
+<span class="lineNum">     105 </span>            : template &lt;&gt;
+<span class="lineNum">     106 </span>            : struct py_type&lt;double&gt; {
+<span class="lineNum">     107 </span>            :     /** \brief Numpy type identifier */
+<span class="lineNum">     108 </span>            :     static constexpr int type = NPY_DOUBLE;
+<span class="lineNum">     109 </span>            : };
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span>            : /** \brief Specialization of py_type for double */
+<span class="lineNum">     112 </span>            : template &lt;&gt;
+<span class="lineNum">     113 </span>            : struct py_type&lt;std::complex&lt;double&gt;&gt; {
+<span class="lineNum">     114 </span>            :     /** \brief Numpy type identifier */
+<span class="lineNum">     115 </span>            :     static constexpr int type = NPY_CDOUBLE;
+<span class="lineNum">     116 </span>            : };
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            : /** \brief Perform sanity checks for convert
+<span class="lineNum">     119 </span>            :  *
+<span class="lineNum">     120 </span>            :  * To ensure that dimensions and types are consistent we
+<span class="lineNum">     121 </span>            :  * introduce this check function.
+<span class="lineNum">     122 </span>            :  *
+<span class="lineNum">     123 </span>            :  * \param[in] len      Length of the memory
+<span class="lineNum">     124 </span>            :  * \param[in] nd       Number of dimensions
+<span class="lineNum">     125 </span>            :  * \param[in] dims     Initializer list with lengths of dimensions
+<span class="lineNum">     126 </span>            :  *
+<span class="lineNum">     127 </span>            :  * \return The total length of the array
+<a name="128"><span class="lineNum">     128 </span>            :  */</a>
+<span class="lineNum">     129 </span>            : template &lt;typename T&gt;
+<span class="lineNum">     130 </span><span class="lineCov">       1172 : void check_array_sanity(int len, int nd, std::initializer_list&lt;T&gt; dims) {</span>
+<span class="lineNum">     131 </span><span class="lineCov">       1172 :     if (len &lt; 1)</span>
+<span class="lineNum">     132 </span>            :         throw std::out_of_range(&quot;Trying to create a numpy array with zero or &quot;
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                                 &quot;negative element count!&quot;);</span>
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span><span class="lineCov">       1172 :     if (nd != static_cast&lt;int&gt;(dims.size()))</span>
+<a name="136"><span class="lineNum">     136 </span><span class="lineNoCov">          0 :         throw std::out_of_range(&quot;Dimension mismatch!&quot;);</span></a>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineCov">       2355 :     if (len &gt; std::accumulate(dims.begin(), dims.end(), int{1}, [](int a, int b) { return a * b; }))</span>
+<span class="lineNum">     139 </span><span class="lineNoCov">          0 :         throw std::out_of_range(&quot;Requested dimension is larger than data!&quot;);</span>
+<span class="lineNum">     140 </span><span class="lineCov">       1172 : }</span>
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            : /** \brief Create a Numpy view of an iterator (implementation)
+<span class="lineNum">     143 </span>            :  *
+<span class="lineNum">     144 </span>            :  * This creates a view of the data, i.e. the data still
+<span class="lineNum">     145 </span>            :  * belongs to the C++ end.  When the data is deallocated on
+<span class="lineNum">     146 </span>            :  * the C++ end trying to access it in Python will probably
+<span class="lineNum">     147 </span>            :  * cause a segfault.  In any case it is undefined behavior.
+<span class="lineNum">     148 </span>            :  *
+<span class="lineNum">     149 </span>            :  * \param[in] nd       Number of dimensions
+<span class="lineNum">     150 </span>            :  * \param[in] dim      Dimensions of the array
+<span class="lineNum">     151 </span>            :  * \param[in] dtype    Value type of array elements
+<span class="lineNum">     152 </span>            :  * \param[in] data     Pointer to array data
+<span class="lineNum">     153 </span>            :  *
+<span class="lineNum">     154 </span>            :  * \return PyObject* containing a Numpy array
+<span class="lineNum">     155 </span>            :  */
+<a name="156"><span class="lineNum">     156 </span>            : template &lt;view_or_copy v, bool const_tag, typename value_type&gt;</a>
+<span class="lineNum">     157 </span>            : typename std::enable_if&lt;v == numpy::view, PyObject *&gt;::type
+<span class="lineNum">     158 </span><span class="lineCov">        903 : convert_impl(int nd, npy_intp *dim, int dtype, void *data, int) {</span>
+<span class="lineNum">     159 </span>            :     PyObject *ndarray =
+<span class="lineNum">     160 </span><span class="lineCov">        903 :         PyArray_New(&amp;PyArray_Type, nd, dim, dtype, nullptr, data, 0, NPY_ARRAY_FARRAY, nullptr);</span>
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            :     if (const_tag)
+<span class="lineNum">     163 </span>            :         PyArray_CLEARFLAGS(reinterpret_cast&lt;PyArrayObject *&gt;(ndarray), NPY_ARRAY_WRITEABLE);
+<span class="lineNum">     164 </span><span class="lineCov">        903 :     return ndarray;</span>
+<span class="lineNum">     165 </span>            : }
+<span class="lineNum">     166 </span><span class="lineCov">        301 : </span>
+<span class="lineNum">     167 </span>            : /** \brief Create a Numpy copy of an iterator (implementation)
+<span class="lineNum">     168 </span><span class="lineCov">        301 :  *</span>
+<span class="lineNum">     169 </span>            :  * This creates a copy of the data, i.e. the data belongs to
+<span class="lineNum">     170 </span>            :  * the Python end.  The array is marked with NPY_OWNDATA which
+<span class="lineNum">     171 </span>            :  * should tell the garbage collector to release this memory.
+<span class="lineNum">     172 </span><span class="lineCov">        301 :  *</span>
+<span class="lineNum">     173 </span>            :  * \param[in] nd       Number of dimensions
+<span class="lineNum">     174 </span><span class="lineCov">        602 :  * \param[in] dim      Dimensions of the array</span>
+<span class="lineNum">     175 </span>            :  * \param[in] dtype    Value type of array elements
+<span class="lineNum">     176 </span><span class="lineCov">        602 :  * \param[in] data     Pointer to array data</span>
+<span class="lineNum">     177 </span>            :  * \param[in] len      Length of data
+<span class="lineNum">     178 </span>            :  *
+<span class="lineNum">     179 </span>            :  * \return PyObject* containing a Numpy array
+<span class="lineNum">     180 </span><span class="lineCov">        602 :  */</span>
+<a name="181"><span class="lineNum">     181 </span>            : template &lt;view_or_copy v, bool const_tag, typename value_type&gt;</a>
+<span class="lineNum">     182 </span>            : typename std::enable_if&lt;v == numpy::copy, PyObject *&gt;::type
+<span class="lineNum">     183 </span>            : convert_impl(int nd, npy_intp *dim, int dtype, void *data, int len) {
+<span class="lineNum">     184 </span>            :     PyObject *ndarray =
+<span class="lineNum">     185 </span>            :         PyArray_New(&amp;PyArray_Type, nd, dim, dtype, nullptr, nullptr, 0, NPY_ARRAY_FARRAY, nullptr);
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            :     std::memcpy(PyArray_DATA(reinterpret_cast&lt;PyArrayObject *&gt;(ndarray)), data,
+<span class="lineNum">     188 </span>            :                 len * sizeof(value_type));
+<span class="lineNum">     189 </span>            :     PyArray_ENABLEFLAGS(reinterpret_cast&lt;PyArrayObject *&gt;(ndarray), NPY_ARRAY_OWNDATA);
+<span class="lineNum">     190 </span>            :     return ndarray;
+<span class="lineNum">     191 </span>            : }
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            : /** \brief Create a Numpy array from an iterator (implementation)
+<span class="lineNum">     194 </span>            :  *
+<span class="lineNum">     195 </span>            :  * This is the implementation for the conversion of an
+<span class="lineNum">     196 </span>            :  * arbitrary pointer between \p begin and \p end .
+<span class="lineNum">     197 </span>            :  *
+<span class="lineNum">     198 </span>            :  * \param[in] begin    Random access iterator pointing to the start
+<span class="lineNum">     199 </span><span class="lineCov">        269 :  * \param[in] end      Random access iterator pointing to the end</span>
+<span class="lineNum">     200 </span>            :  * \param[in] nd       Number of dimensions
+<span class="lineNum">     201 </span><span class="lineCov">        269 :  * \param[in] dims     Initializer list with lengths of dimensions</span>
+<span class="lineNum">     202 </span>            :  *
+<span class="lineNum">     203 </span><span class="lineCov">        269 :  * \return PyObject* containing a Numpy array</span>
+<a name="204"><span class="lineNum">     204 </span>            :  */</a>
+<span class="lineNum">     205 </span><span class="lineCov">        269 : template &lt;view_or_copy v, typename RAIter, typename T&gt;</span>
+<span class="lineNum">     206 </span><span class="lineCov">        269 : PyObject *convert(RAIter begin, RAIter end, int nd, std::initializer_list&lt;T&gt; dims,</span>
+<span class="lineNum">     207 </span>            :                   std::random_access_iterator_tag) {
+<span class="lineNum">     208 </span><span class="lineCov">         10 :     using value_type = typename std::iterator_traits&lt;RAIter&gt;::value_type;</span>
+<span class="lineNum">     209 </span>            :     constexpr auto const_tag = traits::is_pointer_to_const&lt;decltype(&amp;(*begin))&gt;::value;
+<span class="lineNum">     210 </span><span class="lineCov">         10 : </span>
+<span class="lineNum">     211 </span>            :     int const len = std::distance(begin, end);
+<span class="lineNum">     212 </span><span class="lineCov">         10 : </span>
+<span class="lineNum">     213 </span>            :     check_array_sanity(len, nd, dims);
+<span class="lineNum">     214 </span><span class="lineCov">         10 : </span>
+<span class="lineNum">     215 </span><span class="lineCov">         10 :     npy_intp *dim =</span>
+<span class="lineNum">     216 </span>            :         const_cast&lt;typename traits::pointer_remove_const&lt;decltype(&amp;(*dims.begin()))&gt;::type&gt;(
+<span class="lineNum">     217 </span><span class="lineCov">          2 :             &amp;(*dims.begin()));</span>
+<span class="lineNum">     218 </span>            :     auto dtype = py_type&lt;value_type&gt;::type;
+<span class="lineNum">     219 </span><span class="lineCov">          2 :     void *data =</span>
+<span class="lineNum">     220 </span>            :         const_cast&lt;typename traits::pointer_remove_const&lt;decltype(&amp;(*begin))&gt;::type&gt;(&amp;(*begin));
+<span class="lineNum">     221 </span><span class="lineCov">          2 : </span>
+<span class="lineNum">     222 </span>            :     return convert_impl&lt;v, const_tag, value_type&gt;(nd, dim, dtype, data, len);
+<span class="lineNum">     223 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     224 </span><span class="lineCov">          2 : } // namespace internal</span>
+<span class="lineNum">     225 </span>            : 
+<span class="lineNum">     226 </span><span class="lineCov">        257 : // View and copy of bare pointes</span>
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span><span class="lineCov">        257 : /** \brief Create a Numpy array from an iterator (frontend)</span>
+<span class="lineNum">     229 </span>            :  *
+<span class="lineNum">     230 </span><span class="lineCov">        257 :  * This is a proxy for internal::view_impl to make sure that the</span>
+<span class="lineNum">     231 </span>            :  * iterator passed is random access.
+<span class="lineNum">     232 </span><span class="lineCov">        257 :  *</span>
+<span class="lineNum">     233 </span><span class="lineCov">        257 :  * \param[in] begin    Iterator pointing to the start</span>
+<span class="lineNum">     234 </span>            :  * \param[in] end      Iterator pointing to the end
+<span class="lineNum">     235 </span>            :  * \param[in] nd       Number of dimensions
+<span class="lineNum">     236 </span>            :  * \param[in] dims     Initializer list with lengths of dimensions
+<span class="lineNum">     237 </span>            :  *
+<span class="lineNum">     238 </span>            :  * \return PyObject* containing a Numpy array
+<a name="239"><span class="lineNum">     239 </span>            :  */</a>
+<span class="lineNum">     240 </span>            : template &lt;view_or_copy v, typename Iter, typename T&gt;
+<span class="lineNum">     241 </span>            : PyObject *convert(Iter begin, Iter end, int nd, std::initializer_list&lt;T&gt; dims) {
+<span class="lineNum">     242 </span>            :     return internal::convert&lt;v&gt;(begin, end, nd, dims,
+<span class="lineNum">     243 </span>            :                                 typename std::iterator_traits&lt;Iter&gt;::iterator_category());
+<span class="lineNum">     244 </span>            : }
+<span class="lineNum">     245 </span>            : 
+<span class="lineNum">     246 </span>            : // Overloads for often used types
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span>            : /** \brief Create a Numpy array from a raw pointer
+<span class="lineNum">     249 </span><span class="lineCov">       1172 :  *</span>
+<span class="lineNum">     250 </span>            :  * Specialization of numpy::convert for a raw pointer.
+<span class="lineNum">     251 </span>            :  *
+<span class="lineNum">     252 </span><span class="lineCov">       1172 :  * \param[in] begin    pointer to beginning</span>
+<span class="lineNum">     253 </span>            :  * \param[in] end      pointer to end
+<span class="lineNum">     254 </span><span class="lineCov">       1172 :  *</span>
+<span class="lineNum">     255 </span>            :  * \return PyObject* containing a Numpy array
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">       1172 :  */</span></a>
+<span class="lineNum">     257 </span>            : template &lt;view_or_copy v, typename T&gt;
+<span class="lineNum">     258 </span>            : PyObject *convert(T *begin, T *end) {
+<span class="lineNum">     259 </span>            :     return numpy::convert&lt;v&gt;(begin, end, 1, {std::distance(begin, end)});
+<span class="lineNum">     260 </span><span class="lineCov">       1172 : }</span>
+<span class="lineNum">     261 </span><span class="lineCov">       1172 : template &lt;view_or_copy v, typename T&gt;</span>
+<span class="lineNum">     262 </span><span class="lineCov">       1172 : PyObject *convert(T const *begin, T const *end) {</span>
+<span class="lineNum">     263 </span>            :     return numpy::convert&lt;v&gt;(begin, end, 1, {std::distance(begin, end)});
+<span class="lineNum">     264 </span>            : }
+<span class="lineNum">     265 </span><span class="lineCov">       1172 : </span>
+<span class="lineNum">     266 </span>            : /** \brief Create a Numpy array from a Eigen::Matrix
+<span class="lineNum">     267 </span><span class="lineCov">        301 :  *</span>
+<span class="lineNum">     268 </span>            :  * Specialization of numpy::convert for Eigen::Matrix
+<span class="lineNum">     269 </span>            :  *
+<span class="lineNum">     270 </span><span class="lineCov">        301 :  * \param[in] m    Eigen::Matrix&amp;</span>
+<span class="lineNum">     271 </span>            :  *
+<span class="lineNum">     272 </span><span class="lineCov">        301 :  * \return PyObject* containing a Numpy array</span>
+<a name="273"><span class="lineNum">     273 </span>            :  */</a>
+<span class="lineNum">     274 </span><span class="lineCov">        301 : template &lt;view_or_copy v, typename T&gt;</span>
+<span class="lineNum">     275 </span>            : PyObject *convert(Eigen::Matrix&lt;T, Eigen::Dynamic, Eigen::Dynamic&gt; &amp;m) {
+<span class="lineNum">     276 </span>            :     return numpy::convert&lt;v&gt;(m.data(), m.data() + m.size(), 2, {m.rows(), m.cols()});
+<span class="lineNum">     277 </span>            : }
+<span class="lineNum">     278 </span><span class="lineCov">        301 : template &lt;view_or_copy v, typename T&gt;</span>
+<span class="lineNum">     279 </span><span class="lineCov">        301 : PyObject *convert(Eigen::Matrix&lt;T, Eigen::Dynamic, Eigen::Dynamic&gt; const &amp;m) {</span>
+<span class="lineNum">     280 </span><span class="lineCov">        301 :     return numpy::convert&lt;v&gt;(m.data(), m.data() + m.size(), 2, {m.rows(), m.cols()});</span>
+<span class="lineNum">     281 </span>            : }
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span><span class="lineCov">        301 : /** \brief Create a Numpy array from an Eigen::Vector</span>
+<span class="lineNum">     284 </span>            :  *
+<span class="lineNum">     285 </span><span class="lineCov">        602 :  * Specialization of numpy::convert for Eigen::Vector</span>
+<span class="lineNum">     286 </span>            :  *
+<span class="lineNum">     287 </span>            :  * \param[in] vec    Eigen::Vector&amp;
+<span class="lineNum">     288 </span><span class="lineCov">        602 :  *</span>
+<span class="lineNum">     289 </span>            :  * \return PyObject* containing a Numpy array
+<a name="290"><span class="lineNum">     290 </span><span class="lineCov">        602 :  */</span></a>
+<span class="lineNum">     291 </span>            : template &lt;view_or_copy v, typename T&gt;
+<span class="lineNum">     292 </span><span class="lineCov">        602 : PyObject *convert(Eigen::Matrix&lt;T, Eigen::Dynamic, 1&gt; &amp;vec) {</span>
+<span class="lineNum">     293 </span>            :     return numpy::convert&lt;v&gt;(vec.data(), vec.data() + vec.size(), 1, {vec.size()});
+<span class="lineNum">     294 </span>            : }
+<span class="lineNum">     295 </span>            : template &lt;view_or_copy v, typename T&gt;
+<span class="lineNum">     296 </span><span class="lineCov">        602 : PyObject *convert(Eigen::Matrix&lt;T, Eigen::Dynamic, 1&gt; const &amp;vec) {</span>
+<span class="lineNum">     297 </span><span class="lineCov">        602 :     return numpy::convert&lt;v&gt;(vec.data(), vec.data() + vec.size(), 1, {vec.size()});</span>
+<span class="lineNum">     298 </span><span class="lineCov">        602 : }</span>
+<span class="lineNum">     299 </span>            : 
+<span class="lineNum">     300 </span>            : /** \brief Create a Numpy array from a std::vector
+<span class="lineNum">     301 </span><span class="lineCov">        602 :  *</span>
+<span class="lineNum">     302 </span>            :  * Specialization of numpy::convert for std::vector
+<span class="lineNum">     303 </span><span class="lineCov">         10 :  *</span>
+<span class="lineNum">     304 </span>            :  * \param[in] vec    std::vector&amp;
+<span class="lineNum">     305 </span>            :  *
+<span class="lineNum">     306 </span><span class="lineCov">         10 :  * \return PyObject* containing a Numpy array</span>
+<span class="lineNum">     307 </span>            :  */
+<span class="lineNum">     308 </span><span class="lineCov">         10 : template &lt;view_or_copy v, typename T&gt;</span>
+<span class="lineNum">     309 </span>            : PyObject *convert(std::vector&lt;T&gt; &amp;vec) {
+<span class="lineNum">     310 </span><span class="lineCov">         10 :     return numpy::convert&lt;v&gt;(vec.data(), vec.data() + vec.size(), 1, {vec.size()});</span>
+<span class="lineNum">     311 </span>            : }
+<span class="lineNum">     312 </span>            : template &lt;view_or_copy v, typename T&gt;
+<span class="lineNum">     313 </span>            : PyObject *convert(std::vector&lt;T&gt; const &amp;vec) {
+<span class="lineNum">     314 </span><span class="lineCov">         10 :     return numpy::convert&lt;v&gt;(vec.data(), vec.data() + vec.size(), 1, {vec.size()});</span>
+<span class="lineNum">     315 </span><span class="lineCov">         10 : }</span>
+<span class="lineNum">     316 </span><span class="lineCov">         10 : </span>
+<span class="lineNum">     317 </span>            : /** \brief Create a Numpy array from a std::array
+<span class="lineNum">     318 </span>            :  *
+<span class="lineNum">     319 </span><span class="lineCov">         10 :  * Specialization of numpy::convert for std::array</span>
+<span class="lineNum">     320 </span>            :  *
+<span class="lineNum">     321 </span><span class="lineCov">          2 :  * \param[in] vec    std::array&amp;</span>
+<span class="lineNum">     322 </span>            :  *
+<span class="lineNum">     323 </span>            :  * \return PyObject* containing a Numpy array
+<a name="324"><span class="lineNum">     324 </span><span class="lineCov">          2 :  */</span></a>
+<span class="lineNum">     325 </span>            : template &lt;view_or_copy v, typename T, size_t N&gt;
+<span class="lineNum">     326 </span><span class="lineCov">          2 : PyObject *convert(std::array&lt;T, N&gt; &amp;vec) {</span>
+<span class="lineNum">     327 </span>            :     using ssize_t = std::make_signed&lt;size_t&gt;::type;
+<span class="lineNum">     328 </span><span class="lineCov">          2 :     return numpy::convert&lt;v&gt;(vec.data(), vec.data() + N, 1, {ssize_t{N}});</span>
+<span class="lineNum">     329 </span>            : }
+<span class="lineNum">     330 </span>            : template &lt;view_or_copy v, typename T, size_t N&gt;
+<span class="lineNum">     331 </span>            : PyObject *convert(std::array&lt;T, N&gt; const &amp;vec) {
+<span class="lineNum">     332 </span><span class="lineCov">          2 :     using ssize_t = std::make_signed&lt;size_t&gt;::type;</span>
+<span class="lineNum">     333 </span><span class="lineCov">          2 :     return numpy::convert&lt;v&gt;(vec.data(), vec.data() + N, 1, {ssize_t{N}});</span>
+<span class="lineNum">     334 </span><span class="lineCov">          2 : }</span>
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span>            : // Experimental support for Sparse matrix return types
+<span class="lineNum">     337 </span><span class="lineCov">          2 : </span>
+<span class="lineNum">     338 </span>            : namespace internal {
+<span class="lineNum">     339 </span><span class="lineCov">        257 : </span>
+<span class="lineNum">     340 </span>            : /** \brief Create a Numpy array from an Eigen::SparseMatrix
+<span class="lineNum">     341 </span>            :  *
+<span class="lineNum">     342 </span><span class="lineCov">        257 :  * This is the implementation for the conversion of an</span>
+<span class="lineNum">     343 </span>            :  * Eigen::SparseMatrix to a scipy.sparse.csc_matrix.  We load
+<span class="lineNum">     344 </span><span class="lineCov">        257 :  * the scipy.sparse module and call the constructor for the</span>
+<span class="lineNum">     345 </span>            :  * csc_matrix which we populate with numpy arrays.
+<span class="lineNum">     346 </span><span class="lineCov">        257 :  *</span>
+<span class="lineNum">     347 </span>            :  * \param[in] sm    T&amp;&amp;
+<span class="lineNum">     348 </span>            :  *
+<span class="lineNum">     349 </span>            :  * \return PyObject* containing a Scipy csc_matrix
+<a name="350"><span class="lineNum">     350 </span><span class="lineCov">        257 :  */</span></a>
+<span class="lineNum">     351 </span><span class="lineCov">        257 : template &lt;view_or_copy v, typename T&gt;</span>
+<span class="lineNum">     352 </span><span class="lineCov">        257 : PyObject *sparse_impl(T &amp;&amp;sm) {</span>
+<span class="lineNum">     353 </span>            :     if (!sm.isCompressed())
+<span class="lineNum">     354 </span>            :         // we cannot call makeCompressed here because sm might be const
+<span class="lineNum">     355 </span><span class="lineCov">        257 :         throw std::runtime_error(&quot;Sparse matrix is not compressed!&quot;);</span>
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span>            :     numpy::array indptr =
+<span class="lineNum">     358 </span>            :         numpy::convert&lt;v&gt;(sm.outerIndexPtr(), sm.outerIndexPtr() + sm.outerSize() + 1);
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span>            :     numpy::array indices =
+<span class="lineNum">     361 </span>            :         numpy::convert&lt;v&gt;(sm.innerIndexPtr(), sm.innerIndexPtr() + sm.nonZeros());
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span>            :     numpy::array data = numpy::convert&lt;v&gt;(sm.valuePtr(), sm.valuePtr() + sm.nonZeros());
+<span class="lineNum">     364 </span>            : 
+<span class="lineNum">     365 </span>            :     int num_rows = sm.rows();
+<span class="lineNum">     366 </span>            :     int num_cols = sm.cols();
+<span class="lineNum">     367 </span>            : 
+<span class="lineNum">     368 </span>            :     char object[] = &quot;csc_matrix&quot;;
+<a name="369"><span class="lineNum">     369 </span>            :     char arglist[] = &quot;(OOO)(ii)&quot;;</a>
+<span class="lineNum">     370 </span>            :     PyObject *scipy = PyImport_ImportModule(&quot;scipy.sparse&quot;);
+<span class="lineNum">     371 </span>            :     SCOPE_EXIT { Py_XDECREF(scipy); };
+<span class="lineNum">     372 </span>            :     if (scipy == nullptr) {
+<span class="lineNum">     373 </span>            :         PyErr_Print();
+<span class="lineNum">     374 </span><span class="lineCov">       1172 :         return nullptr;</span>
+<span class="lineNum">     375 </span><span class="lineCov">       1172 :     }</span>
+<span class="lineNum">     376 </span><span class="lineCov">       1172 :     PyObject *mat =</span>
+<span class="lineNum">     377 </span>            :         PyObject_CallMethod(scipy, object, arglist, data, indices, indptr, num_rows, num_cols);
+<span class="lineNum">     378 </span><span class="lineCov">        301 :     if (mat == nullptr) {</span>
+<span class="lineNum">     379 </span><span class="lineCov">        301 :         PyErr_Print();</span>
+<span class="lineNum">     380 </span><span class="lineCov">        301 :         return nullptr;</span>
+<span class="lineNum">     381 </span>            :     }
+<span class="lineNum">     382 </span><span class="lineCov">        602 :     return mat;</span>
+<span class="lineNum">     383 </span><span class="lineCov">        602 : }</span>
+<span class="lineNum">     384 </span><span class="lineCov">        602 : </span>
+<span class="lineNum">     385 </span>            : } // namespace internal
+<span class="lineNum">     386 </span><span class="lineCov">         10 : </span>
+<span class="lineNum">     387 </span><span class="lineCov">         10 : /** \brief Create a Numpy array from an Eigen::SparseMatrix</span>
+<span class="lineNum">     388 </span><span class="lineCov">         10 :  *</span>
+<span class="lineNum">     389 </span>            :  * Specialization of numpy::convert for Eigen::SparseMatrix
+<span class="lineNum">     390 </span><span class="lineCov">          2 :  *</span>
+<span class="lineNum">     391 </span><span class="lineCov">          2 :  * \param[in] sm    Eigen::SparseMatrix&amp;</span>
+<span class="lineNum">     392 </span><span class="lineCov">          2 :  *</span>
+<span class="lineNum">     393 </span>            :  * \return PyObject* containing a Numpy array
+<a name="394"><span class="lineNum">     394 </span><span class="lineCov">        257 :  */</span></a>
+<span class="lineNum">     395 </span><span class="lineCov">        257 : template &lt;view_or_copy v, typename T&gt;</span>
+<span class="lineNum">     396 </span><span class="lineCov">        257 : PyObject *convert(Eigen::SparseMatrix&lt;T&gt; &amp;sm) {</span>
+<span class="lineNum">     397 </span>            :     return internal::sparse_impl&lt;v&gt;(sm);
+<span class="lineNum">     398 </span>            : }
+<span class="lineNum">     399 </span>            : template &lt;view_or_copy v, typename T&gt;
+<span class="lineNum">     400 </span>            : PyObject *convert(Eigen::SparseMatrix&lt;T&gt; const &amp;sm) {
+<span class="lineNum">     401 </span>            :     return internal::sparse_impl&lt;v&gt;(sm);
+<span class="lineNum">     402 </span>            : }
+<span class="lineNum">     403 </span>            : 
+<span class="lineNum">     404 </span>            : // Experimental support for Numpy arguments
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span>            : namespace internal {
+<span class="lineNum">     407 </span>            : 
+<span class="lineNum">     408 </span>            : /** \brief Check if a Numpy has given storage order and alignment
+<span class="lineNum">     409 </span>            :  *
+<span class="lineNum">     410 </span>            :  * To be convertible to an Eigen matrix type the memory of a
+<span class="lineNum">     411 </span><span class="lineCov">        903 :  * Numpy array has to be FORTRAN style contiguous and has to</span>
+<span class="lineNum">     412 </span><span class="lineCov">        903 :  * be aligned.</span>
+<span class="lineNum">     413 </span>            :  *
+<a name="414"><span class="lineNum">     414 </span><span class="lineCov">        301 :  * \param[in] ndarray    Numpy array</span></a>
+<span class="lineNum">     415 </span><span class="lineCov">        301 :  */</span>
+<span class="lineNum">     416 </span>            : void check_order_and_alignment(PyArrayObject *ndarray) {
+<span class="lineNum">     417 </span><span class="lineCov">        602 :     int const flags = PyArray_FLAGS(ndarray);</span>
+<span class="lineNum">     418 </span><span class="lineCov">        602 :     if ((flags &amp; NPY_ARRAY_F_CONTIGUOUS) == 0)</span>
+<span class="lineNum">     419 </span>            :         throw std::invalid_argument(&quot;The argument is not contiguous or has wrong storage order!&quot;);
+<span class="lineNum">     420 </span>            :     if ((flags &amp; NPY_ARRAY_ALIGNED) == 0)
+<span class="lineNum">     421 </span>            :         throw std::invalid_argument(&quot;The argument is not not aligned!&quot;);
+<span class="lineNum">     422 </span>            : }
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span>            : /** \brief Deconstruct a numpy array for conversion to dense Eigen type
+<span class="lineNum">     425 </span>            :  *
+<span class="lineNum">     426 </span>            :  * \param[in] ndarray_    Numpy array
+<span class="lineNum">     427 </span>            :  *
+<span class="lineNum">     428 </span>            :  * \return A tuple of the number of dimensions, an array of
+<span class="lineNum">     429 </span>            :  * dimensions, and a pointer to the data.
+<span class="lineNum">     430 </span>            :  */
+<span class="lineNum">     431 </span>            : template &lt;typename T, typename Scalar = typename T::Scalar&gt;
+<span class="lineNum">     432 </span>            : std::tuple&lt;int, npy_intp *, Scalar *&gt; as_dense_impl(numpy::array ndarray_) {
+<span class="lineNum">     433 </span>            :     if (!ndarray_ || !PyArray_Check(ndarray_))
+<span class="lineNum">     434 </span><span class="lineCov">         11 :         throw std::invalid_argument(&quot;The argument is not a valid Numpy array!&quot;);</span>
+<span class="lineNum">     435 </span><span class="lineCov">         11 : </span>
+<span class="lineNum">     436 </span>            :     PyArrayObject *ndarray = reinterpret_cast&lt;PyArrayObject *&gt;(ndarray_);
+<span class="lineNum">     437 </span>            :     internal::check_order_and_alignment(ndarray);
+<span class="lineNum">     438 </span>            :     int const nd = PyArray_NDIM(ndarray);
+<span class="lineNum">     439 </span>            :     npy_intp *dims = PyArray_SHAPE(ndarray);
+<span class="lineNum">     440 </span>            :     Scalar *data = reinterpret_cast&lt;Scalar *&gt;(PyArray_DATA(ndarray));
+<span class="lineNum">     441 </span>            : 
+<span class="lineNum">     442 </span>            :     if (PyArray_TYPE(ndarray) != internal::py_type&lt;Scalar&gt;::type)
+<span class="lineNum">     443 </span>            :         throw std::invalid_argument(&quot;Type mismatch.&quot;);
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span>            :     return std::make_tuple(nd, dims, data);
+<span class="lineNum">     446 </span>            : }
+<span class="lineNum">     447 </span>            : 
+<span class="lineNum">     448 </span>            : } // namespace internal
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span>            : /** \brief Convert a Numpy array to an Eigen::Matrix
+<span class="lineNum">     451 </span><span class="lineCov">        246 :  *</span>
+<span class="lineNum">     452 </span><span class="lineCov">        246 :  * \warning Experimental!  For now the returned Eigen::Map is</span>
+<span class="lineNum">     453 </span>            :  * read-only.
+<span class="lineNum">     454 </span>            :  *
+<span class="lineNum">     455 </span>            :  * \param[in] ndarray    Numpy array
+<span class="lineNum">     456 </span>            :  *
+<span class="lineNum">     457 </span>            :  * \return An Eigen::Map of the Numpy array memory
+<span class="lineNum">     458 </span>            :  */
+<span class="lineNum">     459 </span>            : #ifndef SCANNED_BY_DOXYGEN
+<span class="lineNum">     460 </span>            : template &lt;typename T, typename Scalar = typename T::Scalar&gt;
+<span class="lineNum">     461 </span>            : typename std::enable_if&lt;
+<span class="lineNum">     462 </span>            :     std::is_same&lt;T,
+<span class="lineNum">     463 </span>            :                  Eigen::Matrix&lt;Scalar, Eigen::Dynamic, Eigen::Dynamic, T::Options,
+<span class="lineNum">     464 </span>            :                                T::MaxRowsAtCompileTime, T::MaxColsAtCompileTime&gt;&gt;::value,
+<span class="lineNum">     465 </span>            :     Eigen::Map&lt;T const&gt;&gt;::type
+<span class="lineNum">     466 </span>            : #else
+<span class="lineNum">     467 </span>            : template &lt;typename MatrixType&gt;
+<span class="lineNum">     468 </span>            : Eigen::Map&lt;MatrixType&gt;
+<span class="lineNum">     469 </span>            : #endif
+<span class="lineNum">     470 </span>            : as(numpy::array ndarray) {
+<span class="lineNum">     471 </span>            :     int nd;
+<span class="lineNum">     472 </span>            :     npy_intp *dims;
+<span class="lineNum">     473 </span>            :     Scalar *data;
+<span class="lineNum">     474 </span>            :     std::tie(nd, dims, data) = internal::as_dense_impl&lt;T&gt;(ndarray);
+<span class="lineNum">     475 </span>            : 
+<span class="lineNum">     476 </span>            :     if (nd &gt; 2)
+<span class="lineNum">     477 </span>            :         throw std::range_error(&quot;Dimension mismatch.&quot;);
+<span class="lineNum">     478 </span>            : 
+<span class="lineNum">     479 </span>            :     return Eigen::Map&lt;T const&gt;(data, dims[0], (nd == 1 ? 1 : dims[1]));
+<span class="lineNum">     480 </span>            : }
+<span class="lineNum">     481 </span>            : 
+<span class="lineNum">     482 </span>            : /** \brief Convert a Numpy array to an Eigen::Vector
+<span class="lineNum">     483 </span>            :  *
+<span class="lineNum">     484 </span>            :  * \warning Experimental!  For now the returned Eigen::Map is
+<span class="lineNum">     485 </span><span class="lineCov">         12 :  * read-only.</span>
+<span class="lineNum">     486 </span>            :  *
+<span class="lineNum">     487 </span><span class="lineCov">         12 :  * \param[in] ndarray    Numpy array</span>
+<span class="lineNum">     488 </span>            :  *
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :  * \return An Eigen::Map of the Numpy array memory</span>
+<span class="lineNum">     490 </span>            :  */
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 : #ifndef SCANNED_BY_DOXYGEN</span>
+<span class="lineNum">     492 </span>            : template &lt;typename T, typename Scalar = typename T::Scalar&gt;
+<span class="lineNum">     493 </span><span class="lineCov">         10 : typename std::enable_if&lt;</span>
+<span class="lineNum">     494 </span>            :     std::is_same&lt;T,
+<span class="lineNum">     495 </span><span class="lineCov">         10 :                  Eigen::Matrix&lt;Scalar, Eigen::Dynamic, 1, T::Options, T::MaxRowsAtCompileTime,</span>
+<span class="lineNum">     496 </span>            :                                T::MaxColsAtCompileTime&gt;&gt;::value,
+<span class="lineNum">     497 </span><span class="lineCov">          2 :     Eigen::Map&lt;T const&gt;&gt;::type</span>
+<span class="lineNum">     498 </span>            : #else
+<span class="lineNum">     499 </span><span class="lineCov">          2 : template &lt;typename VectorType&gt;</span>
+<span class="lineNum">     500 </span>            : Eigen::Map&lt;VectorType&gt;
+<span class="lineNum">     501 </span>            : #endif
+<span class="lineNum">     502 </span>            : as(numpy::array ndarray) {
+<span class="lineNum">     503 </span>            :     int nd;
+<span class="lineNum">     504 </span>            :     npy_intp *dims;
+<span class="lineNum">     505 </span>            :     Scalar *data;
+<span class="lineNum">     506 </span>            :     std::tie(nd, dims, data) = internal::as_dense_impl&lt;T&gt;(ndarray);
+<span class="lineNum">     507 </span>            : 
+<span class="lineNum">     508 </span>            :     if (nd &gt; 1)
+<span class="lineNum">     509 </span>            :         throw std::range_error(&quot;Dimension mismatch.&quot;);
+<span class="lineNum">     510 </span>            : 
+<span class="lineNum">     511 </span>            :     return Eigen::Map&lt;T const&gt;(data, dims[0]);
+<span class="lineNum">     512 </span>            : }
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span>            : /** \brief Convert a Numpy array to an Eigen::SparseMatrix
+<span class="lineNum">     515 </span>            :  *
+<span class="lineNum">     516 </span>            :  * \warning Experimental!  For now the returned Eigen::Map is
+<span class="lineNum">     517 </span>            :  * read-only.
+<span class="lineNum">     518 </span>            :  *
+<span class="lineNum">     519 </span>            :  * \param[in] ndarray    Numpy array
+<span class="lineNum">     520 </span>            :  *
+<span class="lineNum">     521 </span>            :  * \return An Eigen::Map of the Numpy array memory
+<span class="lineNum">     522 </span>            :  */
+<span class="lineNum">     523 </span><span class="lineCov">        301 : #ifndef SCANNED_BY_DOXYGEN</span>
+<span class="lineNum">     524 </span><span class="lineCov">        301 : template &lt;typename T, typename Scalar = typename T::Scalar,</span>
+<span class="lineNum">     525 </span>            :           typename StorageIndex = typename T::StorageIndex&gt;
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 : typename std::enable_if&lt;</span>
+<span class="lineNum">     527 </span>            :     std::is_same&lt;T, Eigen::SparseMatrix&lt;Scalar, T::Options, StorageIndex&gt;&gt;::value,
+<span class="lineNum">     528 </span>            :     Eigen::Map&lt;T const&gt;&gt;::type
+<span class="lineNum">     529 </span><span class="lineCov">        301 : #else</span>
+<span class="lineNum">     530 </span>            : template &lt;typename SparseMatrixType&gt;
+<span class="lineNum">     531 </span>            : Eigen::Map&lt;SparseMatrixType&gt;
+<span class="lineNum">     532 </span><span class="lineCov">        301 : #endif</span>
+<span class="lineNum">     533 </span>            : as(numpy::array ndarray) {
+<span class="lineNum">     534 </span><span class="lineCov">        301 :     PyObject *scipy = PyImport_ImportModule(&quot;scipy.sparse&quot;);</span>
+<span class="lineNum">     535 </span>            :     SCOPE_EXIT { Py_XDECREF(scipy); };
+<span class="lineNum">     536 </span><span class="lineCov">        301 :     if (scipy == nullptr) {</span>
+<span class="lineNum">     537 </span><span class="lineCov">        301 :         PyErr_Print();</span>
+<span class="lineNum">     538 </span>            :         return nullptr;
+<span class="lineNum">     539 </span><span class="lineCov">        301 :     }</span>
+<span class="lineNum">     540 </span><span class="lineCov">        301 :     PyObject *csc_matrix = PyObject_GetAttrString(scipy, &quot;csc_matrix&quot;);</span>
+<span class="lineNum">     541 </span><span class="lineCov">        301 :     SCOPE_EXIT { Py_XDECREF(csc_matrix); };</span>
+<span class="lineNum">     542 </span><span class="lineCov">       1204 :     if (csc_matrix == nullptr) {</span>
+<span class="lineNum">     543 </span><span class="lineCov">        301 :         PyErr_Print();</span>
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :         return nullptr;</span>
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     546 </span>            :     if (!ndarray || !PyObject_IsInstance(ndarray, csc_matrix))
+<span class="lineNum">     547 </span>            :         throw std::invalid_argument(&quot;The argument is not a valid csc_matrix!&quot;);
+<span class="lineNum">     548 </span><span class="lineCov">        301 : </span>
+<span class="lineNum">     549 </span><span class="lineCov">        301 :     PyObject *tmp;</span>
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     551 </span><span class="lineNoCov">          0 :     tmp = PyObject_GetAttrString(ndarray, &quot;data&quot;);</span>
+<span class="lineNum">     552 </span>            :     SCOPE_EXIT { Py_XDECREF(tmp); };
+<span class="lineNum">     553 </span><span class="lineCov">        301 :     PyArrayObject *data_ = reinterpret_cast&lt;PyArrayObject *&gt;(tmp);</span>
+<span class="lineNum">     554 </span>            :     internal::check_order_and_alignment(data_);
+<span class="lineNum">     555 </span>            : 
+<span class="lineNum">     556 </span>            :     tmp = PyObject_GetAttrString(ndarray, &quot;indices&quot;);
+<span class="lineNum">     557 </span>            :     SCOPE_EXIT { Py_XDECREF(tmp); };
+<span class="lineNum">     558 </span>            :     PyArrayObject *indices_ = reinterpret_cast&lt;PyArrayObject *&gt;(tmp);
+<span class="lineNum">     559 </span>            :     internal::check_order_and_alignment(indices_);
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span>            :     tmp = PyObject_GetAttrString(ndarray, &quot;indptr&quot;);
+<span class="lineNum">     562 </span>            :     SCOPE_EXIT { Py_XDECREF(tmp); };
+<span class="lineNum">     563 </span>            :     PyArrayObject *indptr_ = reinterpret_cast&lt;PyArrayObject *&gt;(tmp);
+<span class="lineNum">     564 </span>            :     internal::check_order_and_alignment(indptr_);
+<span class="lineNum">     565 </span>            : 
+<span class="lineNum">     566 </span>            :     PyObject *shape = PyObject_GetAttrString(ndarray, &quot;shape&quot;);
+<span class="lineNum">     567 </span><span class="lineCov">        301 :     SCOPE_EXIT { Py_XDECREF(tmp); };</span>
+<span class="lineNum">     568 </span><span class="lineCov">        301 :     int rows, cols;</span>
+<span class="lineNum">     569 </span>            :     PyArg_ParseTuple(shape, &quot;ii&quot;, &amp;rows, &amp;cols);
+<span class="lineNum">     570 </span>            : 
+<span class="lineNum">     571 </span>            :     npy_intp *nnz = PyArray_SHAPE(data_);
+<span class="lineNum">     572 </span>            : 
+<span class="lineNum">     573 </span>            :     Scalar *data = reinterpret_cast&lt;Scalar *&gt;(PyArray_DATA(data_));
+<span class="lineNum">     574 </span>            :     StorageIndex *indices = reinterpret_cast&lt;StorageIndex *&gt;(PyArray_DATA(indices_));
+<span class="lineNum">     575 </span>            :     StorageIndex *indptr = reinterpret_cast&lt;StorageIndex *&gt;(PyArray_DATA(indptr_));
+<span class="lineNum">     576 </span>            : 
+<span class="lineNum">     577 </span>            :     if (PyArray_TYPE(data_) != internal::py_type&lt;Scalar&gt;::type)
+<span class="lineNum">     578 </span>            :         throw std::invalid_argument(&quot;Type mismatch.&quot;);
+<span class="lineNum">     579 </span>            : 
+<span class="lineNum">     580 </span>            :     return Eigen::Map&lt;T const&gt;(rows, cols, *nnz, indptr, indices, data);
+<span class="lineNum">     581 </span>            : }
+<span class="lineNum">     582 </span>            : 
+<span class="lineNum">     583 </span>            : } // namespace numpy
+<span class="lineNum">     584 </span>            : 
+<span class="lineNum">     585 </span>            : #endif // NUMPYUTILS_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

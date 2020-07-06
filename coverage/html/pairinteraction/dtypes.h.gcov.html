@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/dtypes.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - dtypes.h<span style="font-size: 80%;"> (source / <a href="dtypes.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef DTYPES_H
+<span class="lineNum">      21 </span>            : #define DTYPES_H
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &lt;Eigen/Dense&gt;
+<span class="lineNum">      24 </span>            : #include &lt;Eigen/Sparse&gt;
+<span class="lineNum">      25 </span>            : #include &lt;array&gt;
+<span class="lineNum">      26 </span>            : #include &lt;cmath&gt;
+<span class="lineNum">      27 </span>            : #include &lt;unsupported/Eigen/CXX11/Tensor&gt;
+<span class="lineNum">      28 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : typedef std::complex&lt;double&gt; complex_t;
+<span class="lineNum">      31 </span>            : typedef uint32_t idx_t;
+<span class="lineNum">      32 </span>            : typedef double storage_double; // TODO has always to be the same as double
+<span class="lineNum">      33 </span>            : typedef int32_t storage_idx_t;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : typedef uint8_t byte_t;
+<span class="lineNum">      36 </span>            : typedef std::vector&lt;byte_t&gt; bytes_t;
+<span class="lineNum">      37 </span>            : typedef std::nullptr_t invalid_t;
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : #ifdef USE_COMPLEX
+<span class="lineNum">      40 </span>            : typedef complex_t scalar_t;
+<span class="lineNum">      41 </span>            : #else
+<span class="lineNum">      42 </span>            : typedef double scalar_t;
+<span class="lineNum">      43 </span>            : #endif
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span>            : typedef Eigen::Triplet&lt;scalar_t&gt; eigen_triplet_t;
+<span class="lineNum">      46 </span>            : typedef Eigen::Triplet&lt;complex_t&gt; eigen_triplet_complex_t;
+<span class="lineNum">      47 </span>            : typedef Eigen::Triplet&lt;double&gt; eigen_triplet_double_t;
+<span class="lineNum">      48 </span>            : typedef Eigen::SparseMatrix&lt;scalar_t&gt; eigen_sparse_t;
+<span class="lineNum">      49 </span>            : typedef Eigen::SparseMatrix&lt;double&gt; eigen_sparse_double_t;
+<span class="lineNum">      50 </span>            : typedef Eigen::SparseMatrix&lt;complex_t&gt; eigen_sparse_complex_t;
+<span class="lineNum">      51 </span>            : typedef Eigen::SparseMatrix&lt;scalar_t&gt;::InnerIterator eigen_iterator_t;
+<span class="lineNum">      52 </span>            : typedef Eigen::SparseMatrix&lt;double&gt;::InnerIterator eigen_iterator_double_t;
+<span class="lineNum">      53 </span>            : typedef Eigen::SparseMatrix&lt;complex_t&gt;::InnerIterator eigen_iterator_complex_t;
+<span class="lineNum">      54 </span>            : typedef Eigen::Matrix&lt;scalar_t, Eigen::Dynamic, Eigen::Dynamic&gt; eigen_dense_t;
+<span class="lineNum">      55 </span>            : typedef Eigen::Matrix&lt;double, Eigen::Dynamic, Eigen::Dynamic&gt; eigen_dense_double_t;
+<span class="lineNum">      56 </span>            : typedef Eigen::Matrix&lt;scalar_t, Eigen::Dynamic, 1&gt; eigen_vector_t;
+<span class="lineNum">      57 </span>            : typedef Eigen::Matrix&lt;double, Eigen::Dynamic, 1&gt; eigen_vector_double_t;
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : typedef Eigen::Matrix&lt;double, 3, 3&gt; eigen_matrix33;
+<span class="lineNum">      60 </span>            : typedef Eigen::TensorFixedSize&lt;double, Eigen::Sizes&lt;3, 3, 3&gt;&gt; eigen_tensor333;
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : constexpr const double au2GHz = 6579683.920757349;
+<span class="lineNum">      63 </span>            : constexpr const double au2Vcm = 5142206707.0;
+<span class="lineNum">      64 </span>            : constexpr const double au2G = 2350517550.0;
+<span class="lineNum">      65 </span>            : constexpr const double au2um = 5.2917721067e-05;
+<span class="lineNum">      66 </span>            : constexpr const double inverse_electric_constant = au2Vcm * au2Vcm * au2um * au2um * au2um / au2GHz;
+<span class="lineNum">      67 </span>            : constexpr const double sqrt_inverse_electric_constant =
+<span class="lineNum">      68 </span>            :     0.7717003798774048; // equals sqrt(inverse_electric_constant)
+<span class="lineNum">      69 </span>            : constexpr const double inverse_electron_rest_mass = au2Vcm * au2Vcm / au2G / au2G / au2GHz;
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : constexpr const double coulombs_constant = au2Vcm * au2Vcm * au2um * au2um * au2um / au2GHz;
+<span class="lineNum">      72 </span>            : constexpr const double electron_rest_mass = au2G * au2G * au2GHz / au2Vcm / au2Vcm;
+<span class="lineNum">      73 </span>            : constexpr const double elementary_charge = au2GHz / au2um / au2Vcm;
+<span class="lineNum">      74 </span>            : constexpr const double bohr_magneton = 0.5 * au2GHz / au2G;
+<span class="lineNum">      75 </span>            : constexpr const double reduced_planck_constant = au2GHz * au2um * au2G / au2Vcm;
+<span class="lineNum">      76 </span>            : constexpr const double speed_of_light = 137.035999139 * au2Vcm / au2G;
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span>            : constexpr const double muB = 0.5; // in atomic units
+<span class="lineNum">      79 </span>            : constexpr const double gS = 2.0023192;
+<span class="lineNum">      80 </span>            : constexpr const double gL = 1;
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : constexpr const int ARB = 32767;
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            : #ifdef WITH_INTEL_MKL
+<span class="lineNum">      85 </span>            : constexpr const bool mkl_enabled = true;
+<span class="lineNum">      86 </span>            : #else  // WITH_INTEL_MKL
+<span class="lineNum">      87 </span>            : constexpr const bool mkl_enabled = false;
+<span class="lineNum">      88 </span>            : #endif // WITH_INTEL_MKL
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span>            : #ifdef WITH_GSL
+<span class="lineNum">      91 </span>            : constexpr const bool gsl_enabled = true;
+<span class="lineNum">      92 </span>            : #else  // WITH_GSL
+<span class="lineNum">      93 </span>            : constexpr const bool gsl_enabled = false;
+<span class="lineNum">      94 </span>            : #endif // WITH_GSL
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span>            : enum parity_t {
+<span class="lineNum">      97 </span>            :     NA = INT_MAX,
+<span class="lineNum">      98 </span>            :     EVEN = 1,
+<span class="lineNum">      99 </span>            :     ODD = -1,
+<span class="lineNum">     100 </span>            : };
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span>            : enum method_t {
+<span class="lineNum">     103 </span>            :     NUMEROV = 0,
+<span class="lineNum">     104 </span>            :     WHITTAKER = 1,
+<span class="lineNum">     105 </span>            : };
+<span class="lineNum">     106 </span>            : 
+<span class="lineNum">     107 </span>            : struct Symmetry {
+<span class="lineNum">     108 </span>            :     parity_t inversion;
+<span class="lineNum">     109 </span>            :     parity_t reflection;
+<span class="lineNum">     110 </span>            :     parity_t permutation;
+<span class="lineNum">     111 </span>            :     int rotation;
+<a name="112"><span class="lineNum">     112 </span>            : </a>
+<span class="lineNum">     113 </span>            :     // Comparison operator that is needed if an object of type Symmetry is used as key for std::map
+<span class="lineNum">     114 </span><span class="lineCov">          2 :     friend bool operator&lt;(const Symmetry &amp;s1, const Symmetry &amp;s2) {</span>
+<span class="lineNum">     115 </span><span class="lineCov">          2 :         std::array&lt;int, 5&gt; syms1{{s1.inversion, s1.reflection, s1.permutation, s1.rotation}};</span>
+<span class="lineNum">     116 </span><span class="lineCov">          2 :         std::array&lt;int, 5&gt; syms2{{s2.inversion, s2.reflection, s2.permutation, s2.rotation}};</span>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineCov">          2 :         for (size_t i = 0; i &lt; syms1.size(); ++i) {</span>
+<span class="lineNum">     119 </span><span class="lineCov">          2 :             if (syms1[i] &lt; syms2[i]) {</span>
+<span class="lineNum">     120 </span><span class="lineCov">          2 :                 return true;</span>
+<span class="lineNum">     121 </span>            :             }
+<span class="lineNum">     122 </span><span class="lineNoCov">          0 :             if (syms1[i] &gt; syms2[i]) {</span>
+<span class="lineNum">     123 </span><span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     124 </span>            :             }
+<span class="lineNum">     125 </span>            :         }
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     127 </span>            :     }
+<span class="lineNum">     128 </span>            : };
+<span class="lineNum">     129 </span>            : 
+<span class="lineNum">     130 </span>            : #endif
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

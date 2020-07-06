@@ -1,0 +1,462 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/Serializable.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - Serializable.h<span style="font-size: 80%;"> (source / <a href="Serializable.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">104</td>
+            <td class="headerCovTableEntry">733</td>
+            <td class="headerCovTableEntryLo">14.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef SERIALIZABLE_H
+<span class="lineNum">      21 </span>            : #define SERIALIZABLE_H
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &quot;dtypes.h&quot;
+<span class="lineNum">      24 </span>            : 
+<span class="lineNum">      25 </span>            : #include &lt;iterator&gt;
+<span class="lineNum">      26 </span>            : #include &lt;memory&gt;
+<span class="lineNum">      27 </span>            : #include &lt;typeindex&gt;
+<span class="lineNum">      28 </span>            : #include &lt;typeinfo&gt;
+<span class="lineNum">      29 </span>            : #include &lt;unordered_map&gt;
+<span class="lineNum">      30 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      31 </span>            : 
+<a name="32"><span class="lineNum">      32 </span>            : class Serializable {</a>
+<span class="lineNum">      33 </span>            : public:
+<span class="lineNum">      34 </span><span class="lineCov">        129 :     virtual ~Serializable() = default;</span>
+<span class="lineNum">      35 </span>            :     virtual bytes_t &amp;serialize() = 0;
+<span class="lineNum">      36 </span>            :     virtual void deserialize(bytes_t &amp;bytes) = 0;
+<span class="lineNum">      37 </span>            : };
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : typedef uint16_t type_t;
+<span class="lineNum">      40 </span>            : 
+<a name="41"><span class="lineNum">      41 </span>            : class Serializer {</a>
+<span class="lineNum">      42 </span>            : public:
+<span class="lineNum">      43 </span><span class="lineCov">         21 :     Serializer() {</span>
+<span class="lineNum">      44 </span><span class="lineCov">         21 :         type_ids[std::type_index(typeid(int8_t))] = 1008;</span>
+<span class="lineNum">      45 </span><span class="lineCov">         21 :         type_ids[std::type_index(typeid(int16_t))] = 1016;</span>
+<span class="lineNum">      46 </span><span class="lineCov">         21 :         type_ids[std::type_index(typeid(int32_t))] = 1032;</span>
+<span class="lineNum">      47 </span><span class="lineCov">         21 :         type_ids[std::type_index(typeid(int64_t))] = 1064;</span>
+<span class="lineNum">      48 </span><span class="lineCov">         21 :         type_ids[std::type_index(typeid(uint8_t))] = 1108;</span>
+<span class="lineNum">      49 </span><span class="lineCov">         21 :         type_ids[std::type_index(typeid(uint16_t))] = 1116;</span>
+<span class="lineNum">      50 </span><span class="lineCov">         21 :         type_ids[std::type_index(typeid(uint32_t))] = 1132;</span>
+<span class="lineNum">      51 </span><span class="lineCov">         21 :         type_ids[std::type_index(typeid(uint64_t))] = 1164;</span>
+<span class="lineNum">      52 </span><span class="lineCov">         21 :         type_ids[std::type_index(typeid(float))] = 2032;  // float32_t</span>
+<span class="lineNum">      53 </span><span class="lineCov">         21 :         type_ids[std::type_index(typeid(double))] = 2064; // float64_t</span>
+<span class="lineNum">      54 </span><span class="lineCov">         21 :         type_ids[std::type_index(typeid(char))] = 3000;</span>
+<span class="lineNum">      55 </span><span class="lineCov">         21 :         type_ids[std::type_index(typeid(bool))] = 4000;</span>
+<a name="56"><span class="lineNum">      56 </span><span class="lineCov">         21 :     }</span></a>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :     void load(const bytes_t &amp;bytes) {</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :         cpbytes = bytes.begin();</span>
+<span class="lineNum">      60 </span><span class="lineNoCov">          0 :         cpbytes_start = cpbytes;</span>
+<span class="lineNum">      61 </span><span class="lineNoCov">          0 :         cpbytes_end = bytes.end();</span>
+<a name="62"><span class="lineNum">      62 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineCov">         21 :     void save(bytes_t &amp;bytes) {</span>
+<span class="lineNum">      65 </span><span class="lineCov">         21 :         size_t nItems = buffer_types.size();</span>
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            :         // clear and resize bytes
+<span class="lineNum">      68 </span><span class="lineCov">         21 :         bytes.clear();</span>
+<span class="lineNum">      69 </span><span class="lineCov">         21 :         bytes.resize(size());</span>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            :         // save items to bytes
+<span class="lineNum">      72 </span><span class="lineCov">         21 :         pbytes = bytes.begin();</span>
+<span class="lineNum">      73 </span>            : 
+<span class="lineNum">      74 </span><span class="lineCov">        315 :         for (size_t i = 0; i &lt; nItems; ++i) {</span>
+<span class="lineNum">      75 </span><span class="lineCov">        294 :             if (buffer_isVector[i]) {</span>
+<span class="lineNum">      76 </span><span class="lineCov">        168 :                 serialize(&amp;type_ids[std::type_index(typeid(storage_idx_t))], sizeof(type_t));</span>
+<span class="lineNum">      77 </span><span class="lineCov">        168 :                 serialize(&amp;buffer_nums[i], sizeof(storage_idx_t));</span>
+<span class="lineNum">      78 </span>            :             }
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineCov">        294 :             serialize(&amp;buffer_types[i], sizeof(type_t));</span>
+<span class="lineNum">      81 </span><span class="lineCov">        294 :             serialize(buffer_pitems[i], buffer_nums[i] * buffer_sizes[i]);</span>
+<span class="lineNum">      82 </span>            :         }
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span>            :         // the buffers are not needed anymore
+<span class="lineNum">      85 </span><span class="lineCov">         21 :         buffer_isVector.clear();</span>
+<span class="lineNum">      86 </span><span class="lineCov">         21 :         buffer_types.clear();</span>
+<span class="lineNum">      87 </span><span class="lineCov">         21 :         buffer_pitems.clear();</span>
+<span class="lineNum">      88 </span><span class="lineCov">         21 :         buffer_nums.clear();</span>
+<span class="lineNum">      89 </span><span class="lineCov">         21 :         buffer_sizes.clear();</span>
+<span class="lineNum">      90 </span><span class="lineCov">         21 :     }</span>
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            :     size_t position() {
+<span class="lineNum">      93 </span>            :         size_t sz = size();
+<span class="lineNum">      94 </span>            :         if (sz &gt; 0) {
+<span class="lineNum">      95 </span>            :             return sz;
+<span class="lineNum">      96 </span>            :         }
+<span class="lineNum">      97 </span>            :         return std::distance(cpbytes_start, cpbytes);
+<span class="lineNum">      98 </span>            :     }
+<a name="99"><span class="lineNum">      99 </span>            : </a>
+<span class="lineNum">     100 </span>            :     template &lt;class T&gt;
+<span class="lineNum">     101 </span><span class="lineCov">        126 :     friend void operator&lt;&lt;(Serializer &amp;s, const T &amp;data) {</span>
+<span class="lineNum">     102 </span><span class="lineCov">        126 :         s.buffer_isVector.push_back(false);</span>
+<span class="lineNum">     103 </span><span class="lineCov">        126 :         s.buffer_types.push_back(s.type_ids[std::type_index(typeid(T))]);</span>
+<span class="lineNum">     104 </span><span class="lineCov">        126 :         s.buffer_pitems.push_back(reinterpret_cast&lt;const byte_t *&gt;(&amp;data));</span>
+<span class="lineNum">     105 </span><span class="lineCov">        126 :         s.buffer_nums.push_back(1);</span>
+<span class="lineNum">     106 </span><span class="lineCov">        126 :         s.buffer_sizes.push_back(sizeof(T));</span>
+<span class="lineNum">     107 </span><span class="lineCov">        126 :     }</span>
+<a name="108"><span class="lineNum">     108 </span><span class="lineCov">         84 : </span></a>
+<span class="lineNum">     109 </span><span class="lineCov">         84 :     template &lt;class T&gt;</span>
+<span class="lineNum">     110 </span><span class="lineCov">         84 :     friend void operator&lt;&lt;(Serializer &amp;s, const std::vector&lt;T&gt; &amp;data) {</span>
+<span class="lineNum">     111 </span><span class="lineCov">         84 :         s.buffer_isVector.push_back(true);</span>
+<span class="lineNum">     112 </span><span class="lineCov">         84 :         s.buffer_types.push_back(s.type_ids[std::type_index(typeid(T))]);</span>
+<span class="lineNum">     113 </span><span class="lineCov">         84 :         s.buffer_pitems.push_back(reinterpret_cast&lt;const byte_t *&gt;(&amp;data[0]));</span>
+<span class="lineNum">     114 </span><span class="lineCov">         84 :         s.buffer_nums.push_back(data.size());</span>
+<span class="lineNum">     115 </span><span class="lineCov">         42 :         s.buffer_sizes.push_back(sizeof(T));</span>
+<span class="lineNum">     116 </span><span class="lineCov">         42 :     }</span>
+<a name="117"><span class="lineNum">     117 </span><span class="lineCov">         42 : </span></a>
+<span class="lineNum">     118 </span><span class="lineCov">         42 :     template &lt;class T&gt;</span>
+<span class="lineNum">     119 </span><span class="lineCov">         42 :     friend void operator&gt;&gt;(Serializer &amp;s, T &amp;data) {</span>
+<span class="lineNum">     120 </span><span class="lineCov">         42 :         s.deserialize(data, 1);</span>
+<span class="lineNum">     121 </span><span class="lineCov">         42 :     }</span>
+<a name="122"><span class="lineNum">     122 </span>            : </a>
+<span class="lineNum">     123 </span>            :     template &lt;class T&gt;
+<span class="lineNum">     124 </span><span class="lineCov">        168 :     friend void operator&gt;&gt;(Serializer &amp;s, std::vector&lt;T&gt; &amp;data) {</span>
+<span class="lineNum">     125 </span><span class="lineCov">        168 :         size_t szvector;</span>
+<span class="lineNum">     126 </span><span class="lineCov">        168 :         s.deserialize(szvector, 1);</span>
+<span class="lineNum">     127 </span><span class="lineCov">        168 :         s.deserialize(data, szvector);</span>
+<span class="lineNum">     128 </span><span class="lineCov">        168 :     }</span>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">        168 : </span></a>
+<span class="lineNum">     130 </span><span class="lineCov">        168 : private:</span>
+<span class="lineNum">     131 </span><span class="lineCov">         84 :     size_t size() {</span>
+<span class="lineNum">     132 </span><span class="lineCov">         84 :         size_t nItems = buffer_types.size();</span>
+<span class="lineNum">     133 </span><span class="lineCov">         84 :         size_t totalsize = 0;</span>
+<span class="lineNum">     134 </span><span class="lineCov">         84 : </span>
+<span class="lineNum">     135 </span><span class="lineCov">         84 :         for (size_t i = 0; i &lt; nItems; ++i) {</span>
+<span class="lineNum">     136 </span><span class="lineCov">         84 :             if (buffer_isVector[i]) {</span>
+<span class="lineNum">     137 </span><span class="lineCov">         84 :                 totalsize += sizeof(type_t);</span>
+<span class="lineNum">     138 </span><span class="lineCov">         84 :                 totalsize += sizeof(storage_idx_t);</span>
+<span class="lineNum">     139 </span><span class="lineCov">         84 :             }</span>
+<span class="lineNum">     140 </span><span class="lineCov">         84 :             totalsize += sizeof(type_t);</span>
+<span class="lineNum">     141 </span><span class="lineCov">         84 :             totalsize += buffer_nums[i] * buffer_sizes[i];</span>
+<span class="lineNum">     142 </span><span class="lineCov">         84 :         }</span>
+<span class="lineNum">     143 </span><span class="lineCov">         84 : </span>
+<span class="lineNum">     144 </span><span class="lineCov">         84 :         return totalsize;</span>
+<span class="lineNum">     145 </span>            :     }
+<a name="146"><span class="lineNum">     146 </span>            : </a>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :     template &lt;class T&gt;</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :     void serialize(const T *pdata, size_t sz) {</span>
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :         auto data_reinterpreted = reinterpret_cast&lt;const byte_t *&gt;(pdata);</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :         std::copy(data_reinterpreted, data_reinterpreted + sz, pbytes);</span>
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :         pbytes += sz;</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :     }</span>
+<a name="153"><span class="lineNum">     153 </span><span class="lineNoCov">          0 : </span></a>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :     template &lt;class T&gt;</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :     void deserialize(T &amp;data, size_t num) {</span>
+<span class="lineNum">     156 </span>            :         uint16_t type = 0;
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :         if (cpbytes + sizeof(uint16_t) &gt; cpbytes_end) {</span>
+<span class="lineNum">     159 </span>            :             throw std::runtime_error(
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :                 &quot;Corrupted data discovered.&quot;); // TODO use checksum of &quot;bytes&quot; (write checksum into</span>
+<span class="lineNum">     161 </span><span class="lineNoCov">          0 :                                                // the beginning of &quot;bytes&quot;)</span>
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :         auto pbytes_reinterpreted = reinterpret_cast&lt;const type_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     164 </span>            :         std::copy(pbytes_reinterpreted, pbytes_reinterpreted + 1, &amp;type);
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :         cpbytes += sizeof(uint16_t);</span>
+<span class="lineNum">     166 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     167 </span><span class="lineNoCov">          0 :         if (type == type_ids[std::type_index(typeid(int8_t))]) {</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(int8_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     169 </span>            :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const int8_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :             std::copy(pbytes_reinterpreted, pbytes_reinterpreted + num, &amp;data);</span>
+<span class="lineNum">     173 </span>            :             cpbytes += sizeof(int8_t) * num;
+<span class="lineNum">     174 </span>            :         } else if (type == type_ids[std::type_index(typeid(int16_t))]) {
+<span class="lineNum">     175 </span><span class="lineCov">         21 :             if (cpbytes + sizeof(int16_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     176 </span><span class="lineCov">         21 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     177 </span><span class="lineCov">         21 :             }</span>
+<span class="lineNum">     178 </span>            :             auto pbytes_reinterpreted = reinterpret_cast&lt;const int16_t *&gt;(&amp;(*cpbytes));
+<span class="lineNum">     179 </span><span class="lineCov">        315 :             std::copy(pbytes_reinterpreted, pbytes_reinterpreted + num, &amp;data);</span>
+<span class="lineNum">     180 </span><span class="lineCov">        294 :             cpbytes += sizeof(int16_t) * num;</span>
+<span class="lineNum">     181 </span><span class="lineCov">        168 :         } else if (type == type_ids[std::type_index(typeid(int32_t))]) {</span>
+<span class="lineNum">     182 </span><span class="lineCov">        168 :             if (cpbytes + sizeof(int32_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     183 </span>            :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);
+<span class="lineNum">     184 </span><span class="lineCov">        294 :             }</span>
+<span class="lineNum">     185 </span><span class="lineCov">        294 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const int32_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     186 </span>            :             std::copy(pbytes_reinterpreted, pbytes_reinterpreted + num, &amp;data);
+<span class="lineNum">     187 </span>            :             cpbytes += sizeof(int32_t) * num;
+<span class="lineNum">     188 </span><span class="lineCov">         21 :         } else if (type == type_ids[std::type_index(typeid(int64_t))]) {</span>
+<span class="lineNum">     189 </span>            :             if (cpbytes + sizeof(int64_t) * num &gt; cpbytes_end) {
+<span class="lineNum">     190 </span>            :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);
+<span class="lineNum">     191 </span>            :             }
+<span class="lineNum">     192 </span><span class="lineCov">        924 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const int64_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     193 </span><span class="lineCov">        924 :             std::copy(pbytes_reinterpreted, pbytes_reinterpreted + num, &amp;data);</span>
+<span class="lineNum">     194 </span><span class="lineCov">        924 :             cpbytes += sizeof(int64_t) * num;</span>
+<span class="lineNum">     195 </span><span class="lineCov">        924 :         } else if (type == type_ids[std::type_index(typeid(uint8_t))]) {</span>
+<span class="lineNum">     196 </span><span class="lineCov">        924 :             if (cpbytes + sizeof(uint8_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     197 </span><span class="lineCov">        294 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     198 </span><span class="lineCov">        294 :             }</span>
+<span class="lineNum">     199 </span><span class="lineCov">        294 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const uint8_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     200 </span><span class="lineCov">        294 :             std::copy(pbytes_reinterpreted, pbytes_reinterpreted + num, &amp;data);</span>
+<span class="lineNum">     201 </span><span class="lineCov">        294 :             cpbytes += sizeof(uint8_t) * num;</span>
+<span class="lineNum">     202 </span><span class="lineCov">        168 :         } else if (type == type_ids[std::type_index(typeid(uint16_t))]) {</span>
+<span class="lineNum">     203 </span><span class="lineCov">        168 :             if (cpbytes + sizeof(uint16_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     204 </span><span class="lineCov">        168 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     205 </span><span class="lineCov">        168 :             }</span>
+<span class="lineNum">     206 </span><span class="lineCov">        168 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const uint16_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     207 </span><span class="lineCov">        462 :             std::copy(pbytes_reinterpreted, pbytes_reinterpreted + num, &amp;data);</span>
+<span class="lineNum">     208 </span><span class="lineCov">        462 :             cpbytes += sizeof(uint16_t) * num;</span>
+<span class="lineNum">     209 </span><span class="lineCov">        462 :         } else if (type == type_ids[std::type_index(typeid(uint32_t))]) {</span>
+<span class="lineNum">     210 </span><span class="lineCov">        462 :             if (cpbytes + sizeof(uint32_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     211 </span><span class="lineCov">        462 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     212 </span>            :             }
+<span class="lineNum">     213 </span>            :             auto pbytes_reinterpreted = reinterpret_cast&lt;const uint32_t *&gt;(&amp;(*cpbytes));
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :             std::copy(pbytes_reinterpreted, pbytes_reinterpreted + num, &amp;data);</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(uint32_t) * num;</span>
+<span class="lineNum">     216 </span>            :         } else if (type == type_ids[std::type_index(typeid(uint64_t))]) {
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(uint64_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     218 </span>            :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     220 </span>            :             auto pbytes_reinterpreted = reinterpret_cast&lt;const uint64_t *&gt;(&amp;(*cpbytes));
+<span class="lineNum">     221 </span>            :             std::copy(pbytes_reinterpreted, pbytes_reinterpreted + num, &amp;data);
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(uint64_t) * num;</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(float))]) {</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(float) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     225 </span>            :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const float *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :             std::copy(pbytes_reinterpreted, pbytes_reinterpreted + num, &amp;data);</span>
+<span class="lineNum">     229 </span>            :             cpbytes += sizeof(float) * num;
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(double))]) {</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(double) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const double *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :             std::copy(pbytes_reinterpreted, pbytes_reinterpreted + num, &amp;data);</span>
+<span class="lineNum">     236 </span>            :             cpbytes += sizeof(double) * num;
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(char))]) {</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(char) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const char *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :             std::copy(pbytes_reinterpreted, pbytes_reinterpreted + num, &amp;data);</span>
+<span class="lineNum">     243 </span>            :             cpbytes += sizeof(char) * num;
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(bool))]) {</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(bool) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const bool *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :             std::copy(pbytes_reinterpreted, pbytes_reinterpreted + num, &amp;data);</span>
+<span class="lineNum">     250 </span>            :             cpbytes += sizeof(bool) * num;
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :             throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :             // auto pbytes_reinterpreted = reinterpret_cast&lt;const T*&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :             // std::copy(pbytes_reinterpreted, pbytes_reinterpreted+num, &amp;data);</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :             // cpbytes += sizeof(T)*num;</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     257 </span>            :     }
+<a name="258"><span class="lineNum">     258 </span><span class="lineNoCov">          0 : </span></a>
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :     template &lt;class T&gt;</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :     void deserialize(std::vector&lt;T&gt; &amp;data, size_t num) {</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :         uint16_t type = 0;</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :         if (cpbytes + sizeof(uint16_t) &gt; cpbytes_end) {</span>
+<span class="lineNum">     264 </span>            :             throw std::runtime_error(&quot;Corrupted data discovered.&quot;);
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :         auto pbytes_reinterpreted = reinterpret_cast&lt;const type_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :         std::copy(pbytes_reinterpreted, pbytes_reinterpreted + 1, &amp;type);</span>
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :         cpbytes += sizeof(uint16_t);</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :         if (type == type_ids[std::type_index(typeid(int8_t))]) {</span>
+<span class="lineNum">     271 </span>            :             if (cpbytes + sizeof(int8_t) * num &gt; cpbytes_end) {
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     273 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const int8_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :             std::vector&lt;int8_t&gt; vectmp(pbytes_reinterpreted, pbytes_reinterpreted + num);</span>
+<span class="lineNum">     276 </span><span class="lineNoCov">          0 :             data.insert(data.end(), vectmp.begin(), vectmp.end());</span>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(int8_t) * num;</span>
+<span class="lineNum">     278 </span>            :         } else if (type == type_ids[std::type_index(typeid(int16_t))]) {
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(int16_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     280 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     282 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const int16_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     283 </span><span class="lineNoCov">          0 :             std::vector&lt;int16_t&gt; vectmp(pbytes_reinterpreted, pbytes_reinterpreted + num);</span>
+<span class="lineNum">     284 </span><span class="lineNoCov">          0 :             data.insert(data.end(), vectmp.begin(), vectmp.end());</span>
+<span class="lineNum">     285 </span>            :             cpbytes += sizeof(int16_t) * num;
+<span class="lineNum">     286 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(int32_t))]) {</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(int32_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const int32_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :             std::vector&lt;int32_t&gt; vectmp(pbytes_reinterpreted, pbytes_reinterpreted + num);</span>
+<span class="lineNum">     292 </span>            :             data.insert(data.end(), vectmp.begin(), vectmp.end());
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(int32_t) * num;</span>
+<span class="lineNum">     294 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(int64_t))]) {</span>
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(int64_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     296 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const int64_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     299 </span>            :             std::vector&lt;int64_t&gt; vectmp(pbytes_reinterpreted, pbytes_reinterpreted + num);
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :             data.insert(data.end(), vectmp.begin(), vectmp.end());</span>
+<span class="lineNum">     301 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(int64_t) * num;</span>
+<span class="lineNum">     302 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(uint8_t))]) {</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(uint8_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     305 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     306 </span>            :             auto pbytes_reinterpreted = reinterpret_cast&lt;const uint8_t *&gt;(&amp;(*cpbytes));
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :             std::vector&lt;uint8_t&gt; vectmp(pbytes_reinterpreted, pbytes_reinterpreted + num);</span>
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :             data.insert(data.end(), vectmp.begin(), vectmp.end());</span>
+<span class="lineNum">     309 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(uint8_t) * num;</span>
+<span class="lineNum">     310 </span>            :         } else if (type == type_ids[std::type_index(typeid(uint16_t))]) {
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(uint16_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     312 </span>            :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);
+<span class="lineNum">     313 </span>            :             }
+<span class="lineNum">     314 </span>            :             auto pbytes_reinterpreted = reinterpret_cast&lt;const uint16_t *&gt;(&amp;(*cpbytes));
+<span class="lineNum">     315 </span>            :             std::vector&lt;uint16_t&gt; vectmp(pbytes_reinterpreted, pbytes_reinterpreted + num);
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :             data.insert(data.end(), vectmp.begin(), vectmp.end());</span>
+<span class="lineNum">     317 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(uint16_t) * num;</span>
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(uint32_t))]) {</span>
+<span class="lineNum">     319 </span>            :             if (cpbytes + sizeof(uint32_t) * num &gt; cpbytes_end) {
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     321 </span>            :             }
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const uint32_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     323 </span>            :             std::vector&lt;uint32_t&gt; vectmp(pbytes_reinterpreted, pbytes_reinterpreted + num);
+<span class="lineNum">     324 </span>            :             data.insert(data.end(), vectmp.begin(), vectmp.end());
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(uint32_t) * num;</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(uint64_t))]) {</span>
+<span class="lineNum">     327 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(uint64_t) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     328 </span>            :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const uint64_t *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :             std::vector&lt;uint64_t&gt; vectmp(pbytes_reinterpreted, pbytes_reinterpreted + num);</span>
+<span class="lineNum">     332 </span>            :             data.insert(data.end(), vectmp.begin(), vectmp.end());
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(uint64_t) * num;</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(float))]) {</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(float) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     338 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const float *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     339 </span>            :             std::vector&lt;float&gt; vectmp(pbytes_reinterpreted, pbytes_reinterpreted + num);
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :             data.insert(data.end(), vectmp.begin(), vectmp.end());</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(float) * num;</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(double))]) {</span>
+<span class="lineNum">     343 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(double) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     346 </span>            :             auto pbytes_reinterpreted = reinterpret_cast&lt;const double *&gt;(&amp;(*cpbytes));
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :             std::vector&lt;double&gt; vectmp(pbytes_reinterpreted, pbytes_reinterpreted + num);</span>
+<span class="lineNum">     348 </span><span class="lineNoCov">          0 :             data.insert(data.end(), vectmp.begin(), vectmp.end());</span>
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(double) * num;</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(char))]) {</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(char) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);</span>
+<span class="lineNum">     353 </span>            :             }
+<span class="lineNum">     354 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const char *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     355 </span><span class="lineNoCov">          0 :             std::vector&lt;char&gt; vectmp(pbytes_reinterpreted, pbytes_reinterpreted + num);</span>
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :             data.insert(data.end(), vectmp.begin(), vectmp.end());</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(char) * num;</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :         } else if (type == type_ids[std::type_index(typeid(bool))]) {</span>
+<span class="lineNum">     359 </span><span class="lineNoCov">          0 :             if (cpbytes + sizeof(bool) * num &gt; cpbytes_end) {</span>
+<span class="lineNum">     360 </span>            :                 throw std::runtime_error(&quot;Corrupted data discovered.&quot;);
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :             auto pbytes_reinterpreted = reinterpret_cast&lt;const bool *&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :             std::vector&lt;bool&gt; vectmp(pbytes_reinterpreted, pbytes_reinterpreted + num);</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :             data.insert(data.end(), vectmp.begin(), vectmp.end());</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :             cpbytes += sizeof(bool) * num;</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :         } else {</span>
+<span class="lineNum">     367 </span>            :             throw std::runtime_error(&quot;Corrupted data discovered.&quot;);
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :             // auto pbytes_reinterpreted = reinterpret_cast&lt;const T*&gt;(&amp;(*cpbytes));</span>
+<span class="lineNum">     369 </span><span class="lineNoCov">          0 :             // std::copy(pbytes_reinterpreted, pbytes_reinterpreted+num,back_inserter(data));</span>
+<span class="lineNum">     370 </span><span class="lineNoCov">          0 :             // cpbytes += sizeof(T)*num;</span>
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     372 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     374 </span>            :     std::unordered_map&lt;std::type_index, uint16_t&gt; type_ids;
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :     bytes_t::iterator pbytes;</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :     bytes_t::const_iterator cpbytes;</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :     bytes_t::const_iterator cpbytes_start;</span>
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :     bytes_t::const_iterator cpbytes_end;</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :     std::vector&lt;bool&gt; buffer_isVector;</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :     std::vector&lt;uint16_t&gt; buffer_types;</span>
+<span class="lineNum">     381 </span>            :     std::vector&lt;const byte_t *&gt; buffer_pitems;
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :     std::vector&lt;storage_idx_t&gt; buffer_nums;</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :     std::vector&lt;size_t&gt; buffer_sizes;</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 : };</span>
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 : #endif</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

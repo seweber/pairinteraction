@@ -1,0 +1,842 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/SystemOne.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - SystemOne.cpp<span style="font-size: 80%;"> (source / <a href="SystemOne.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">314</td>
+            <td class="headerCovTableEntry">386</td>
+            <td class="headerCovTableEntryMed">81.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntryMed">81.2 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &quot;SystemOne.h&quot;
+<span class="lineNum">      21 </span>            : #include &quot;dtypes.h&quot;
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &lt;cctype&gt;
+<span class="lineNum">      24 </span>            : #include &lt;cmath&gt;
+<span class="lineNum">      25 </span>            : #include &lt;limits&gt;
+<span class="lineNum">      26 </span>            : #include &lt;numeric&gt;
+<span class="lineNum">      27 </span>            : #include &lt;string&gt;
+<span class="lineNum">      28 </span>            : #include &lt;type_traits&gt;
+<span class="lineNum">      29 </span>            : #include &lt;unordered_set&gt;
+<span class="lineNum">      30 </span>            : #include &lt;utility&gt;
+<a name="31"><span class="lineNum">      31 </span>            : #include &lt;vector&gt;</a>
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span><span class="lineCov">         50 : SystemOne::SystemOne(std::string species, MatrixElementCache &amp;cache)</span>
+<span class="lineNum">      34 </span>            :     : SystemBase(cache), efield({{0, 0, 0}}), bfield({{0, 0, 0}}), diamagnetism(true),
+<a name="35"><span class="lineNum">      35 </span><span class="lineCov">         50 :       species(std::move(species)), sym_reflection(NA), sym_rotation({static_cast&lt;float&gt;(ARB)}) {}</span></a>
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span><span class="lineNoCov">          0 : SystemOne::SystemOne(std::string species, MatrixElementCache &amp;cache, bool memory_saving)</span>
+<span class="lineNum">      38 </span>            :     : SystemBase(cache, memory_saving), efield({{0, 0, 0}}), bfield({{0, 0, 0}}),
+<span class="lineNum">      39 </span><span class="lineNoCov">          0 :       diamagnetism(true), species(std::move(species)), sym_reflection(NA),</span>
+<a name="40"><span class="lineNum">      40 </span><span class="lineNoCov">          0 :       sym_rotation({static_cast&lt;float&gt;(ARB)}) {}</span></a>
+<span class="lineNum">      41 </span>            : 
+<a name="42"><span class="lineNum">      42 </span><span class="lineCov">        116 : const std::string &amp;SystemOne::getSpecies() const { return species; }</span></a>
+<span class="lineNum">      43 </span>            : 
+<span class="lineNum">      44 </span><span class="lineCov">        120 : void SystemOne::setEfield(std::array&lt;double, 3&gt; field) {</span>
+<span class="lineNum">      45 </span><span class="lineCov">        120 :     this-&gt;onParameterChange();</span>
+<span class="lineNum">      46 </span><span class="lineCov">        120 :     efield = field;</span>
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            :     // Transform the electric field into spherical coordinates
+<span class="lineNum">      49 </span><span class="lineCov">        120 :     this-&gt;changeToSphericalbasis(efield, efield_spherical);</span>
+<a name="50"><span class="lineNum">      50 </span><span class="lineCov">        120 : }</span></a>
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span><span class="lineCov">         19 : void SystemOne::setBfield(std::array&lt;double, 3&gt; field) {</span>
+<span class="lineNum">      53 </span><span class="lineCov">         19 :     this-&gt;onParameterChange();</span>
+<span class="lineNum">      54 </span><span class="lineCov">         19 :     bfield = field;</span>
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            :     // Transform the magnetic field into spherical coordinates
+<span class="lineNum">      57 </span><span class="lineCov">         19 :     this-&gt;changeToSphericalbasis(bfield, bfield_spherical);</span>
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span><span class="lineCov">         35 :     diamagnetism_terms[{{0, +0}}] = bfield_spherical[+0] * bfield_spherical[+0] -</span>
+<span class="lineNum">      60 </span><span class="lineCov">         35 :         bfield_spherical[+1] * bfield_spherical[-1] * 2.;</span>
+<span class="lineNum">      61 </span><span class="lineCov">         16 :     diamagnetism_terms[{{2, +0}}] =</span>
+<span class="lineNum">      62 </span><span class="lineCov">         19 :         bfield_spherical[+0] * bfield_spherical[+0] + bfield_spherical[+1] * bfield_spherical[-1];</span>
+<span class="lineNum">      63 </span><span class="lineCov">         19 :     diamagnetism_terms[{{2, +1}}] = bfield_spherical[+0] * bfield_spherical[-1];</span>
+<span class="lineNum">      64 </span><span class="lineCov">         19 :     diamagnetism_terms[{{2, -1}}] = bfield_spherical[+0] * bfield_spherical[+1];</span>
+<span class="lineNum">      65 </span><span class="lineCov">         19 :     diamagnetism_terms[{{2, +2}}] = bfield_spherical[-1] * bfield_spherical[-1];</span>
+<span class="lineNum">      66 </span><span class="lineCov">         19 :     diamagnetism_terms[{{2, -2}}] = bfield_spherical[+1] * bfield_spherical[+1];</span>
+<a name="67"><span class="lineNum">      67 </span><span class="lineCov">         19 : }</span></a>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 : void SystemOne::setEfield(std::array&lt;double, 3&gt; field, std::array&lt;double, 3&gt; to_z_axis,</span>
+<span class="lineNum">      70 </span>            :                           std::array&lt;double, 3&gt; to_y_axis) {
+<span class="lineNum">      71 </span><span class="lineNoCov">          0 :     this-&gt;rotateVector(field, to_z_axis, to_y_axis);</span>
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 :     this-&gt;setEfield(field);</span>
+<a name="73"><span class="lineNum">      73 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 : void SystemOne::setBfield(std::array&lt;double, 3&gt; field, std::array&lt;double, 3&gt; to_z_axis,</span>
+<span class="lineNum">      76 </span>            :                           std::array&lt;double, 3&gt; to_y_axis) {
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :     this-&gt;rotateVector(field, to_z_axis, to_y_axis);</span>
+<span class="lineNum">      78 </span><span class="lineNoCov">          0 :     this-&gt;setBfield(field);</span>
+<a name="79"><span class="lineNum">      79 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      80 </span>            : 
+<span class="lineNum">      81 </span><span class="lineCov">          1 : void SystemOne::setEfield(std::array&lt;double, 3&gt; field, double alpha, double beta, double gamma) {</span>
+<span class="lineNum">      82 </span><span class="lineCov">          1 :     this-&gt;rotateVector(field, alpha, beta, gamma);</span>
+<span class="lineNum">      83 </span><span class="lineCov">          1 :     this-&gt;setEfield(field);</span>
+<a name="84"><span class="lineNum">      84 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span><span class="lineCov">          2 : void SystemOne::setBfield(std::array&lt;double, 3&gt; field, double alpha, double beta, double gamma) {</span>
+<span class="lineNum">      87 </span><span class="lineCov">          2 :     this-&gt;rotateVector(field, alpha, beta, gamma);</span>
+<span class="lineNum">      88 </span><span class="lineCov">          2 :     this-&gt;setBfield(field);</span>
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span><span class="lineNoCov">          0 : void SystemOne::enableDiamagnetism(bool enable) {</span>
+<span class="lineNum">      92 </span><span class="lineNoCov">          0 :     this-&gt;onParameterChange();</span>
+<span class="lineNum">      93 </span><span class="lineNoCov">          0 :     diamagnetism = enable;</span>
+<a name="94"><span class="lineNum">      94 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span><span class="lineCov">          6 : void SystemOne::setConservedParityUnderReflection(parity_t parity) {</span>
+<span class="lineNum">      97 </span><span class="lineCov">          6 :     this-&gt;onSymmetryChange();</span>
+<span class="lineNum">      98 </span><span class="lineCov">          6 :     sym_reflection = parity;</span>
+<span class="lineNum">      99 </span><span class="lineCov">          6 :     if (!this-&gt;isRefelectionAndRotationCompatible()) {</span>
+<span class="lineNum">     100 </span>            :         throw std::runtime_error(&quot;The conserved parity under reflection is not compatible to the &quot;
+<span class="lineNum">     101 </span><span class="lineNoCov">          0 :                                  &quot;previously specified conserved momenta.&quot;);</span>
+<span class="lineNum">     102 </span>            :     }
+<a name="103"><span class="lineNum">     103 </span><span class="lineCov">          6 : }</span></a>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineCov">          9 : void SystemOne::setConservedMomentaUnderRotation(const std::set&lt;float&gt; &amp;momenta) {</span>
+<span class="lineNum">     106 </span><span class="lineCov">          9 :     if (momenta.count(static_cast&lt;float&gt;(ARB)) != 0 &amp;&amp; momenta.size() &gt; 1) {</span>
+<span class="lineNum">     107 </span>            :         throw std::runtime_error(
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :             &quot;If ARB (=arbitrary momentum) is specified, momenta must not be passed explicitely.&quot;);</span>
+<span class="lineNum">     109 </span>            :     }
+<span class="lineNum">     110 </span><span class="lineCov">          9 :     this-&gt;onSymmetryChange();</span>
+<span class="lineNum">     111 </span><span class="lineCov">          9 :     sym_rotation = momenta;</span>
+<span class="lineNum">     112 </span><span class="lineCov">          9 :     if (!this-&gt;isRefelectionAndRotationCompatible()) {</span>
+<span class="lineNum">     113 </span>            :         throw std::runtime_error(&quot;The conserved momenta are not compatible to the previously &quot;
+<span class="lineNum">     114 </span><span class="lineNoCov">          0 :                                  &quot;specified conserved parity under reflection.&quot;);</span>
+<span class="lineNum">     115 </span>            :     }
+<span class="lineNum">     116 </span><span class="lineCov">          9 : }</span>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span>            : ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     119 </span>            : /// Method that allows base class to initialize Basis //////////////
+<a name="120"><span class="lineNum">     120 </span>            : ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineCov">         81 : void SystemOne::initializeBasis() {</span>
+<span class="lineNum">     123 </span>            :     // If the basis is infinite, throw an error
+<span class="lineNum">     124 </span><span class="lineCov">         81 :     if (range_n.empty() &amp;&amp;</span>
+<span class="lineNum">     125 </span><span class="lineNoCov">          0 :         (energy_min == std::numeric_limits&lt;double&gt;::lowest() ||</span>
+<span class="lineNum">     126 </span><span class="lineNoCov">          0 :          energy_max == std::numeric_limits&lt;double&gt;::max())) {</span>
+<span class="lineNum">     127 </span>            :         throw std::runtime_error(
+<span class="lineNum">     128 </span><span class="lineNoCov">          0 :             &quot;The number of basis elements is infinite. The basis has to be restricted.&quot;);</span>
+<span class="lineNum">     129 </span>            :     }
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     132 </span>            :     /// Build one atom states //////////////////////////////////////////
+<span class="lineNum">     133 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     134 </span>            : 
+<span class="lineNum">     135 </span>            :     // TODO check whether symmetries are applicable
+<span class="lineNum">     136 </span>            :     // TODO check whether range_j, range_m is half-integer or integer valued
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineCov">         81 :     float s = 0.5;</span>
+<span class="lineNum">     139 </span><span class="lineCov">         81 :     if (std::isdigit(species.back()) != 0) {</span>
+<span class="lineNum">     140 </span><span class="lineNoCov">          0 :         s = ((species.back() - '0') - 1) / 2.; // TODO think of a better solution</span>
+<span class="lineNum">     141 </span>            :     }
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineCov">         81 :     size_t idx = 0;</span>
+<span class="lineNum">     144 </span>            :     std::vector&lt;eigen_triplet_t&gt;
+<span class="lineNum">     145 </span><span class="lineCov">        162 :         basisvectors_triplets; // TODO reserve states, basisvectors_triplets,</span>
+<span class="lineNum">     146 </span>            :                                // hamiltonian_triplets
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span><span class="lineCov">        162 :     std::vector&lt;eigen_triplet_t&gt; hamiltonian_triplets;</span>
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span>            :     /// Loop over specified quantum numbers ////////////////////////////
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span><span class="lineCov">        162 :     std::set&lt;int&gt; range_adapted_n, range_adapted_l;</span>
+<span class="lineNum">     153 </span><span class="lineCov">        162 :     std::set&lt;float&gt; range_adapted_j, range_adapted_m;</span>
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span><span class="lineCov">         81 :     if (range_n.empty()) {</span>
+<span class="lineNum">     156 </span>            :         throw std::runtime_error(
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :             &quot;The calculation of range_n via energy restrictions is not yet implemented.&quot;); // TODO</span>
+<span class="lineNum">     158 </span>            :     }
+<span class="lineNum">     159 </span><span class="lineCov">         81 :     range_adapted_n = range_n;</span>
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span><span class="lineCov">        414 :     for (auto n : range_adapted_n) {</span>
+<span class="lineNum">     162 </span>            : 
+<span class="lineNum">     163 </span><span class="lineCov">        333 :         if (range_l.empty()) {</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :             this-&gt;range(range_adapted_l, 0, n - 1);</span>
+<span class="lineNum">     165 </span>            :         } else {
+<span class="lineNum">     166 </span><span class="lineCov">        333 :             range_adapted_l = range_l;</span>
+<span class="lineNum">     167 </span>            :         }
+<span class="lineNum">     168 </span><span class="lineCov">       1454 :         for (auto l : range_adapted_l) {</span>
+<span class="lineNum">     169 </span><span class="lineCov">       1121 :             if (l &gt; n - 1 || l &lt; 0) {</span>
+<span class="lineNum">     170 </span><span class="lineCov">        194 :                 continue;</span>
+<span class="lineNum">     171 </span>            :             }
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span><span class="lineCov">        927 :             if (range_j.empty()) {</span>
+<span class="lineNum">     174 </span><span class="lineCov">        711 :                 this-&gt;range(range_adapted_j, std::fabs(l - s), l + s);</span>
+<span class="lineNum">     175 </span>            :             } else {
+<span class="lineNum">     176 </span><span class="lineCov">        216 :                 range_adapted_j = range_j;</span>
+<span class="lineNum">     177 </span>            :             }
+<span class="lineNum">     178 </span><span class="lineCov">       2784 :             for (auto j : range_adapted_j) {</span>
+<span class="lineNum">     179 </span><span class="lineCov">       1857 :                 if (std::fabs(j - l) &gt; s || j &lt; 0) {</span>
+<span class="lineNum">     180 </span><span class="lineCov">       1047 :                     continue;</span>
+<span class="lineNum">     181 </span>            :                 }
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineCov">       1497 :                 double energy = StateOne(species, n, l, j, s).getEnergy(cache);</span>
+<span class="lineNum">     184 </span><span class="lineCov">       1497 :                 if (!checkIsEnergyValid(energy)) {</span>
+<span class="lineNum">     185 </span><span class="lineCov">        687 :                     continue;</span>
+<span class="lineNum">     186 </span>            :                 }
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span><span class="lineCov">        810 :                 if (range_m.empty()) {</span>
+<span class="lineNum">     189 </span><span class="lineCov">        801 :                     this-&gt;range(range_adapted_m, -j, j);</span>
+<span class="lineNum">     190 </span>            :                 } else {
+<span class="lineNum">     191 </span><span class="lineCov">          9 :                     range_adapted_m = range_m;</span>
+<span class="lineNum">     192 </span>            :                 }
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span>            :                 // Consider rotation symmetry
+<span class="lineNum">     195 </span><span class="lineCov">       1620 :                 std::set&lt;float&gt; range_allowed_m;</span>
+<span class="lineNum">     196 </span><span class="lineCov">        810 :                 if (sym_rotation.count(static_cast&lt;float&gt;(ARB)) == 0) {</span>
+<span class="lineNum">     197 </span>            :                     std::set_intersection(sym_rotation.begin(), sym_rotation.end(),
+<span class="lineNum">     198 </span>            :                                           range_adapted_m.begin(), range_adapted_m.end(),
+<span class="lineNum">     199 </span><span class="lineCov">        126 :                                           std::inserter(range_allowed_m, range_allowed_m.begin()));</span>
+<span class="lineNum">     200 </span>            :                 } else {
+<span class="lineNum">     201 </span><span class="lineCov">        684 :                     range_allowed_m = range_adapted_m;</span>
+<span class="lineNum">     202 </span>            :                 }
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span><span class="lineCov">       3292 :                 for (auto m : range_allowed_m) {</span>
+<span class="lineNum">     205 </span><span class="lineCov">       2482 :                     if (std::fabs(m) &gt; j) {</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     207 </span>            :                     }
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span>            :                     // Create state
+<span class="lineNum">     210 </span><span class="lineCov">       4964 :                     StateOne state(species, n, l, j, m);</span>
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            :                     // Check whether reflection symmetry can be realized with the states available
+<span class="lineNum">     213 </span><span class="lineCov">       2538 :                     if (sym_reflection != NA &amp;&amp; state.getM() != 0 &amp;&amp;</span>
+<span class="lineNum">     214 </span><span class="lineCov">       2538 :                         range_allowed_m.count(-state.getM()) == 0) {</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :                         throw std::runtime_error(&quot;The momentum &quot; + std::to_string(-state.getM()) +</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :                                                  &quot; required by symmetries cannot be found.&quot;);</span>
+<span class="lineNum">     217 </span>            :                     }
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span>            :                     // Add symmetrized basis vectors
+<span class="lineNum">     220 </span><span class="lineCov">       2482 :                     this-&gt;addSymmetrizedBasisvectors(state, idx, energy, basisvectors_triplets,</span>
+<span class="lineNum">     221 </span><span class="lineCov">       2482 :                                                      hamiltonian_triplets, sym_reflection);</span>
+<span class="lineNum">     222 </span>            :                 }
+<span class="lineNum">     223 </span>            :             }
+<span class="lineNum">     224 </span>            :         }
+<span class="lineNum">     225 </span>            :     }
+<span class="lineNum">     226 </span>            : 
+<span class="lineNum">     227 </span>            :     /// Loop over user-defined states //////////////////////////////////
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span>            :     // Check that the user-defined states are not already contained in the list of states
+<span class="lineNum">     230 </span><span class="lineCov">         81 :     for (const auto &amp;state : states_to_add) {</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :         if (states.get&lt;1&gt;().find(state) != states.get&lt;1&gt;().end()) {</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :             throw std::runtime_error(&quot;The state &quot; + state.str() +</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                                      &quot; is already contained in the list of states.&quot;);</span>
+<span class="lineNum">     234 </span>            :         }
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :         if (!state.isArtificial() &amp;&amp; state.getSpecies() != species) {</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :             throw std::runtime_error(&quot;The state &quot; + state.str() + &quot; is of the wrong species.&quot;);</span>
+<span class="lineNum">     237 </span>            :         }
+<span class="lineNum">     238 </span>            :     }
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span>            :     // Add user-defined states
+<span class="lineNum">     241 </span><span class="lineCov">         81 :     for (const auto &amp;state : states_to_add) {</span>
+<span class="lineNum">     242 </span>            :         // Get energy of the state
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :         double energy = state.isArtificial() ? 0 : state.getEnergy(cache);</span>
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span>            :         // In case of artificial states, symmetries won't work
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :         auto sym_reflection_local = sym_reflection;</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :         auto sym_rotation_local = sym_rotation;</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :         if (state.isArtificial()) {</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :             if (sym_reflection_local != NA ||</span>
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                 sym_rotation_local.count(static_cast&lt;float&gt;(ARB)) == 0) {</span>
+<span class="lineNum">     251 </span>            :                 std::cerr
+<span class="lineNum">     252 </span><span class="lineNoCov">          0 :                     &lt;&lt; &quot;WARNING: Only permutation symmetry can be applied to artificial states.&quot;</span>
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :                     &lt;&lt; std::endl;</span>
+<span class="lineNum">     254 </span>            :             }
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :             sym_reflection_local = NA;</span>
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :             sym_rotation_local = std::set&lt;float&gt;({static_cast&lt;float&gt;(ARB)});</span>
+<span class="lineNum">     257 </span>            :         }
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            :         // Consider rotation symmetry
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :         if (sym_rotation_local.count(static_cast&lt;float&gt;(ARB)) == 0 &amp;&amp;</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :             sym_rotation_local.count(state.getM()) == 0) {</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">     263 </span>            :         }
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span>            :         // Check whether reflection symmetry can be realized with the states available
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :         if (sym_reflection_local != NA &amp;&amp; state.getM() != 0) {</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :             auto state_reflected = state.getReflected();</span>
+<span class="lineNum">     268 </span><span class="lineNoCov">          0 :             if (states_to_add.find(state_reflected) == states_to_add.end()) {</span>
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :                 throw std::runtime_error(&quot;The state &quot; + state_reflected.str() +</span>
+<span class="lineNum">     270 </span><span class="lineNoCov">          0 :                                          &quot; required by symmetries cannot be found.&quot;);</span>
+<span class="lineNum">     271 </span>            :             }
+<span class="lineNum">     272 </span>            :         }
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span>            :         // Add symmetrized basis vectors
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :         this-&gt;addSymmetrizedBasisvectors(state, idx, energy, basisvectors_triplets,</span>
+<span class="lineNum">     276 </span>            :                                          hamiltonian_triplets, sym_reflection_local);
+<span class="lineNum">     277 </span>            :     }
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span>            :     /// Build data /////////////////////////////////////////////////////
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span><span class="lineCov">         81 :     basisvectors.resize(states.size(), idx);</span>
+<span class="lineNum">     282 </span><span class="lineCov">         81 :     basisvectors.setFromTriplets(basisvectors_triplets.begin(), basisvectors_triplets.end());</span>
+<span class="lineNum">     283 </span><span class="lineCov">         81 :     basisvectors_triplets.clear();</span>
+<span class="lineNum">     284 </span>            : 
+<span class="lineNum">     285 </span><span class="lineCov">         81 :     hamiltonian.resize(idx, idx);</span>
+<span class="lineNum">     286 </span><span class="lineCov">         81 :     hamiltonian.setFromTriplets(hamiltonian_triplets.begin(), hamiltonian_triplets.end());</span>
+<span class="lineNum">     287 </span><span class="lineCov">         81 :     hamiltonian_triplets.clear();</span>
+<span class="lineNum">     288 </span><span class="lineCov">         81 : }</span>
+<span class="lineNum">     289 </span>            : 
+<span class="lineNum">     290 </span>            : ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     291 </span>            : /// Method that allows base class to calculate the interaction /////
+<a name="292"><span class="lineNum">     292 </span>            : ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     293 </span>            : 
+<span class="lineNum">     294 </span><span class="lineCov">        146 : void SystemOne::initializeInteraction() {</span>
+<span class="lineNum">     295 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     296 </span>            :     /// Prepare the calculation of the interaction /////////////////////
+<span class="lineNum">     297 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     298 </span>            : 
+<span class="lineNum">     299 </span>            :     // Check if something to do
+<span class="lineNum">     300 </span><span class="lineCov">        146 :     double tolerance = 1e-24;</span>
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span><span class="lineCov">        146 :     std::vector&lt;int&gt; erange, brange;</span>
+<span class="lineNum">     303 </span><span class="lineCov">        146 :     std::vector&lt;std::array&lt;int, 2&gt;&gt; drange;</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineCov">        551 :     for (const auto &amp;entry : efield_spherical) {</span>
+<span class="lineNum">     306 </span><span class="lineCov">        405 :         if (entry.first &lt; 0) {</span>
+<span class="lineNum">     307 </span><span class="lineCov">        135 :             continue;</span>
+<span class="lineNum">     308 </span>            :         }
+<span class="lineNum">     309 </span><span class="lineCov">        417 :         if (std::abs(entry.second) &gt; tolerance &amp;&amp;</span>
+<span class="lineNum">     310 </span><span class="lineCov">        417 :             interaction_efield.find(-entry.first) == interaction_efield.end()) {</span>
+<span class="lineNum">     311 </span><span class="lineCov">         47 :             erange.push_back(entry.first);</span>
+<span class="lineNum">     312 </span>            :         }
+<span class="lineNum">     313 </span>            :     }
+<span class="lineNum">     314 </span><span class="lineCov">        560 :     for (const auto &amp;entry : bfield_spherical) {</span>
+<span class="lineNum">     315 </span><span class="lineCov">        414 :         if (entry.first &lt; 0) {</span>
+<span class="lineNum">     316 </span><span class="lineCov">        138 :             continue;</span>
+<span class="lineNum">     317 </span>            :         }
+<span class="lineNum">     318 </span><span class="lineCov">        330 :         if (std::abs(entry.second) &gt; tolerance &amp;&amp;</span>
+<span class="lineNum">     319 </span><span class="lineCov">        330 :             interaction_bfield.find(-entry.first) == interaction_bfield.end()) {</span>
+<span class="lineNum">     320 </span><span class="lineCov">         54 :             brange.push_back(entry.first);</span>
+<span class="lineNum">     321 </span>            :         }
+<span class="lineNum">     322 </span>            :     }
+<span class="lineNum">     323 </span><span class="lineCov">        974 :     for (const auto &amp;entry : diamagnetism_terms) {</span>
+<span class="lineNum">     324 </span><span class="lineCov">        828 :         if (entry.first[1] &lt; 0) {</span>
+<span class="lineNum">     325 </span><span class="lineCov">        276 :             continue;</span>
+<span class="lineNum">     326 </span>            :         }
+<span class="lineNum">     327 </span><span class="lineCov">        672 :         if (diamagnetism &amp;&amp; std::abs(entry.second) &gt; tolerance &amp;&amp;</span>
+<span class="lineNum">     328 </span><span class="lineCov">        672 :             interaction_diamagnetism.find(entry.first) == interaction_diamagnetism.end()) {</span>
+<span class="lineNum">     329 </span><span class="lineCov">        120 :             drange.push_back(entry.first);</span>
+<span class="lineNum">     330 </span>            :         }
+<span class="lineNum">     331 </span>            :     }
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span>            :     // Return if there is nothing to do
+<span class="lineNum">     334 </span><span class="lineCov">        146 :     if (erange.empty() &amp;&amp; brange.empty() &amp;&amp; drange.empty()) {</span>
+<span class="lineNum">     335 </span><span class="lineCov">        101 :         return;</span>
+<span class="lineNum">     336 </span>            :     }
+<span class="lineNum">     337 </span>            : 
+<span class="lineNum">     338 </span>            :     // Precalculate matrix elements
+<span class="lineNum">     339 </span><span class="lineCov">         90 :     auto states_converted = this-&gt;getStates();</span>
+<span class="lineNum">     340 </span><span class="lineCov">         92 :     for (const auto &amp;i : erange) {</span>
+<span class="lineNum">     341 </span><span class="lineCov">         47 :         cache.precalculateElectricMomentum(states_converted, i);</span>
+<span class="lineNum">     342 </span><span class="lineCov">         47 :         if (i != 0) {</span>
+<span class="lineNum">     343 </span><span class="lineCov">         17 :             cache.precalculateElectricMomentum(states_converted, -i);</span>
+<span class="lineNum">     344 </span>            :         }
+<span class="lineNum">     345 </span>            :     }
+<span class="lineNum">     346 </span><span class="lineCov">         99 :     for (const auto &amp;i : brange) {</span>
+<span class="lineNum">     347 </span><span class="lineCov">         54 :         cache.precalculateMagneticMomentum(states_converted, i);</span>
+<span class="lineNum">     348 </span><span class="lineCov">         54 :         if (i != 0) {</span>
+<span class="lineNum">     349 </span><span class="lineCov">         27 :             cache.precalculateMagneticMomentum(states_converted, -i);</span>
+<span class="lineNum">     350 </span>            :         }
+<span class="lineNum">     351 </span>            :     }
+<span class="lineNum">     352 </span><span class="lineCov">        165 :     for (const auto &amp;i : drange) {</span>
+<span class="lineNum">     353 </span><span class="lineCov">        120 :         cache.precalculateDiamagnetism(states_converted, i[0], i[1]);</span>
+<span class="lineNum">     354 </span><span class="lineCov">        120 :         if (i[1] != 0) {</span>
+<span class="lineNum">     355 </span><span class="lineCov">         42 :             cache.precalculateDiamagnetism(states_converted, i[0], -i[1]);</span>
+<span class="lineNum">     356 </span>            :         }
+<span class="lineNum">     357 </span>            :     }
+<span class="lineNum">     358 </span>            : 
+<span class="lineNum">     359 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     360 </span>            :     /// Calculate the interaction in the canonical basis ///////////////
+<span class="lineNum">     361 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span>            :     std::unordered_map&lt;int, std::vector&lt;eigen_triplet_t&gt;&gt;
+<span class="lineNum">     364 </span><span class="lineCov">         90 :         interaction_efield_triplets; // TODO reserve</span>
+<span class="lineNum">     365 </span>            :     std::unordered_map&lt;int, std::vector&lt;eigen_triplet_t&gt;&gt;
+<span class="lineNum">     366 </span><span class="lineCov">         90 :         interaction_bfield_triplets; // TODO reserve</span>
+<span class="lineNum">     367 </span>            :     std::unordered_map&lt;std::array&lt;int, 2&gt;, std::vector&lt;eigen_triplet_t&gt;&gt;
+<span class="lineNum">     368 </span><span class="lineCov">         90 :         interaction_diamagnetism_triplets; // TODO reserve</span>
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            :     // Loop over column entries
+<span class="lineNum">     371 </span><span class="lineCov">       1003 :     for (const auto &amp;c : states) { // TODO parallelization</span>
+<span class="lineNum">     372 </span><span class="lineCov">        958 :         if (c.state.isArtificial()) {</span>
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">     374 </span>            :         }
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span>            :         // Loop over row entries
+<span class="lineNum">     377 </span><span class="lineCov">      29898 :         for (const auto &amp;r : states) {</span>
+<span class="lineNum">     378 </span><span class="lineCov">      28940 :             if (r.state.isArtificial()) {</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :                 continue;</span>
+<span class="lineNum">     380 </span>            :             }
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span>            :             // E-field interaction
+<span class="lineNum">     383 </span><span class="lineCov">      57804 :             for (const auto &amp;i : erange) {</span>
+<span class="lineNum">     384 </span><span class="lineCov">      30510 :                 if (i == 0 &amp;&amp; r.idx &lt; c.idx) {</span>
+<span class="lineNum">     385 </span><span class="lineCov">      11938 :                     continue;</span>
+<span class="lineNum">     386 </span>            :                 }
+<span class="lineNum">     387 </span>            : 
+<span class="lineNum">     388 </span><span class="lineCov">      18572 :                 if (selectionRulesMultipoleNew(r.state, c.state, 1, i)) {</span>
+<span class="lineNum">     389 </span><span class="lineCov">       1646 :                     scalar_t value = cache.getElectricDipole(r.state, c.state);</span>
+<span class="lineNum">     390 </span><span class="lineCov">       1646 :                     this-&gt;addTriplet(interaction_efield_triplets[i], r.idx, c.idx, value);</span>
+<span class="lineNum">     391 </span><span class="lineCov">       1646 :                     break; // because for the other operators, the selection rule for the magnetic</span>
+<span class="lineNum">     392 </span>            :                            // quantum numbers will not be fulfilled
+<span class="lineNum">     393 </span>            :                 }
+<span class="lineNum">     394 </span>            :             }
+<span class="lineNum">     395 </span>            : 
+<span class="lineNum">     396 </span>            :             // B-field interaction
+<span class="lineNum">     397 </span><span class="lineCov">      54120 :             for (const auto &amp;i : brange) {</span>
+<span class="lineNum">     398 </span><span class="lineCov">      27001 :                 if (i == 0 &amp;&amp; r.idx &lt; c.idx) {</span>
+<span class="lineNum">     399 </span><span class="lineCov">       8284 :                     continue;</span>
+<span class="lineNum">     400 </span>            :                 }
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span><span class="lineCov">      18717 :                 if (selectionRulesMomentumNew(r.state, c.state, i)) {</span>
+<span class="lineNum">     403 </span><span class="lineCov">       1821 :                     scalar_t value = cache.getMagneticDipole(r.state, c.state);</span>
+<span class="lineNum">     404 </span><span class="lineCov">       1821 :                     this-&gt;addTriplet(interaction_bfield_triplets[i], r.idx, c.idx, value);</span>
+<span class="lineNum">     405 </span><span class="lineCov">       1821 :                     break; // because for the other operators, the selection rule for the magnetic</span>
+<span class="lineNum">     406 </span>            :                            // quantum numbers will not be fulfilled
+<span class="lineNum">     407 </span>            :                 }
+<span class="lineNum">     408 </span>            :             }
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span>            :             // Diamagnetic interaction
+<span class="lineNum">     411 </span><span class="lineCov">      88794 :             for (const auto &amp;i : drange) {</span>
+<span class="lineNum">     412 </span><span class="lineCov">      59854 :                 if (i[1] == 0 &amp;&amp; r.idx &lt; c.idx) {</span>
+<span class="lineNum">     413 </span><span class="lineCov">      21504 :                     continue;</span>
+<span class="lineNum">     414 </span>            :                 }
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span><span class="lineCov">      38350 :                 if (selectionRulesMultipoleNew(r.state, c.state, i[0], i[1])) {</span>
+<span class="lineNum">     417 </span>            :                     scalar_t value = 1. / (8 * electron_rest_mass) *
+<span class="lineNum">     418 </span><span class="lineCov">       3576 :                         cache.getDiamagnetism(r.state, c.state, i[0]);</span>
+<span class="lineNum">     419 </span><span class="lineCov">       3576 :                     this-&gt;addTriplet(interaction_diamagnetism_triplets[i], r.idx, c.idx, value);</span>
+<span class="lineNum">     420 </span>            :                 }
+<span class="lineNum">     421 </span>            :             }
+<span class="lineNum">     422 </span>            :         }
+<span class="lineNum">     423 </span>            :     }
+<span class="lineNum">     424 </span>            : 
+<span class="lineNum">     425 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     426 </span>            :     /// Build and transform the interaction to the used basis //////////
+<span class="lineNum">     427 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     428 </span>            : 
+<span class="lineNum">     429 </span><span class="lineCov">         92 :     for (const auto &amp;i : erange) {</span>
+<span class="lineNum">     430 </span><span class="lineCov">         47 :         interaction_efield[i].resize(states.size(), states.size());</span>
+<span class="lineNum">     431 </span><span class="lineCov">         94 :         interaction_efield[i].setFromTriplets(interaction_efield_triplets[i].begin(),</span>
+<span class="lineNum">     432 </span><span class="lineCov">         47 :                                               interaction_efield_triplets[i].end());</span>
+<span class="lineNum">     433 </span><span class="lineCov">         47 :         interaction_efield_triplets[i].clear();</span>
+<span class="lineNum">     434 </span>            : 
+<span class="lineNum">     435 </span><span class="lineCov">         47 :         if (i == 0) {</span>
+<span class="lineNum">     436 </span><span class="lineCov">         60 :             interaction_efield[i] = basisvectors.adjoint() *</span>
+<span class="lineNum">     437 </span><span class="lineCov">         90 :                 interaction_efield[i].selfadjointView&lt;Eigen::Lower&gt;() * basisvectors;</span>
+<span class="lineNum">     438 </span>            :         } else {
+<span class="lineNum">     439 </span><span class="lineCov">         17 :             interaction_efield[i] = basisvectors.adjoint() * interaction_efield[i] * basisvectors;</span>
+<span class="lineNum">     440 </span><span class="lineCov">         17 :             interaction_efield[-i] = std::pow(-1, i) * interaction_efield[i].adjoint();</span>
+<span class="lineNum">     441 </span>            :         }
+<span class="lineNum">     442 </span>            :     }
+<span class="lineNum">     443 </span>            : 
+<span class="lineNum">     444 </span><span class="lineCov">         99 :     for (const auto &amp;i : brange) {</span>
+<span class="lineNum">     445 </span><span class="lineCov">         54 :         interaction_bfield[i].resize(states.size(), states.size());</span>
+<span class="lineNum">     446 </span><span class="lineCov">        108 :         interaction_bfield[i].setFromTriplets(interaction_bfield_triplets[i].begin(),</span>
+<span class="lineNum">     447 </span><span class="lineCov">         54 :                                               interaction_bfield_triplets[i].end());</span>
+<span class="lineNum">     448 </span><span class="lineCov">         54 :         interaction_bfield_triplets[i].clear();</span>
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span><span class="lineCov">         54 :         if (i == 0) {</span>
+<span class="lineNum">     451 </span><span class="lineCov">         54 :             interaction_bfield[i] = basisvectors.adjoint() *</span>
+<span class="lineNum">     452 </span><span class="lineCov">         81 :                 interaction_bfield[i].selfadjointView&lt;Eigen::Lower&gt;() * basisvectors;</span>
+<span class="lineNum">     453 </span>            :         } else {
+<span class="lineNum">     454 </span><span class="lineCov">         27 :             interaction_bfield[i] = basisvectors.adjoint() * interaction_bfield[i] * basisvectors;</span>
+<span class="lineNum">     455 </span><span class="lineCov">         27 :             interaction_bfield[-i] = std::pow(-1, i) * interaction_bfield[i].adjoint();</span>
+<span class="lineNum">     456 </span>            :         }
+<span class="lineNum">     457 </span>            :     }
+<span class="lineNum">     458 </span>            : 
+<span class="lineNum">     459 </span><span class="lineCov">        165 :     for (const auto &amp;i : drange) {</span>
+<span class="lineNum">     460 </span><span class="lineCov">        120 :         interaction_diamagnetism[i].resize(states.size(), states.size());</span>
+<span class="lineNum">     461 </span><span class="lineCov">        240 :         interaction_diamagnetism[i].setFromTriplets(interaction_diamagnetism_triplets[i].begin(),</span>
+<span class="lineNum">     462 </span><span class="lineCov">        120 :                                                     interaction_diamagnetism_triplets[i].end());</span>
+<span class="lineNum">     463 </span><span class="lineCov">        120 :         interaction_diamagnetism_triplets[i].clear();</span>
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span><span class="lineCov">        120 :         if (i[1] == 0) {</span>
+<span class="lineNum">     466 </span><span class="lineCov">        156 :             interaction_diamagnetism[i] = basisvectors.adjoint() *</span>
+<span class="lineNum">     467 </span><span class="lineCov">        234 :                 interaction_diamagnetism[i].selfadjointView&lt;Eigen::Lower&gt;() * basisvectors;</span>
+<span class="lineNum">     468 </span>            :         } else {
+<span class="lineNum">     469 </span><span class="lineCov">         42 :             interaction_diamagnetism[i] =</span>
+<span class="lineNum">     470 </span><span class="lineCov">         84 :                 basisvectors.adjoint() * interaction_diamagnetism[i] * basisvectors;</span>
+<span class="lineNum">     471 </span><span class="lineCov">         42 :             interaction_diamagnetism[{{i[0], -i[1]}}] =</span>
+<span class="lineNum">     472 </span><span class="lineCov">         84 :                 std::pow(-1, i[1]) * interaction_diamagnetism[i].adjoint();</span>
+<span class="lineNum">     473 </span>            :         }
+<span class="lineNum">     474 </span>            :     }
+<span class="lineNum">     475 </span>            : }
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span>            : ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     478 </span>            : /// Method that allows base class to construct Hamiltonian /////////
+<a name="479"><span class="lineNum">     479 </span>            : ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     480 </span>            : 
+<span class="lineNum">     481 </span><span class="lineCov">        145 : void SystemOne::addInteraction() {</span>
+<span class="lineNum">     482 </span>            :     // Build the total Hamiltonian
+<span class="lineNum">     483 </span><span class="lineCov">        145 :     double tolerance = 1e-24;</span>
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span><span class="lineCov">        145 :     if (std::abs(efield_spherical[+0]) &gt; tolerance) {</span>
+<span class="lineNum">     486 </span><span class="lineCov">        129 :         hamiltonian -= interaction_efield[+0] * efield_spherical[+0];</span>
+<span class="lineNum">     487 </span>            :     }
+<span class="lineNum">     488 </span><span class="lineCov">        145 :     if (std::abs(efield_spherical[-1]) &gt; tolerance) {</span>
+<span class="lineNum">     489 </span><span class="lineCov">         17 :         hamiltonian += interaction_efield[+1] * efield_spherical[-1];</span>
+<span class="lineNum">     490 </span>            :     }
+<span class="lineNum">     491 </span><span class="lineCov">        145 :     if (std::abs(efield_spherical[+1]) &gt; tolerance) {</span>
+<span class="lineNum">     492 </span><span class="lineCov">         17 :         hamiltonian += interaction_efield[-1] * efield_spherical[+1];</span>
+<span class="lineNum">     493 </span>            :     }
+<span class="lineNum">     494 </span><span class="lineCov">        145 :     if (std::abs(bfield_spherical[+0]) &gt; tolerance) {</span>
+<span class="lineNum">     495 </span><span class="lineCov">         27 :         hamiltonian -= interaction_bfield[+0] * bfield_spherical[+0];</span>
+<span class="lineNum">     496 </span>            :     }
+<span class="lineNum">     497 </span><span class="lineCov">        145 :     if (std::abs(bfield_spherical[-1]) &gt; tolerance) {</span>
+<span class="lineNum">     498 </span><span class="lineCov">         27 :         hamiltonian += interaction_bfield[+1] * bfield_spherical[-1];</span>
+<span class="lineNum">     499 </span>            :     }
+<span class="lineNum">     500 </span><span class="lineCov">        145 :     if (std::abs(bfield_spherical[+1]) &gt; tolerance) {</span>
+<span class="lineNum">     501 </span><span class="lineCov">         27 :         hamiltonian += interaction_bfield[-1] * bfield_spherical[+1];</span>
+<span class="lineNum">     502 </span>            :     }
+<span class="lineNum">     503 </span>            : 
+<span class="lineNum">     504 </span><span class="lineCov">        145 :     if (diamagnetism &amp;&amp; std::abs(diamagnetism_terms[{{0, +0}}]) &gt; tolerance) {</span>
+<span class="lineNum">     505 </span><span class="lineCov">         39 :         hamiltonian += interaction_diamagnetism[{{0, +0}}] * diamagnetism_terms[{{0, +0}}];</span>
+<span class="lineNum">     506 </span>            :     }
+<span class="lineNum">     507 </span><span class="lineCov">        145 :     if (diamagnetism &amp;&amp; std::abs(diamagnetism_terms[{{2, +0}}]) &gt; tolerance) {</span>
+<span class="lineNum">     508 </span><span class="lineCov">         39 :         hamiltonian -= interaction_diamagnetism[{{2, +0}}] * diamagnetism_terms[{{2, +0}}];</span>
+<span class="lineNum">     509 </span>            :     }
+<span class="lineNum">     510 </span><span class="lineCov">        145 :     if (diamagnetism &amp;&amp; std::abs(diamagnetism_terms[{{2, +1}}]) &gt; tolerance) {</span>
+<span class="lineNum">     511 </span>            :         hamiltonian +=
+<span class="lineNum">     512 </span><span class="lineCov">         15 :             interaction_diamagnetism[{{2, +1}}] * diamagnetism_terms[{{2, +1}}] * std::sqrt(3);</span>
+<span class="lineNum">     513 </span>            :     }
+<span class="lineNum">     514 </span><span class="lineCov">        145 :     if (diamagnetism &amp;&amp; std::abs(diamagnetism_terms[{{2, -1}}]) &gt; tolerance) {</span>
+<span class="lineNum">     515 </span>            :         hamiltonian +=
+<span class="lineNum">     516 </span><span class="lineCov">         15 :             interaction_diamagnetism[{{2, -1}}] * diamagnetism_terms[{{2, -1}}] * std::sqrt(3);</span>
+<span class="lineNum">     517 </span>            :     }
+<span class="lineNum">     518 </span><span class="lineCov">        145 :     if (diamagnetism &amp;&amp; std::abs(diamagnetism_terms[{{2, +2}}]) &gt; tolerance) {</span>
+<span class="lineNum">     519 </span>            :         hamiltonian -=
+<span class="lineNum">     520 </span><span class="lineCov">         27 :             interaction_diamagnetism[{{2, +2}}] * diamagnetism_terms[{{2, +2}}] * std::sqrt(1.5);</span>
+<span class="lineNum">     521 </span>            :     }
+<span class="lineNum">     522 </span><span class="lineCov">        145 :     if (diamagnetism &amp;&amp; std::abs(diamagnetism_terms[{{2, -2}}]) &gt; tolerance) {</span>
+<span class="lineNum">     523 </span>            :         hamiltonian -=
+<span class="lineNum">     524 </span><span class="lineCov">         27 :             interaction_diamagnetism[{{2, -2}}] * diamagnetism_terms[{{2, -2}}] * std::sqrt(1.5);</span>
+<span class="lineNum">     525 </span>            :     }
+<span class="lineNum">     526 </span><span class="lineCov">        145 : }</span>
+<span class="lineNum">     527 </span>            : 
+<span class="lineNum">     528 </span>            : ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     529 </span>            : /// Method that allows base class to transform the interaction /////
+<a name="530"><span class="lineNum">     530 </span>            : ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span><span class="lineCov">         18 : void SystemOne::transformInteraction(const eigen_sparse_t &amp;transformator) {</span>
+<span class="lineNum">     533 </span><span class="lineCov">         34 :     for (auto &amp;entry : interaction_efield) {</span>
+<span class="lineNum">     534 </span><span class="lineCov">         16 :         entry.second = transformator.adjoint() * entry.second * transformator;</span>
+<span class="lineNum">     535 </span>            :     }
+<span class="lineNum">     536 </span><span class="lineCov">         42 :     for (auto &amp;entry : interaction_bfield) {</span>
+<span class="lineNum">     537 </span><span class="lineCov">         24 :         entry.second = transformator.adjoint() * entry.second * transformator;</span>
+<span class="lineNum">     538 </span>            :     }
+<span class="lineNum">     539 </span><span class="lineCov">         66 :     for (auto &amp;entry : interaction_diamagnetism) {</span>
+<span class="lineNum">     540 </span><span class="lineCov">         48 :         entry.second = transformator.adjoint() * entry.second * transformator; // NOLINT</span>
+<span class="lineNum">     541 </span>            :     }
+<span class="lineNum">     542 </span><span class="lineCov">         18 : }</span>
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span>            : ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     545 </span>            : /// Method that allows base class to delete the interaction ////////
+<a name="546"><span class="lineNum">     546 </span>            : ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     547 </span>            : 
+<span class="lineNum">     548 </span><span class="lineCov">          5 : void SystemOne::deleteInteraction() {</span>
+<span class="lineNum">     549 </span><span class="lineCov">          5 :     interaction_efield.clear();</span>
+<span class="lineNum">     550 </span><span class="lineCov">          5 :     interaction_bfield.clear();</span>
+<span class="lineNum">     551 </span><span class="lineCov">          5 :     interaction_diamagnetism.clear();</span>
+<span class="lineNum">     552 </span><span class="lineCov">          5 : }</span>
+<span class="lineNum">     553 </span>            : 
+<span class="lineNum">     554 </span>            : ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     555 </span>            : /// Methods that allows base class to rotate states ////////////////
+<a name="556"><span class="lineNum">     556 </span>            : ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     557 </span>            : 
+<span class="lineNum">     558 </span><span class="lineCov">          3 : eigen_sparse_t SystemOne::rotateStates(const std::vector&lt;size_t&gt; &amp;states_indices, double alpha,</span>
+<span class="lineNum">     559 </span>            :                                        double beta, double gamma) {
+<span class="lineNum">     560 </span>            :     // Initialize Wigner D matrix
+<span class="lineNum">     561 </span><span class="lineCov">          3 :     WignerD wigner;</span>
+<span class="lineNum">     562 </span>            : 
+<span class="lineNum">     563 </span>            :     // Rotate state
+<span class="lineNum">     564 </span><span class="lineCov">          6 :     std::vector&lt;eigen_triplet_t&gt; states_rotated_triplets;</span>
+<span class="lineNum">     565 </span><span class="lineCov">          3 :     states_rotated_triplets.reserve(</span>
+<span class="lineNum">     566 </span><span class="lineCov">          3 :         std::min(static_cast&lt;size_t&gt;(10), states.size()) *</span>
+<span class="lineNum">     567 </span><span class="lineCov">          3 :         states_indices.size()); // TODO std::min( 2*jmax+1, states.size() ) * states_indices.size()</span>
+<span class="lineNum">     568 </span>            : 
+<span class="lineNum">     569 </span><span class="lineCov">          3 :     size_t current = 0;</span>
+<span class="lineNum">     570 </span><span class="lineCov">          8 :     for (auto const &amp;idx : states_indices) {</span>
+<span class="lineNum">     571 </span><span class="lineCov">          5 :         this-&gt;addRotated(states[idx].state, current++, states_rotated_triplets, wigner, alpha, beta,</span>
+<span class="lineNum">     572 </span>            :                          gamma);
+<span class="lineNum">     573 </span>            :     }
+<span class="lineNum">     574 </span>            : 
+<span class="lineNum">     575 </span><span class="lineCov">          3 :     eigen_sparse_t states_rotated(states.size(), states_indices.size());</span>
+<span class="lineNum">     576 </span><span class="lineCov">          3 :     states_rotated.setFromTriplets(states_rotated_triplets.begin(), states_rotated_triplets.end());</span>
+<span class="lineNum">     577 </span><span class="lineCov">          3 :     states_rotated_triplets.clear();</span>
+<span class="lineNum">     578 </span>            : 
+<span class="lineNum">     579 </span><span class="lineCov">          6 :     return states_rotated;</span>
+<a name="580"><span class="lineNum">     580 </span>            : }</a>
+<span class="lineNum">     581 </span>            : 
+<span class="lineNum">     582 </span><span class="lineCov">          9 : eigen_sparse_t SystemOne::buildStaterotator(double alpha, double beta, double gamma) {</span>
+<span class="lineNum">     583 </span>            :     // Initialize Wigner D matrix
+<span class="lineNum">     584 </span><span class="lineCov">          9 :     WignerD wigner;</span>
+<span class="lineNum">     585 </span>            : 
+<span class="lineNum">     586 </span>            :     // Build rotator
+<span class="lineNum">     587 </span><span class="lineCov">         18 :     std::vector&lt;eigen_triplet_t&gt; rotator_triplets;</span>
+<span class="lineNum">     588 </span><span class="lineCov">          9 :     rotator_triplets.reserve(</span>
+<span class="lineNum">     589 </span><span class="lineCov">          9 :         std::min(static_cast&lt;size_t&gt;(10), states.size()) *</span>
+<span class="lineNum">     590 </span><span class="lineCov">          9 :         states.size()); // TODO std::min( 2*jmax+1, states.size() ) * states.size()</span>
+<span class="lineNum">     591 </span>            : 
+<span class="lineNum">     592 </span><span class="lineCov">        279 :     for (auto const &amp;entry : states) {</span>
+<span class="lineNum">     593 </span><span class="lineCov">        270 :         this-&gt;addRotated(entry.state, entry.idx, rotator_triplets, wigner, alpha, beta, gamma);</span>
+<span class="lineNum">     594 </span>            :     }
+<span class="lineNum">     595 </span>            : 
+<span class="lineNum">     596 </span><span class="lineCov">          9 :     eigen_sparse_t rotator(states.size(), states.size());</span>
+<span class="lineNum">     597 </span><span class="lineCov">          9 :     rotator.setFromTriplets(rotator_triplets.begin(), rotator_triplets.end()); // NOLINT</span>
+<span class="lineNum">     598 </span><span class="lineCov">          9 :     rotator_triplets.clear();</span>
+<span class="lineNum">     599 </span>            : 
+<span class="lineNum">     600 </span><span class="lineCov">         18 :     return rotator;</span>
+<span class="lineNum">     601 </span>            : }
+<span class="lineNum">     602 </span>            : 
+<span class="lineNum">     603 </span>            : ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     604 </span>            : /// Method that allows base class to combine systems ///////////////
+<a name="605"><span class="lineNum">     605 </span>            : ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     606 </span>            : 
+<span class="lineNum">     607 </span><span class="lineCov">          5 : void SystemOne::incorporate(SystemBase&lt;StateOne&gt; &amp;system) {</span>
+<span class="lineNum">     608 </span>            :     // Combine parameters
+<span class="lineNum">     609 </span><span class="lineCov">          5 :     if (species != dynamic_cast&lt;SystemOne &amp;&gt;(system).species) {</span>
+<span class="lineNum">     610 </span>            :         throw std::runtime_error(
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :             &quot;The value of the variable 'element' must be the same for both systems.&quot;);</span>
+<span class="lineNum">     612 </span>            :     }
+<span class="lineNum">     613 </span><span class="lineCov">          5 :     if (efield != dynamic_cast&lt;SystemOne &amp;&gt;(system).efield) {</span>
+<span class="lineNum">     614 </span>            :         throw std::runtime_error(&quot;The value of the variable 'distance' must be the same for both &quot;
+<span class="lineNum">     615 </span><span class="lineNoCov">          0 :                                  &quot;systems.&quot;); // implies that efield_spherical is the same, too</span>
+<span class="lineNum">     616 </span>            :     }
+<span class="lineNum">     617 </span><span class="lineCov">          5 :     if (bfield != dynamic_cast&lt;SystemOne &amp;&gt;(system).bfield) {</span>
+<span class="lineNum">     618 </span>            :         throw std::runtime_error(&quot;The value of the variable 'angle' must be the same for both &quot;
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :                                  &quot;systems.&quot;); // implies that</span>
+<span class="lineNum">     620 </span>            :                                               // bfield_spherical
+<span class="lineNum">     621 </span>            :                                               // is the same,
+<span class="lineNum">     622 </span>            :                                               // too
+<span class="lineNum">     623 </span>            :     }
+<span class="lineNum">     624 </span><span class="lineCov">          5 :     if (diamagnetism != dynamic_cast&lt;SystemOne &amp;&gt;(system).diamagnetism) {</span>
+<span class="lineNum">     625 </span>            :         throw std::runtime_error(
+<span class="lineNum">     626 </span><span class="lineNoCov">          0 :             &quot;The value of the variable 'ordermax' must be the same for both systems.&quot;);</span>
+<span class="lineNum">     627 </span>            :     }
+<span class="lineNum">     628 </span>            : 
+<span class="lineNum">     629 </span>            :     // Combine symmetries
+<span class="lineNum">     630 </span><span class="lineCov">          5 :     unsigned int num_different_symmetries = 0;</span>
+<span class="lineNum">     631 </span><span class="lineCov">          5 :     if (sym_reflection != dynamic_cast&lt;SystemOne &amp;&gt;(system).sym_reflection) {</span>
+<span class="lineNum">     632 </span><span class="lineCov">          2 :         sym_reflection = NA;</span>
+<span class="lineNum">     633 </span><span class="lineCov">          2 :         ++num_different_symmetries;</span>
+<span class="lineNum">     634 </span>            :     }
+<span class="lineNum">     635 </span><span class="lineCov">          5 :     if (!std::equal(sym_rotation.begin(), sym_rotation.end(),</span>
+<span class="lineNum">     636 </span><span class="lineCov">          5 :                     dynamic_cast&lt;SystemOne &amp;&gt;(system).sym_rotation.begin())) {</span>
+<span class="lineNum">     637 </span><span class="lineCov">          6 :         if (sym_rotation.count(static_cast&lt;float&gt;(ARB)) != 0 ||</span>
+<span class="lineNum">     638 </span><span class="lineCov">          6 :             dynamic_cast&lt;SystemOne &amp;&gt;(system).sym_rotation.count(static_cast&lt;float&gt;(ARB)) != 0) {</span>
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :             sym_rotation = {static_cast&lt;float&gt;(ARB)};</span>
+<span class="lineNum">     640 </span>            :         } else {
+<span class="lineNum">     641 </span><span class="lineCov">          3 :             sym_rotation.insert(dynamic_cast&lt;SystemOne &amp;&gt;(system).sym_rotation.begin(),</span>
+<span class="lineNum">     642 </span><span class="lineCov">          3 :                                 dynamic_cast&lt;SystemOne &amp;&gt;(system).sym_rotation.end());</span>
+<span class="lineNum">     643 </span>            :         }
+<span class="lineNum">     644 </span><span class="lineCov">          3 :         ++num_different_symmetries;</span>
+<span class="lineNum">     645 </span>            :     }
+<span class="lineNum">     646 </span><span class="lineCov">          5 :     if (num_different_symmetries &gt; 1) {</span>
+<span class="lineNum">     647 </span>            :         std::cerr &lt;&lt; &quot;Warning: The systems differ in more than one symmetry. For the combined &quot;
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :                      &quot;system, the notion of symmetries might be meaningless.&quot;</span>
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :                   &lt;&lt; std::endl;</span>
+<span class="lineNum">     650 </span>            :     }
+<span class="lineNum">     651 </span>            : 
+<span class="lineNum">     652 </span>            :     // Clear cached interaction
+<span class="lineNum">     653 </span><span class="lineCov">          5 :     this-&gt;deleteInteraction();</span>
+<span class="lineNum">     654 </span><span class="lineCov">          5 : }</span>
+<span class="lineNum">     655 </span>            : 
+<span class="lineNum">     656 </span>            : ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     657 </span>            : /// Utility methods ////////////////////////////////////////////////
+<a name="658"><span class="lineNum">     658 </span>            : ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     659 </span>            : 
+<span class="lineNum">     660 </span><span class="lineCov">       2482 : void SystemOne::addSymmetrizedBasisvectors(const StateOne &amp;state, size_t &amp;idx, const double &amp;energy,</span>
+<span class="lineNum">     661 </span>            :                                            std::vector&lt;eigen_triplet_t&gt; &amp;basisvectors_triplets,
+<span class="lineNum">     662 </span>            :                                            std::vector&lt;eigen_triplet_t&gt; &amp;hamiltonian_triplets,
+<span class="lineNum">     663 </span>            :                                            parity_t &amp;sym_reflection_local) {
+<span class="lineNum">     664 </span>            :     // In case of reflection symmetry, skip half of the basis vectors
+<span class="lineNum">     665 </span><span class="lineCov">       2482 :     if (sym_reflection_local != NA &amp;&amp; state.getM() != 0) {</span>
+<span class="lineNum">     666 </span><span class="lineCov">         56 :         if (state.getM() &lt; 0) {</span>
+<span class="lineNum">     667 </span><span class="lineCov">         28 :             return;</span>
+<span class="lineNum">     668 </span>            :         }
+<span class="lineNum">     669 </span>            :     }
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span>            :     // Store the energy of the unperturbed one atom state
+<span class="lineNum">     672 </span><span class="lineCov">       2454 :     hamiltonian_triplets.emplace_back(idx, idx, energy);</span>
+<span class="lineNum">     673 </span>            : 
+<span class="lineNum">     674 </span>            :     // Adapt the normalization if required by symmetries
+<span class="lineNum">     675 </span><span class="lineCov">       2454 :     scalar_t value = 1;</span>
+<span class="lineNum">     676 </span><span class="lineCov">       2454 :     if (sym_reflection_local != NA &amp;&amp; state.getM() != 0) {</span>
+<span class="lineNum">     677 </span><span class="lineCov">         28 :         value /= std::sqrt(2);</span>
+<span class="lineNum">     678 </span>            :     }
+<span class="lineNum">     679 </span>            : 
+<span class="lineNum">     680 </span>            :     // Add an entry to the current basis vector
+<span class="lineNum">     681 </span><span class="lineCov">       2454 :     this-&gt;addBasisvectors(state, idx, value, basisvectors_triplets);</span>
+<span class="lineNum">     682 </span>            : 
+<span class="lineNum">     683 </span>            :     // Add further entries to the current basis vector if required by symmetries
+<span class="lineNum">     684 </span><span class="lineCov">       2454 :     if (sym_reflection_local != NA &amp;&amp; state.getM() != 0) {</span>
+<span class="lineNum">     685 </span><span class="lineCov">         28 :         value *= std::pow(-1, state.getL() + state.getM() - state.getJ()) *</span>
+<span class="lineNum">     686 </span><span class="lineCov">         56 :             utils::imaginary_unit&lt;scalar_t&gt;();</span>
+<span class="lineNum">     687 </span><span class="lineCov">         28 :         value *= (sym_reflection_local == EVEN) ? 1 : -1;</span>
+<span class="lineNum">     688 </span>            :         // S_y is invariant under reflection through xz-plane
+<span class="lineNum">     689 </span>            :         // TODO is the s quantum number of importance here?
+<span class="lineNum">     690 </span><span class="lineCov">         28 :         this-&gt;addBasisvectors(state.getReflected(), idx, value, basisvectors_triplets);</span>
+<span class="lineNum">     691 </span>            :     }
+<span class="lineNum">     692 </span>            : 
+<span class="lineNum">     693 </span><span class="lineCov">       2454 :     ++idx;</span>
+<a name="694"><span class="lineNum">     694 </span>            : }</a>
+<span class="lineNum">     695 </span>            : 
+<span class="lineNum">     696 </span><span class="lineCov">       2482 : void SystemOne::addBasisvectors(const StateOne &amp;state, const size_t &amp;idx, const scalar_t &amp;value,</span>
+<span class="lineNum">     697 </span>            :                                 std::vector&lt;eigen_triplet_t&gt; &amp;basisvectors_triplets) {
+<span class="lineNum">     698 </span><span class="lineCov">       2482 :     auto state_iter = states.get&lt;1&gt;().find(state);</span>
+<span class="lineNum">     699 </span>            : 
+<span class="lineNum">     700 </span>            :     size_t row;
+<span class="lineNum">     701 </span><span class="lineCov">       2482 :     if (state_iter != states.get&lt;1&gt;().end()) {</span>
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 :         row = state_iter-&gt;idx;</span>
+<span class="lineNum">     703 </span>            :     } else {
+<span class="lineNum">     704 </span><span class="lineCov">       2482 :         row = states.size();</span>
+<span class="lineNum">     705 </span><span class="lineCov">       2482 :         states.push_back(enumerated_state&lt;StateOne&gt;(row, state));</span>
+<span class="lineNum">     706 </span>            :     }
+<span class="lineNum">     707 </span>            : 
+<span class="lineNum">     708 </span><span class="lineCov">       2482 :     basisvectors_triplets.emplace_back(row, idx, value);</span>
+<a name="709"><span class="lineNum">     709 </span><span class="lineCov">       2482 : }</span></a>
+<span class="lineNum">     710 </span>            : 
+<span class="lineNum">     711 </span><span class="lineCov">        109 : void SystemOne::changeToSphericalbasis(std::array&lt;double, 3&gt; field,</span>
+<span class="lineNum">     712 </span>            :                                        std::unordered_map&lt;int, double&gt; &amp;field_spherical) {
+<span class="lineNum">     713 </span><span class="lineCov">        109 :     if (field[1] != 0) {</span>
+<span class="lineNum">     714 </span>            :         throw std::runtime_error(
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :             &quot;For fields with non-zero y-coordinates, a complex data type is needed.&quot;);</span>
+<span class="lineNum">     716 </span>            :     }
+<span class="lineNum">     717 </span><span class="lineCov">        109 :     field_spherical[1] = -field[0] / std::sqrt(2);</span>
+<span class="lineNum">     718 </span><span class="lineCov">        109 :     field_spherical[-1] = field[0] / std::sqrt(2);</span>
+<span class="lineNum">     719 </span><span class="lineCov">        109 :     field_spherical[0] = field[2];</span>
+<a name="720"><span class="lineNum">     720 </span><span class="lineCov">        109 : }</span></a>
+<span class="lineNum">     721 </span>            : 
+<span class="lineNum">     722 </span><span class="lineCov">         30 : void SystemOne::changeToSphericalbasis(</span>
+<span class="lineNum">     723 </span>            :     std::array&lt;double, 3&gt; field, std::unordered_map&lt;int, std::complex&lt;double&gt;&gt; &amp;field_spherical) {
+<span class="lineNum">     724 </span><span class="lineCov">         30 :     field_spherical[1] = std::complex&lt;double&gt;(-field[0] / std::sqrt(2), -field[1] / std::sqrt(2));</span>
+<span class="lineNum">     725 </span><span class="lineCov">         30 :     field_spherical[-1] = std::complex&lt;double&gt;(field[0] / std::sqrt(2), -field[1] / std::sqrt(2));</span>
+<span class="lineNum">     726 </span><span class="lineCov">         30 :     field_spherical[0] = std::complex&lt;double&gt;(field[2], 0);</span>
+<a name="727"><span class="lineNum">     727 </span><span class="lineCov">         30 : }</span></a>
+<span class="lineNum">     728 </span>            : 
+<span class="lineNum">     729 </span><span class="lineCov">       7043 : void SystemOne::addTriplet(std::vector&lt;eigen_triplet_t&gt; &amp;triplets, const size_t r_idx,</span>
+<span class="lineNum">     730 </span>            :                            const size_t c_idx, const scalar_t val) {
+<span class="lineNum">     731 </span><span class="lineCov">       7043 :     triplets.emplace_back(r_idx, c_idx, val);</span>
+<a name="732"><span class="lineNum">     732 </span><span class="lineCov">       7043 : }</span></a>
+<span class="lineNum">     733 </span>            : 
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 : void SystemOne::rotateVector(std::array&lt;double, 3&gt; &amp;field, std::array&lt;double, 3&gt; &amp;to_z_axis,</span>
+<span class="lineNum">     735 </span>            :                              std::array&lt;double, 3&gt; &amp;to_y_axis) {
+<span class="lineNum">     736 </span><span class="lineNoCov">          0 :     auto field_mapped = Eigen::Map&lt;Eigen::Matrix&lt;double, 3, 1&gt;&gt;(&amp;field[0]);</span>
+<span class="lineNum">     737 </span>            : 
+<span class="lineNum">     738 </span><span class="lineNoCov">          0 :     if (field_mapped.norm() != 0) {</span>
+<span class="lineNum">     739 </span><span class="lineNoCov">          0 :         Eigen::Matrix&lt;double, 3, 3&gt; rotator = this-&gt;buildRotator(to_z_axis, to_y_axis);</span>
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :         field_mapped = rotator.transpose() * field_mapped;</span>
+<span class="lineNum">     741 </span>            :     }
+<a name="742"><span class="lineNum">     742 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span><span class="lineCov">          3 : void SystemOne::rotateVector(std::array&lt;double, 3&gt; &amp;field, double alpha, double beta,</span>
+<span class="lineNum">     745 </span>            :                              double gamma) {
+<span class="lineNum">     746 </span><span class="lineCov">          3 :     auto field_mapped = Eigen::Map&lt;Eigen::Matrix&lt;double, 3, 1&gt;&gt;(&amp;field[0]);</span>
+<span class="lineNum">     747 </span>            : 
+<span class="lineNum">     748 </span><span class="lineCov">          3 :     if (field_mapped.norm() != 0) {</span>
+<span class="lineNum">     749 </span><span class="lineCov">          3 :         Eigen::Matrix&lt;double, 3, 3&gt; rotator = this-&gt;buildRotator(alpha, beta, gamma);</span>
+<span class="lineNum">     750 </span><span class="lineCov">          3 :         field_mapped = rotator.transpose() * field_mapped;</span>
+<span class="lineNum">     751 </span>            :     }
+<a name="752"><span class="lineNum">     752 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">     753 </span>            : 
+<span class="lineNum">     754 </span><span class="lineCov">         15 : bool SystemOne::isRefelectionAndRotationCompatible() {</span>
+<span class="lineNum">     755 </span><span class="lineCov">         15 :     if (sym_rotation.count(static_cast&lt;float&gt;(ARB)) != 0 || sym_reflection == NA) {</span>
+<span class="lineNum">     756 </span><span class="lineCov">         15 :         return true;</span>
+<span class="lineNum">     757 </span>            :     }
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span><span class="lineNoCov">          0 :     for (const auto &amp;s : sym_rotation) {</span>
+<span class="lineNum">     760 </span><span class="lineNoCov">          0 :         if (sym_rotation.count(-s) == 0) {</span>
+<span class="lineNum">     761 </span><span class="lineNoCov">          0 :             return false;</span>
+<span class="lineNum">     762 </span>            :         }
+<span class="lineNum">     763 </span>            :     }
+<span class="lineNum">     764 </span>            : 
+<span class="lineNum">     765 </span><span class="lineNoCov">          0 :     return true;</span>
+<span class="lineNum">     766 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,1687 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/SystemBase.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - SystemBase.h<span style="font-size: 80%;"> (source / <a href="SystemBase.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1527</td>
+            <td class="headerCovTableEntry">2611</td>
+            <td class="headerCovTableEntryLo">58.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">97</td>
+            <td class="headerCovTableEntry">198</td>
+            <td class="headerCovTableEntryLo">49.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef SYSTEMBASE_H
+<span class="lineNum">      21 </span>            : #define SYSTEMBASE_H
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &quot;MatrixElementCache.h&quot;
+<span class="lineNum">      24 </span>            : #include &quot;State.h&quot;
+<span class="lineNum">      25 </span>            : #include &quot;WignerD.h&quot;
+<span class="lineNum">      26 </span>            : #include &quot;dtypes.h&quot;
+<span class="lineNum">      27 </span>            : #include &quot;serialization_eigen.h&quot;
+<span class="lineNum">      28 </span>            : #include &quot;serialization_path.h&quot;
+<span class="lineNum">      29 </span>            : #include &lt;unsupported/Eigen/MatrixFunctions&gt;
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #include &lt;algorithm&gt;
+<span class="lineNum">      32 </span>            : #include &lt;boost/filesystem.hpp&gt;
+<span class="lineNum">      33 </span>            : #include &lt;boost/multi_index/hashed_index.hpp&gt;
+<span class="lineNum">      34 </span>            : #include &lt;boost/multi_index/member.hpp&gt;
+<span class="lineNum">      35 </span>            : #include &lt;boost/multi_index/random_access_index.hpp&gt;
+<span class="lineNum">      36 </span>            : #include &lt;boost/multi_index_container.hpp&gt;
+<span class="lineNum">      37 </span>            : #include &lt;boost/serialization/complex.hpp&gt;
+<span class="lineNum">      38 </span>            : #include &lt;boost/serialization/set.hpp&gt;
+<span class="lineNum">      39 </span>            : #include &lt;boost/serialization/vector.hpp&gt;
+<span class="lineNum">      40 </span>            : #include &lt;complex&gt;
+<span class="lineNum">      41 </span>            : #include &lt;functional&gt;
+<span class="lineNum">      42 </span>            : #include &lt;iterator&gt;
+<span class="lineNum">      43 </span>            : #include &lt;limits&gt;
+<span class="lineNum">      44 </span>            : #include &lt;memory&gt;
+<span class="lineNum">      45 </span>            : #include &lt;numeric&gt;
+<span class="lineNum">      46 </span>            : #include &lt;set&gt;
+<span class="lineNum">      47 </span>            : #include &lt;stdexcept&gt;
+<span class="lineNum">      48 </span>            : #include &lt;string&gt;
+<span class="lineNum">      49 </span>            : #include &lt;unordered_map&gt;
+<span class="lineNum">      50 </span>            : #include &lt;unordered_set&gt;
+<span class="lineNum">      51 </span>            : #include &lt;utility&gt;
+<span class="lineNum">      52 </span>            : #include &lt;vector&gt;
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span>            : #ifdef WITH_INTEL_MKL
+<span class="lineNum">      55 </span>            : #define MKL_Complex16 std::complex&lt;double&gt;
+<span class="lineNum">      56 </span>            : #include &lt;mkl.h&gt;
+<span class="lineNum">      57 </span>            : #endif // WITH_INTEL_MKL
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span>            : template &lt;class T&gt;
+<a name="60"><span class="lineNum">      60 </span>            : class enumerated_state {</a>
+<a name="61"><span class="lineNum">      61 </span>            : public:</a>
+<span class="lineNum">      62 </span><span class="lineCov">      24173 :     enumerated_state(size_t idx, T state) : idx(idx), state(std::move(state)) {}</span>
+<span class="lineNum">      63 </span><span class="lineCov">       1102 :     enumerated_state()</span>
+<span class="lineNum">      64 </span><span class="lineCov">       1102 :         : state() { // TODO remove and use</span>
+<span class="lineNum">      65 </span>            :                     // http://www.boost.org/doc/libs/1_46_1/libs/serialization/doc/serialization.html#constructors
+<span class="lineNum">      66 </span>            :                     // instead
+<span class="lineNum">      67 </span><span class="lineCov">       1102 :     }</span>
+<span class="lineNum">      68 </span><span class="lineCov">        262 :     size_t idx{0};</span>
+<span class="lineNum">      69 </span><span class="lineCov">        262 :     T state;</span>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span>            : private:
+<span class="lineNum">      72 </span><span class="lineCov">        262 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">      73 </span><span class="lineCov">        840 :     /// Method for serialization ///////////////////////////////////////</span>
+<span class="lineNum">      74 </span><span class="lineCov">        840 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">      75 </span>            : 
+<span class="lineNum">      76 </span>            :     friend class boost::serialization::access;
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">        840 : </span></a>
+<span class="lineNum">      78 </span>            :     template &lt;class Archive&gt;
+<span class="lineNum">      79 </span>            :     void serialize(Archive &amp;ar, const unsigned int version) {
+<span class="lineNum">      80 </span>            :         (void)version;
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            :         ar &amp;idx &amp;state;
+<span class="lineNum">      83 </span>            :     }
+<span class="lineNum">      84 </span>            : };
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span>            : #ifndef SWIG
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span>            : namespace boost {
+<a name="89"><span class="lineNum">      89 </span><span class="lineCov">       1102 : template &lt;class T&gt;</span></a>
+<span class="lineNum">      90 </span>            : struct hash&lt;enumerated_state&lt;T&gt;&gt; {
+<span class="lineNum">      91 </span>            :     size_t operator()(enumerated_state&lt;T&gt; const &amp;s) const { return std::hash&lt;T&gt;{}(s.state); }
+<span class="lineNum">      92 </span><span class="lineCov">       1102 : };</span>
+<span class="lineNum">      93 </span><span class="lineCov">       1102 : } // namespace boost</span>
+<span class="lineNum">      94 </span><span class="lineCov">        262 : </span>
+<span class="lineNum">      95 </span>            : #endif
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span><span class="lineCov">        262 : template &lt;class T&gt;</span>
+<span class="lineNum">      98 </span><span class="lineCov">        262 : struct states_set {</span>
+<span class="lineNum">      99 </span><span class="lineCov">        840 :     typedef typename boost::multi_index_container&lt;</span>
+<span class="lineNum">     100 </span>            :         enumerated_state&lt;T&gt;,
+<span class="lineNum">     101 </span>            :         boost::multi_index::indexed_by&lt;
+<span class="lineNum">     102 </span><span class="lineCov">        840 :             boost::multi_index::random_access&lt;&gt;,</span>
+<span class="lineNum">     103 </span><span class="lineCov">        840 :             boost::multi_index::hashed_unique&lt;</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :                 boost::multi_index::member&lt;enumerated_state&lt;T&gt;, T, &amp;enumerated_state&lt;T&gt;::state&gt;,</span>
+<span class="lineNum">     105 </span>            :                 std::hash&lt;T&gt;&gt;&gt;&gt;
+<span class="lineNum">     106 </span>            :         type;
+<span class="lineNum">     107 </span><span class="lineNoCov">          0 : };</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 : template &lt;class T&gt;</span>
+<a name="110"><span class="lineNum">     110 </span>            : class SystemBase {</a>
+<span class="lineNum">     111 </span>            : public:
+<a name="112"><span class="lineNum">     112 </span><span class="lineCov">          5 :     virtual ~SystemBase() = default;</span></a>
+<span class="lineNum">     113 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     114 </span>            :     void setMinimalNorm(const double &amp;threshold) { threshold_for_sqnorm = threshold; }
+<span class="lineNum">     115 </span>            : 
+<span class="lineNum">     116 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     117 </span>            :     /// Methods to restrict the number of states inside the basis //////
+<a name="118"><span class="lineNum">     118 </span>            :     ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineCov">          3 :     void restrictEnergy(double e_min, double e_max) { // restricts diagonal entries</span>
+<span class="lineNum">     121 </span><span class="lineCov">         51 :         energy_min = e_min;</span>
+<span class="lineNum">     122 </span><span class="lineCov">          3 :         energy_max = e_max;</span>
+<a name="123"><span class="lineNum">     123 </span><span class="lineCov">          3 :     }</span></a>
+<span class="lineNum">     124 </span><span class="lineCov">          1 : </span>
+<a name="125"><span class="lineNum">     125 </span><span class="lineCov">          1 :     void restrictN(int n_min, int n_max) { this-&gt;range(range_n, n_min, n_max); }</span></a>
+<span class="lineNum">     126 </span><span class="lineCov">          1 : </span>
+<a name="127"><span class="lineNum">     127 </span><span class="lineCov">          3 :     void restrictN(std::set&lt;int&gt; n) { range_n = n; }</span></a>
+<span class="lineNum">     128 </span><span class="lineCov">          2 : </span>
+<a name="129"><span class="lineNum">     129 </span><span class="lineCov">          2 :     void restrictL(int l_min, int l_max) { this-&gt;range(range_l, l_min, l_max); }</span></a>
+<span class="lineNum">     130 </span><span class="lineCov">          2 : </span>
+<a name="131"><span class="lineNum">     131 </span><span class="lineCov">          4 :     void restrictL(std::set&lt;int&gt; l) { range_l = l; }</span></a>
+<span class="lineNum">     132 </span>            : 
+<a name="133"><span class="lineNum">     133 </span><span class="lineCov">          2 :     void restrictJ(float j_min, float j_max) { this-&gt;range(range_j, j_min, j_max); }</span></a>
+<span class="lineNum">     134 </span>            : 
+<a name="135"><span class="lineNum">     135 </span><span class="lineCov">          2 :     void restrictJ(std::set&lt;float&gt; j) { range_j = j; }</span></a>
+<span class="lineNum">     136 </span>            : 
+<a name="137"><span class="lineNum">     137 </span><span class="lineCov">          2 :     void restrictM(float m_min, float m_max) { this-&gt;range(range_m, m_min, m_max); }</span></a>
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span><span class="lineCov">          2 :     void restrictM(std::set&lt;float&gt; m) { range_m = m; }</span>
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">     142 </span><span class="lineCov">        324 :     /// Method for adding user-defined states //////////////////////////</span>
+<a name="143"><span class="lineNum">     143 </span>            :     ////////////////////////////////////////////////////////////////////</a>
+<span class="lineNum">     144 </span><span class="lineCov">          4 : </span>
+<a name="145"><span class="lineNum">     145 </span>            :     void addStates(const T &amp;s) { states_to_add.insert(s); }</a>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span>            :     void addStates(const std::set&lt;T&gt; &amp;s) { states_to_add.insert(s.begin(), s.end()); }
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :     // TODO make it possible to just use added states, i.e. use no restrictions on quantum numbers
+<span class="lineNum">     150 </span><span class="lineCov">         68 :     // and energies</span>
+<span class="lineNum">     151 </span><span class="lineCov">         68 : </span>
+<span class="lineNum">     152 </span><span class="lineCov">         68 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">     153 </span><span class="lineCov">         68 :     /// Methods to get overlaps ////////////////////////////////////////</span>
+<a name="154"><span class="lineNum">     154 </span><span class="lineCov">         38 :     ////////////////////////////////////////////////////////////////////</span></a>
+<span class="lineNum">     155 </span><span class="lineCov">         38 : </span>
+<span class="lineNum">     156 </span><span class="lineCov">         38 :     eigen_vector_double_t getOverlap(const T &amp;generalizedstate) {</span>
+<span class="lineNum">     157 </span><span class="lineCov">         38 :         return this-&gt;getOverlap(generalizedstate, 0, 0, 0);</span>
+<a name="158"><span class="lineNum">     158 </span><span class="lineCov">         30 :     }</span></a>
+<span class="lineNum">     159 </span><span class="lineCov">         30 : </span>
+<span class="lineNum">     160 </span><span class="lineCov">         30 :     eigen_vector_double_t getOverlap(const std::vector&lt;T&gt; &amp;generalizedstates) {</span>
+<span class="lineNum">     161 </span><span class="lineCov">         30 :         return this-&gt;getOverlap(generalizedstates, 0, 0, 0);</span>
+<a name="162"><span class="lineNum">     162 </span>            :     }</a>
+<span class="lineNum">     163 </span><span class="lineCov">         30 : </span>
+<span class="lineNum">     164 </span>            :     eigen_vector_double_t getOverlap(const size_t &amp;state_index) {
+<span class="lineNum">     165 </span><span class="lineCov">        134 :         return this-&gt;getOverlap(state_index, 0, 0, 0);</span>
+<a name="166"><span class="lineNum">     166 </span>            :     }</a>
+<span class="lineNum">     167 </span><span class="lineCov">         30 : </span>
+<span class="lineNum">     168 </span>            :     eigen_vector_double_t getOverlap(const std::vector&lt;size_t&gt; &amp;states_indices) {
+<span class="lineNum">     169 </span><span class="lineCov">        134 :         return this-&gt;getOverlap(states_indices, 0, 0, 0);</span>
+<a name="170"><span class="lineNum">     170 </span>            :     }</a>
+<span class="lineNum">     171 </span><span class="lineCov">          5 : </span>
+<span class="lineNum">     172 </span>            :     eigen_vector_double_t getOverlap(const T &amp;generalizedstate, std::array&lt;double, 3&gt; to_z_axis,
+<span class="lineNum">     173 </span><span class="lineCov">        134 :                                      std::array&lt;double, 3&gt; to_y_axis) {</span>
+<span class="lineNum">     174 </span>            :         auto euler_zyz = this-&gt;getEulerAngles(to_z_axis, to_y_axis);
+<span class="lineNum">     175 </span><span class="lineCov">          1 :         return this-&gt;getOverlap(generalizedstate, euler_zyz[0], euler_zyz[1], euler_zyz[2]);</span>
+<a name="176"><span class="lineNum">     176 </span>            :     }</a>
+<span class="lineNum">     177 </span><span class="lineCov">        134 : </span>
+<span class="lineNum">     178 </span>            :     eigen_vector_double_t getOverlap(const std::vector&lt;T&gt; &amp;generalizedstates,
+<span class="lineNum">     179 </span>            :                                      std::array&lt;double, 3&gt; to_z_axis,
+<span class="lineNum">     180 </span>            :                                      std::array&lt;double, 3&gt; to_y_axis) {
+<span class="lineNum">     181 </span>            :         auto euler_zyz = this-&gt;getEulerAngles(to_z_axis, to_y_axis);
+<span class="lineNum">     182 </span>            :         return this-&gt;getOverlap(generalizedstates, euler_zyz[0], euler_zyz[1], euler_zyz[2]);
+<a name="183"><span class="lineNum">     183 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :     eigen_vector_double_t getOverlap(const size_t &amp;state_index, std::array&lt;double, 3&gt; to_z_axis,</span>
+<span class="lineNum">     186 </span>            :                                      std::array&lt;double, 3&gt; to_y_axis) {
+<span class="lineNum">     187 </span>            :         auto euler_zyz = this-&gt;getEulerAngles(to_z_axis, to_y_axis);
+<span class="lineNum">     188 </span>            :         return this-&gt;getOverlap(state_index, euler_zyz[0], euler_zyz[1], euler_zyz[2]);
+<a name="189"><span class="lineNum">     189 </span>            :     }</a>
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span>            :     eigen_vector_double_t getOverlap(const std::vector&lt;size_t&gt; &amp;states_indices,
+<span class="lineNum">     192 </span>            :                                      std::array&lt;double, 3&gt; to_z_axis,
+<span class="lineNum">     193 </span>            :                                      std::array&lt;double, 3&gt; to_y_axis) {
+<span class="lineNum">     194 </span><span class="lineCov">        205 :         auto euler_zyz = this-&gt;getEulerAngles(to_z_axis, to_y_axis);</span>
+<span class="lineNum">     195 </span><span class="lineCov">        205 :         return this-&gt;getOverlap(states_indices, euler_zyz[0], euler_zyz[1], euler_zyz[2]);</span>
+<a name="196"><span class="lineNum">     196 </span>            :     }</a>
+<span class="lineNum">     197 </span><span class="lineCov">        102 : </span>
+<span class="lineNum">     198 </span><span class="lineCov">        102 :     eigen_vector_double_t getOverlap(const T &amp;generalizedstate, double alpha, double beta,</span>
+<span class="lineNum">     199 </span>            :                                      double gamma) {
+<span class="lineNum">     200 </span><span class="lineCov">        103 :         std::vector&lt;T&gt; generalizedstates({generalizedstate});</span>
+<span class="lineNum">     201 </span><span class="lineCov">        103 :         return this-&gt;getOverlap(generalizedstates, alpha, beta, gamma);</span>
+<a name="202"><span class="lineNum">     202 </span>            :     }</a>
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span><span class="lineCov">          3 :     eigen_vector_double_t getOverlap(const size_t &amp;state_index, double alpha, double beta,</span>
+<span class="lineNum">     205 </span><span class="lineCov">          3 :                                      double gamma) {</span>
+<span class="lineNum">     206 </span>            :         std::vector&lt;size_t&gt; states_indices({state_index});
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :         return this-&gt;getOverlap(states_indices, alpha, beta, gamma);</span>
+<a name="208"><span class="lineNum">     208 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineCov">          3 :     eigen_vector_double_t getOverlap(const std::vector&lt;T&gt; &amp;generalizedstates, double alpha,</span>
+<span class="lineNum">     211 </span><span class="lineCov">          3 :                                      double beta, double gamma) {</span>
+<span class="lineNum">     212 </span>            :         // Build basis
+<span class="lineNum">     213 </span>            :         this-&gt;buildBasis();
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :         // Determine indices of the specified states</span>
+<span class="lineNum">     216 </span>            :         std::vector&lt;size_t&gt; states_indices;
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :         states_indices.reserve(generalizedstates.size());</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     219 </span>            :         for (const auto &amp;searched_state : generalizedstates) {
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :             if (utils::is_true(searched_state.isGeneralized())) {</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :                 for (const auto &amp;state : states) {</span>
+<span class="lineNum">     222 </span>            :                     if (state.state ^ searched_state) { // Check whether state.state is contained in
+<span class="lineNum">     223 </span>            :                                                         // searched_state
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :                         states_indices.push_back(state.idx);</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :                     }</span>
+<span class="lineNum">     226 </span>            :                 }
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :             } else {</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :                 auto state_iter = states.template get&lt;1&gt;().find(searched_state);</span>
+<span class="lineNum">     229 </span>            :                 if (state_iter != states.template get&lt;1&gt;().end()) {
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :                     states_indices.push_back(state_iter-&gt;idx);</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     232 </span>            :             }
+<span class="lineNum">     233 </span>            :         }
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     235 </span>            :         // Get the overlap
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :         return this-&gt;getOverlap(states_indices, alpha, beta, gamma);</span>
+<a name="237"><span class="lineNum">     237 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     238 </span>            : 
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :     eigen_vector_double_t getOverlap(const std::vector&lt;size_t&gt; &amp;states_indices, double alpha,</span>
+<span class="lineNum">     240 </span>            :                                      double beta, double gamma) {
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :         // Build basis</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :         this-&gt;buildBasis();</span>
+<span class="lineNum">     243 </span>            : 
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :         // Build state vectors</span>
+<span class="lineNum">     245 </span>            :         eigen_sparse_t overlap_states;
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :         if (alpha == 0 &amp;&amp; beta == 0 &amp;&amp; gamma == 0) {</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :             std::vector&lt;eigen_triplet_t&gt; overlap_states_triplets;</span>
+<span class="lineNum">     248 </span>            :             overlap_states_triplets.reserve(states_indices.size());
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span><span class="lineNoCov">          0 :             size_t current = 0;</span>
+<span class="lineNum">     251 </span>            :             for (auto const &amp;idx : states_indices) {
+<span class="lineNum">     252 </span>            :                 overlap_states_triplets.emplace_back(idx, current++, 1);
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     255 </span>            :             overlap_states.resize(states.size(), states_indices.size());
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :             overlap_states.setFromTriplets(overlap_states_triplets.begin(),</span>
+<span class="lineNum">     257 </span>            :                                            overlap_states_triplets.end());
+<span class="lineNum">     258 </span>            :         } else {
+<span class="lineNum">     259 </span><span class="lineNoCov">          0 :             overlap_states = this-&gt;rotateStates(states_indices, alpha, beta, gamma);</span>
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     261 </span>            : 
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :         // Calculate overlap</span>
+<span class="lineNum">     263 </span>            :         eigen_sparse_t product = basisvectors.adjoint() * overlap_states;
+<span class="lineNum">     264 </span>            :         eigen_vector_double_t overlap = eigen_vector_double_t::Zero(product.rows());
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :         for (int k = 0; k &lt; product.outerSize(); ++k) {</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :             for (eigen_iterator_t triple(product, k); triple; ++triple) {</span>
+<span class="lineNum">     267 </span>            :                 overlap[triple.row()] += std::pow(std::abs(triple.value()), 2);
+<span class="lineNum">     268 </span>            :             }
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span><span class="lineNoCov">          0 :         return overlap;</span>
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     273 </span>            : 
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">     275 </span>            :     /// Methods to get properties of the system ////////////////////////
+<a name="276"><span class="lineNum">     276 </span><span class="lineNoCov">          0 :     ////////////////////////////////////////////////////////////////////</span></a>
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     278 </span><span class="lineCov">          2 :     std::vector&lt;T&gt; getStates() {</span>
+<span class="lineNum">     279 </span><span class="lineCov">          2 :         this-&gt;buildBasis();</span>
+<span class="lineNum">     280 </span><span class="lineCov">          2 :         std::vector&lt;T&gt; states_converted;</span>
+<span class="lineNum">     281 </span><span class="lineCov">          2 :         states_converted.reserve(states.size());</span>
+<span class="lineNum">     282 </span><span class="lineCov">         92 :         for (const auto &amp;s : states) {</span>
+<span class="lineNum">     283 </span><span class="lineCov">         90 :             states_converted.push_back(std::move(s.state));</span>
+<span class="lineNum">     284 </span>            :         }
+<span class="lineNum">     285 </span><span class="lineCov">          2 :         return states_converted;</span>
+<span class="lineNum">     286 </span>            :     }
+<a name="287"><span class="lineNum">     287 </span>            : </a>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :     const typename states_set&lt;T&gt;::type &amp;</span>
+<span class="lineNum">     289 </span><span class="lineCov">       1466 :     getStatesMultiIndex() { // TODO @hmenke typemap for &quot;const typename states_set&lt;T&gt;::type &amp;&quot;</span>
+<span class="lineNum">     290 </span><span class="lineCov">       1466 :         return states;</span>
+<a name="291"><span class="lineNum">     291 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span><span class="lineCov">        860 :     eigen_sparse_t &amp;getBasisvectors() {</span>
+<span class="lineNum">     294 </span><span class="lineCov">        860 :         this-&gt;buildBasis();</span>
+<span class="lineNum">     295 </span><span class="lineCov">        860 :         return basisvectors;</span>
+<a name="296"><span class="lineNum">     296 </span>            :     }</a>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     298 </span><span class="lineNoCov">          0 :     eigen_sparse_t &amp;getHamiltonian() {</span>
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :         this-&gt;buildHamiltonian();</span>
+<span class="lineNum">     300 </span><span class="lineNoCov">          0 :         return hamiltonian;</span>
+<a name="301"><span class="lineNum">     301 </span><span class="lineCov">        608 :     }</span></a>
+<span class="lineNum">     302 </span><span class="lineCov">        608 : </span>
+<span class="lineNum">     303 </span><span class="lineCov">       5435 :     size_t getNumBasisvectors() {</span>
+<span class="lineNum">     304 </span><span class="lineCov">        241 :         // Build basis</span>
+<span class="lineNum">     305 </span><span class="lineCov">       4828 :         this-&gt;buildBasis();</span>
+<span class="lineNum">     306 </span><span class="lineCov">        965 : </span>
+<span class="lineNum">     307 </span><span class="lineCov">        483 :         // Check variables for consistency</span>
+<span class="lineNum">     308 </span><span class="lineCov">       9654 :         if ((basisvectors.outerSize() != basisvectors.cols()) ||</span>
+<span class="lineNum">     309 </span><span class="lineCov">      10398 :             (basisvectors.outerSize() != hamiltonian.rows()) ||</span>
+<span class="lineNum">     310 </span><span class="lineCov">       5434 :             (basisvectors.outerSize() != hamiltonian.cols())) {</span>
+<span class="lineNum">     311 </span><span class="lineCov">       1155 :             throw std::runtime_error(&quot;Inconsistent variables at &quot; + std::string(__FILE__) + &quot;:&quot; +</span>
+<span class="lineNum">     312 </span><span class="lineCov">        274 :                                      std::to_string(__LINE__) + &quot;.&quot;);</span>
+<span class="lineNum">     313 </span>            :         }
+<span class="lineNum">     314 </span><span class="lineCov">       4266 : </span>
+<span class="lineNum">     315 </span><span class="lineCov">       8989 :         return basisvectors.cols();</span>
+<a name="316"><span class="lineNum">     316 </span><span class="lineCov">       4578 :     }</span></a>
+<span class="lineNum">     317 </span><span class="lineCov">        208 : </span>
+<span class="lineNum">     318 </span><span class="lineCov">         13 :     size_t getNumStates() {</span>
+<span class="lineNum">     319 </span><span class="lineCov">          1 :         // Build basis</span>
+<span class="lineNum">     320 </span><span class="lineCov">         13 :         this-&gt;buildBasis();</span>
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span><span class="lineCov">       4161 :         // Check variables for consistency</span>
+<span class="lineNum">     323 </span><span class="lineCov">       4185 :         if ((basisvectors.innerSize() != basisvectors.rows()) ||</span>
+<span class="lineNum">     324 </span><span class="lineCov">       4173 :             (static_cast&lt;size_t&gt;(basisvectors.innerSize()) != states.size())) {</span>
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :             throw std::runtime_error(&quot;Inconsistent variables at &quot; + std::string(__FILE__) + &quot;:&quot; +</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :                                      std::to_string(__LINE__) + &quot;.&quot;);</span>
+<span class="lineNum">     327 </span><span class="lineCov">       4363 :         }</span>
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     329 </span><span class="lineCov">       4375 :         return basisvectors.rows();</span>
+<a name="330"><span class="lineNum">     330 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     331 </span>            : 
+<span class="lineNum">     332 </span><span class="lineCov">       8726 :     std::vector&lt;T&gt; getMainStates() {</span>
+<span class="lineNum">     333 </span><span class="lineCov">       8726 :         // Build basis</span>
+<span class="lineNum">     334 </span><span class="lineCov">       4363 :         this-&gt;buildBasis();</span>
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span><span class="lineCov">        246 :         // Get states with the main contribution</span>
+<span class="lineNum">     337 </span>            :         std::vector&lt;T&gt; states_with_maxval;
+<span class="lineNum">     338 </span>            :         states_with_maxval.reserve(basisvectors.cols());
+<span class="lineNum">     339 </span><span class="lineCov">       4609 : </span>
+<span class="lineNum">     340 </span>            :         for (int k = 0; k &lt; basisvectors.outerSize(); ++k) { // col == idx_vector
+<span class="lineNum">     341 </span><span class="lineCov">          1 :             double maxval = -1;</span>
+<span class="lineNum">     342 </span><span class="lineCov">        492 :             size_t row_with_maxval;</span>
+<span class="lineNum">     343 </span><span class="lineCov">        247 : </span>
+<span class="lineNum">     344 </span>            :             for (eigen_iterator_t triple(basisvectors, k); triple; ++triple) {
+<span class="lineNum">     345 </span><span class="lineCov">        497 :                 if (std::abs(triple.value()) &gt; maxval) {</span>
+<span class="lineNum">     346 </span><span class="lineCov">        253 :                     row_with_maxval = triple.row();</span>
+<span class="lineNum">     347 </span><span class="lineCov">        157 :                     maxval = std::abs(triple.value());</span>
+<span class="lineNum">     348 </span><span class="lineCov">        151 :                 }</span>
+<span class="lineNum">     349 </span>            :             }
+<span class="lineNum">     350 </span><span class="lineCov">         10 : </span>
+<span class="lineNum">     351 </span>            :             states_with_maxval.push_back(states[row_with_maxval].state);
+<span class="lineNum">     352 </span>            :         }
+<span class="lineNum">     353 </span><span class="lineCov">          1 : </span>
+<span class="lineNum">     354 </span><span class="lineCov">        246 :         return states_with_maxval;</span>
+<a name="355"><span class="lineNum">     355 </span><span class="lineCov">       4608 :     }</span></a>
+<span class="lineNum">     356 </span><span class="lineCov">        241 : </span>
+<span class="lineNum">     357 </span><span class="lineCov">       4362 :     std::array&lt;std::vector&lt;size_t&gt;, 2&gt; getConnections(SystemBase&lt;T&gt; &amp;system_to, double threshold) {</span>
+<span class="lineNum">     358 </span>            :         // Build basis
+<span class="lineNum">     359 </span>            :         this-&gt;buildBasis();
+<span class="lineNum">     360 </span><span class="lineCov">       8724 :         system_to.buildBasis();</span>
+<span class="lineNum">     361 </span><span class="lineCov">       8724 : </span>
+<span class="lineNum">     362 </span><span class="lineCov">       4854 :         double threshold_sqrt = std::sqrt(threshold);</span>
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span><span class="lineCov">        137 :         // Calculate transformator between the set of states</span>
+<span class="lineNum">     365 </span>            :         std::vector&lt;eigen_triplet_t&gt; triplets_transformator;
+<span class="lineNum">     366 </span>            :         triplets_transformator.reserve(std::min(states.size(), system_to.states.size()));
+<span class="lineNum">     367 </span><span class="lineCov">       4499 : </span>
+<span class="lineNum">     368 </span>            :         for (const auto &amp;s : system_to.states) {
+<span class="lineNum">     369 </span>            :             auto state_iter = states.template get&lt;1&gt;().find(s.state);
+<span class="lineNum">     370 </span><span class="lineCov">        280 :             if (state_iter != states.template get&lt;1&gt;().end()) {</span>
+<span class="lineNum">     371 </span><span class="lineCov">        137 :                 size_t idx_from = state_iter-&gt;idx;</span>
+<span class="lineNum">     372 </span><span class="lineCov">          6 :                 triplets_transformator.emplace_back(idx_from, s.idx, 1);</span>
+<span class="lineNum">     373 </span><span class="lineCov">        274 :             }</span>
+<span class="lineNum">     374 </span><span class="lineCov">        137 :         }</span>
+<span class="lineNum">     375 </span><span class="lineCov">         12 : </span>
+<span class="lineNum">     376 </span><span class="lineCov">          6 :         eigen_sparse_t transformator(states.size(), system_to.states.size());</span>
+<span class="lineNum">     377 </span>            :         transformator.setFromTriplets(triplets_transformator.begin(), triplets_transformator.end());
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     379 </span>            :         // Calculate overlap
+<span class="lineNum">     380 </span>            :         eigen_sparse_double_t overlap_sqrt =
+<span class="lineNum">     381 </span><span class="lineCov">          6 :             (basisvectors.adjoint() * transformator * system_to.basisvectors).cwiseAbs();</span>
+<span class="lineNum">     382 </span><span class="lineCov">        137 : </span>
+<span class="lineNum">     383 </span><span class="lineCov">        138 :         // Determine the indices of the maximal values within the rows</span>
+<span class="lineNum">     384 </span><span class="lineCov">        137 :         std::vector&lt;size_t&gt; rows_with_maxval;</span>
+<span class="lineNum">     385 </span><span class="lineCov">          1 :         rows_with_maxval.reserve(overlap_sqrt.cols());</span>
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span>            :         for (int k = 0; k &lt; overlap_sqrt.outerSize(); ++k) {
+<span class="lineNum">     388 </span><span class="lineCov">          2 :             double maxval = -1;</span>
+<span class="lineNum">     389 </span><span class="lineCov">          1 :             size_t row_with_maxval;</span>
+<span class="lineNum">     390 </span><span class="lineCov">        274 : </span>
+<span class="lineNum">     391 </span><span class="lineNoCov">          0 :             for (eigen_iterator_double_t triple(overlap_sqrt, k); triple; ++triple) {</span>
+<span class="lineNum">     392 </span><span class="lineCov">        109 :                 if (triple.value() &gt; maxval) {</span>
+<span class="lineNum">     393 </span>            :                     row_with_maxval = triple.row();
+<span class="lineNum">     394 </span><span class="lineCov">          1 :                     maxval = triple.value();</span>
+<span class="lineNum">     395 </span><span class="lineCov">        109 :                 }</span>
+<span class="lineNum">     396 </span><span class="lineCov">          5 :             }</span>
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span><span class="lineCov">        223 :             rows_with_maxval.push_back(row_with_maxval);</span>
+<span class="lineNum">     399 </span><span class="lineCov">        109 :         }</span>
+<span class="lineNum">     400 </span>            : 
+<span class="lineNum">     401 </span><span class="lineCov">        233 :         // Determine the maximal values within the columns and construct connections</span>
+<span class="lineNum">     402 </span><span class="lineCov">        119 :         eigen_sparse_double_t overlap_sqrt_transposed = overlap_sqrt.transpose();</span>
+<span class="lineNum">     403 </span><span class="lineCov">        155 :         std::array&lt;std::vector&lt;size_t&gt;, 2&gt; connections;</span>
+<span class="lineNum">     404 </span><span class="lineCov">        150 :         connections[0].reserve(std::max(overlap_sqrt.rows(), overlap_sqrt.cols()));</span>
+<span class="lineNum">     405 </span>            :         connections[1].reserve(std::max(overlap_sqrt.rows(), overlap_sqrt.cols()));
+<span class="lineNum">     406 </span><span class="lineCov">         10 : </span>
+<span class="lineNum">     407 </span><span class="lineCov">          5 :         for (int k = 0; k &lt; overlap_sqrt_transposed.outerSize(); ++k) { // cols</span>
+<span class="lineNum">     408 </span>            :             double maxval = threshold_sqrt;
+<span class="lineNum">     409 </span>            :             size_t idx_from;
+<span class="lineNum">     410 </span><span class="lineCov">        109 :             size_t idx_to;</span>
+<span class="lineNum">     411 </span><span class="lineCov">        109 : </span>
+<span class="lineNum">     412 </span><span class="lineCov">        104 :             for (eigen_iterator_double_t triple(overlap_sqrt_transposed, k); triple; ++triple) {</span>
+<span class="lineNum">     413 </span>            :                 if (triple.value() &gt; maxval) {
+<span class="lineNum">     414 </span>            :                     idx_from = triple.col();
+<span class="lineNum">     415 </span>            :                     idx_to = triple.row();
+<span class="lineNum">     416 </span>            :                     maxval = triple.value();
+<span class="lineNum">     417 </span>            :                 }
+<span class="lineNum">     418 </span><span class="lineCov">        218 :             }</span>
+<span class="lineNum">     419 </span>            : 
+<span class="lineNum">     420 </span>            :             if (maxval &gt; threshold_sqrt &amp;&amp; rows_with_maxval[idx_to] == idx_from) {
+<span class="lineNum">     421 </span><span class="lineCov">        246 :                 connections[0].push_back(idx_from);</span>
+<span class="lineNum">     422 </span>            :                 connections[1].push_back(idx_to);
+<span class="lineNum">     423 </span>            :             }
+<span class="lineNum">     424 </span><span class="lineCov">        246 :         }</span>
+<span class="lineNum">     425 </span>            : 
+<span class="lineNum">     426 </span>            :         connections[0].shrink_to_fit();
+<span class="lineNum">     427 </span><span class="lineCov">        492 :         connections[1].shrink_to_fit();</span>
+<span class="lineNum">     428 </span><span class="lineCov">        246 : </span>
+<span class="lineNum">     429 </span><span class="lineCov">        208 :         return connections;</span>
+<span class="lineNum">     430 </span><span class="lineCov">        208 :     }</span>
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span><span class="lineCov">        208 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">     433 </span><span class="lineCov">        419 :     /// Methods to build, transform, and destroy the system ////////////</span>
+<a name="434"><span class="lineNum">     434 </span><span class="lineCov">        211 :     ////////////////////////////////////////////////////////////////////</span></a>
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span><span class="lineNoCov">          0 :     void buildHamiltonian() {</span>
+<span class="lineNum">     437 </span><span class="lineCov">        208 :         // Build basis, also constructs the Hamiltonian matrix without interaction</span>
+<span class="lineNum">     438 </span><span class="lineCov">        208 :         this-&gt;buildBasis();</span>
+<span class="lineNum">     439 </span><span class="lineCov">        416 : </span>
+<span class="lineNum">     440 </span>            :         // Initialize Hamiltonian matrix with interaction if required
+<span class="lineNum">     441 </span><span class="lineCov">         38 :         if (is_new_hamiltonian_required) {</span>
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :             if (is_interaction_already_contained) {</span>
+<span class="lineNum">     443 </span>            : 
+<span class="lineNum">     444 </span>            :                 // Check variables for consistency
+<span class="lineNum">     445 </span><span class="lineCov">        492 :                 if (memory_saving || basisvectors_unperturbed_cache.size() == 0 ||</span>
+<span class="lineNum">     446 </span><span class="lineCov">        246 :                     hamiltonian_unperturbed_cache.size() == 0) {</span>
+<span class="lineNum">     447 </span><span class="lineCov">        497 :                     throw std::runtime_error(&quot;Inconsistent variables at &quot; + std::string(__FILE__) +</span>
+<span class="lineNum">     448 </span><span class="lineCov">      10893 :                                              &quot;:&quot; + std::to_string(__LINE__) + &quot;.&quot;);</span>
+<span class="lineNum">     449 </span><span class="lineCov">      10642 :                 }</span>
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span>            :                 // Reset the Hamiltonian if it already contains the interaction
+<span class="lineNum">     452 </span><span class="lineNoCov">          0 :                 basisvectors = basisvectors_unperturbed_cache;</span>
+<span class="lineNum">     453 </span><span class="lineCov">        492 :                 hamiltonian = hamiltonian_unperturbed_cache;</span>
+<span class="lineNum">     454 </span><span class="lineNoCov">          0 :             } else if (!memory_saving) {</span>
+<span class="lineNum">     455 </span><span class="lineCov">        137 : </span>
+<span class="lineNum">     456 </span>            :                 // Store the Hamiltonian without interaction
+<span class="lineNum">     457 </span><span class="lineNoCov">          0 :                 basisvectors_unperturbed_cache = basisvectors;</span>
+<span class="lineNum">     458 </span><span class="lineCov">        137 :                 hamiltonian_unperturbed_cache = hamiltonian;</span>
+<span class="lineNum">     459 </span>            :             }
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span><span class="lineCov">        274 :             // Build interaction</span>
+<span class="lineNum">     462 </span><span class="lineCov">        137 :             this-&gt;initializeInteraction();</span>
+<span class="lineNum">     463 </span><span class="lineCov">        102 : </span>
+<span class="lineNum">     464 </span><span class="lineCov">        102 :             // Add interaction to the Hamiltonian</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :             this-&gt;addInteraction();</span>
+<span class="lineNum">     466 </span><span class="lineCov">        102 : </span>
+<span class="lineNum">     467 </span><span class="lineCov">        204 :             if (memory_saving) {</span>
+<span class="lineNum">     468 </span><span class="lineCov">        102 :                 // Delete the variables used to add the interaction to the Hamiltonian</span>
+<span class="lineNum">     469 </span><span class="lineNoCov">          0 :                 this-&gt;deleteInteraction();</span>
+<span class="lineNum">     470 </span>            :             }
+<span class="lineNum">     471 </span><span class="lineCov">        102 : </span>
+<span class="lineNum">     472 </span><span class="lineCov">        102 :             is_interaction_already_contained = true;</span>
+<span class="lineNum">     473 </span><span class="lineCov">        204 :             is_new_hamiltonian_required = false;</span>
+<span class="lineNum">     474 </span>            :         }
+<a name="475"><span class="lineNum">     475 </span><span class="lineCov">         35 :     }</span></a>
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span>            :     void buildInteraction() {
+<span class="lineNum">     478 </span>            :         // Build basis
+<span class="lineNum">     479 </span><span class="lineCov">        274 :         this-&gt;buildBasis();</span>
+<span class="lineNum">     480 </span><span class="lineCov">        137 : </span>
+<span class="lineNum">     481 </span><span class="lineCov">        274 :         // Initialize interaction</span>
+<span class="lineNum">     482 </span><span class="lineCov">       9248 :         this-&gt;initializeInteraction(); // this method checks by itself whether a new initialization</span>
+<span class="lineNum">     483 </span><span class="lineCov">       9111 :                                        // is required</span>
+<a name="484"><span class="lineNum">     484 </span>            :     }</a>
+<span class="lineNum">     485 </span>            : 
+<span class="lineNum">     486 </span><span class="lineNoCov">          0 :     void buildBasis() {</span>
+<span class="lineNum">     487 </span><span class="lineCov">        274 :         // Check variables for consistency</span>
+<span class="lineNum">     488 </span><span class="lineNoCov">          0 :         if (((hamiltonian.size() == 0) != states.empty()) ||</span>
+<span class="lineNum">     489 </span><span class="lineCov">        109 :             ((hamiltonian.size() == 0) != (basisvectors.size() == 0))) {</span>
+<span class="lineNum">     490 </span>            :             throw std::runtime_error(&quot;Inconsistent variables at &quot; + std::string(__FILE__) + &quot;:&quot; +
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :                                      std::to_string(__LINE__) + &quot;.&quot;);</span>
+<span class="lineNum">     492 </span><span class="lineCov">        109 :         }</span>
+<span class="lineNum">     493 </span>            : 
+<span class="lineNum">     494 </span>            :         // In case of no new basis restrictions and already initialized basis, there is nothing to
+<span class="lineNum">     495 </span><span class="lineCov">        218 :         // do</span>
+<span class="lineNum">     496 </span><span class="lineCov">        109 :         if (!states.empty() &amp;&amp; states_to_add.empty() &amp;&amp; range_n.empty() &amp;&amp; range_l.empty() &amp;&amp;</span>
+<span class="lineNum">     497 </span><span class="lineCov">        106 :             range_j.empty() &amp;&amp; range_m.empty() &amp;&amp;</span>
+<span class="lineNum">     498 </span><span class="lineCov">        106 :             energy_min == std::numeric_limits&lt;double&gt;::lowest() &amp;&amp;</span>
+<span class="lineNum">     499 </span><span class="lineNoCov">          0 :             energy_max == std::numeric_limits&lt;double&gt;::max()) { // TODO check for new threshold, too</span>
+<span class="lineNum">     500 </span><span class="lineCov">        106 :             return;</span>
+<span class="lineNum">     501 </span><span class="lineCov">        215 :         }</span>
+<span class="lineNum">     502 </span><span class="lineCov">        109 : </span>
+<span class="lineNum">     503 </span>            :         // Check whether the basis does not exist
+<span class="lineNum">     504 </span><span class="lineNoCov">          0 :         if (states.empty()) {</span>
+<span class="lineNum">     505 </span><span class="lineCov">        106 : </span>
+<span class="lineNum">     506 </span><span class="lineCov">        106 :             // Initialize the basis</span>
+<span class="lineNum">     507 </span><span class="lineCov">        212 :             this-&gt;initializeBasis();</span>
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span><span class="lineCov">          3 :             // Forget basis restrictions as they were applied now</span>
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :             this-&gt;forgetRestrictions();</span>
+<span class="lineNum">     511 </span>            : 
+<span class="lineNum">     512 </span>            :         } else {
+<span class="lineNum">     513 </span><span class="lineCov">        218 :             this-&gt;updateEverything();</span>
+<span class="lineNum">     514 </span><span class="lineCov">       4275 :         }</span>
+<span class="lineNum">     515 </span><span class="lineCov">        223 : </span>
+<span class="lineNum">     516 </span><span class="lineCov">       5811 :         // Check whether the basis is empty</span>
+<span class="lineNum">     517 </span><span class="lineCov">       1531 :         if (basisvectors.rows() == 0) {</span>
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :             throw std::runtime_error(&quot;The basis contains no states.&quot;);</span>
+<span class="lineNum">     519 </span><span class="lineCov">       4166 :         }</span>
+<span class="lineNum">     520 </span><span class="lineCov">          2 :         if (basisvectors.cols() == 0) {</span>
+<span class="lineNum">     521 </span><span class="lineCov">        218 :             throw std::runtime_error(&quot;The basis contains no vectors.&quot;);</span>
+<span class="lineNum">     522 </span>            :         }
+<a name="523"><span class="lineNum">     523 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     524 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     525 </span>            :     void diagonalize(double energy_lower_bound, double energy_upper_bound) {
+<span class="lineNum">     526 </span><span class="lineNoCov">          0 :         this-&gt;diagonalize(energy_lower_bound, energy_upper_bound, 0);</span>
+<a name="527"><span class="lineNum">     527 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     528 </span><span class="lineCov">         44 : </span>
+<span class="lineNum">     529 </span><span class="lineCov">         44 :     void diagonalize(double energy_lower_bound, double energy_upper_bound, double threshold) {</span>
+<span class="lineNum">     530 </span><span class="lineCov">         44 : #ifdef WITH_INTEL_MKL</span>
+<span class="lineNum">     531 </span><span class="lineCov">         44 :         this-&gt;buildHamiltonian();</span>
+<span class="lineNum">     532 </span><span class="lineCov">        944 : </span>
+<span class="lineNum">     533 </span><span class="lineCov">        898 :         // Check if already diagonal</span>
+<span class="lineNum">     534 </span><span class="lineNoCov">          0 :         if (checkIsDiagonal(hamiltonian)) {</span>
+<span class="lineNum">     535 </span><span class="lineCov">         46 :             return;</span>
+<span class="lineNum">     536 </span><span class="lineCov">          2 :         }</span>
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     538 </span><span class="lineNoCov">          0 :         // Prepare the mkl library</span>
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :         mkl_set_threading_layer(MKL_THREADING_SEQUENTIAL);</span>
+<span class="lineNum">     540 </span><span class="lineCov">          2 :         mkl_set_interface_layer(MKL_INTERFACE_LP64);</span>
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :         // Estimate number of found eigenvalues</span>
+<span class="lineNum">     543 </span><span class="lineCov">          2 :         std::vector&lt;double&gt; diagonal_max(hamiltonian.outerSize(), 0);</span>
+<span class="lineNum">     544 </span><span class="lineNoCov">          0 :         std::vector&lt;double&gt; diagonal_val;</span>
+<span class="lineNum">     545 </span><span class="lineCov">          2 :         std::vector&lt;int&gt; diagonal_idx;</span>
+<span class="lineNum">     546 </span><span class="lineCov">         44 :         diagonal_val.reserve(hamiltonian.outerSize());</span>
+<span class="lineNum">     547 </span><span class="lineCov">         44 :         diagonal_idx.reserve(hamiltonian.outerSize());</span>
+<span class="lineNum">     548 </span><span class="lineCov">         44 :         for (int k = 0; k &lt; hamiltonian.outerSize(); ++k) {</span>
+<span class="lineNum">     549 </span><span class="lineCov">         44 :             double val = 0;</span>
+<span class="lineNum">     550 </span><span class="lineCov">        944 :             for (eigen_iterator_t triple(hamiltonian, k); triple; ++triple) {</span>
+<span class="lineNum">     551 </span><span class="lineCov">        900 :                 if (triple.row() == triple.col()) {</span>
+<span class="lineNum">     552 </span>            :                     val = std::real(triple.value());
+<span class="lineNum">     553 </span><span class="lineCov">       4210 :                 } else if (triple.row() != triple.col()) {</span>
+<span class="lineNum">     554 </span><span class="lineCov">          2 :                     diagonal_max[k] = std::max(diagonal_max[k], std::abs(triple.value()));</span>
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">     556 </span><span class="lineCov">          2 :             }</span>
+<span class="lineNum">     557 </span><span class="lineCov">    1263848 :             diagonal_idx.push_back(k);</span>
+<span class="lineNum">     558 </span><span class="lineCov">    1263848 :             diagonal_val.push_back(val);</span>
+<span class="lineNum">     559 </span><span class="lineCov">          2 :         }</span>
+<span class="lineNum">     560 </span><span class="lineCov">          1 : </span>
+<span class="lineNum">     561 </span><span class="lineNoCov">          0 :         MKL_INT m0 =</span>
+<span class="lineNum">     562 </span><span class="lineNoCov">          0 :             std::count_if(diagonal_val.begin(), diagonal_val.end(),</span>
+<span class="lineNum">     563 </span><span class="lineCov">    1263848 :                           [&amp;energy_lower_bound, &amp;energy_upper_bound](const double &amp;val) {</span>
+<span class="lineNum">     564 </span><span class="lineCov">    1263848 :                               return (val &lt; energy_upper_bound) &amp;&amp; (val &gt; energy_lower_bound);</span>
+<span class="lineNum">     565 </span><span class="lineNoCov">          0 :                           }) +</span>
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :             std::count_if(diagonal_idx.begin(), diagonal_idx.end(),</span>
+<span class="lineNum">     567 </span><span class="lineCov">      60446 :                           [&amp;energy_lower_bound, &amp;energy_upper_bound, &amp;diagonal_val,</span>
+<span class="lineNum">     568 </span><span class="lineCov">      60446 :                            &amp;diagonal_max](const int &amp;i) {</span>
+<span class="lineNum">     569 </span><span class="lineCov">      60446 :                               return ((diagonal_val[i] &gt;= energy_upper_bound) ||</span>
+<span class="lineNum">     570 </span><span class="lineNoCov">          0 :                                       (diagonal_val[i] &lt;= energy_lower_bound)) &amp;&amp;</span>
+<span class="lineNum">     571 </span><span class="lineCov">          4 :                                   (diagonal_val[i] &lt; energy_upper_bound + diagonal_max[i]) &amp;&amp;</span>
+<span class="lineNum">     572 </span><span class="lineCov">          5 :                                   (diagonal_val[i] &gt; energy_lower_bound - diagonal_max[i]);</span>
+<span class="lineNum">     573 </span><span class="lineCov">          4 :                           });</span>
+<span class="lineNum">     574 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     575 </span><span class="lineCov">      60443 :         // Inplace conversion of the Hamiltonian to CSR with one-based indexing</span>
+<span class="lineNum">     576 </span><span class="lineCov">      60443 :         hamiltonian = hamiltonian.transpose();</span>
+<span class="lineNum">     577 </span><span class="lineCov">      60442 :         hamiltonian.makeCompressed();</span>
+<span class="lineNum">     578 </span>            :         for (int i = 0; i &lt; hamiltonian.rows() + 1; ++i) {
+<span class="lineNum">     579 </span>            :             hamiltonian.outerIndexPtr()[i] += 1;
+<span class="lineNum">     580 </span><span class="lineCov">      73807 :         }</span>
+<span class="lineNum">     581 </span><span class="lineCov">      73806 :         for (int i = 0; i &lt; hamiltonian.nonZeros(); ++i) {</span>
+<span class="lineNum">     582 </span><span class="lineCov">      73806 :             hamiltonian.innerIndexPtr()[i] += 1;</span>
+<span class="lineNum">     583 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     584 </span><span class="lineCov">        167 : </span>
+<span class="lineNum">     585 </span><span class="lineCov">        168 :         // Set default parameters for the diagonalization as described at</span>
+<span class="lineNum">     586 </span><span class="lineCov">        167 :         // https://software.intel.com/en-us/mkl-developer-reference-c-extended-eigensolver-input-parameters.</span>
+<span class="lineNum">     587 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     588 </span><span class="lineCov">      73639 :         std::vector&lt;MKL_INT&gt; fpm(128);</span>
+<span class="lineNum">     589 </span><span class="lineCov">      73639 :         feastinit(&amp;fpm[0]);</span>
+<span class="lineNum">     590 </span><span class="lineCov">      73640 :         fpm[0] = 1;  // enables terminal output</span>
+<span class="lineNum">     591 </span><span class="lineCov">          1 :         fpm[1] = 6;  // number of contour points</span>
+<span class="lineNum">     592 </span>            :         fpm[26] = 0; // disables matrix checker
+<span class="lineNum">     593 </span><span class="lineCov">      59294 :         fpm[3] = 5;  // maximum number of refinement loops allowed</span>
+<span class="lineNum">     594 </span><span class="lineCov">       4164 :         if (threshold != 0) {</span>
+<span class="lineNum">     595 </span><span class="lineCov">      59292 :             // Adapt the error trace stopping criteria (10-fpm[2])</span>
+<span class="lineNum">     596 </span><span class="lineCov">       4164 :             fpm[2] = std::min(std::round(-std::log10(threshold)), 12.);</span>
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     598 </span><span class="lineCov">     118584 : </span>
+<span class="lineNum">     599 </span><span class="lineCov">     122748 :         // Do the diagonalization</span>
+<span class="lineNum">     600 </span><span class="lineCov">      59293 :         {</span>
+<span class="lineNum">     601 </span>            :             MKL_INT n = hamiltonian.rows();  // size of the matrix
+<span class="lineNum">     602 </span><span class="lineNoCov">          0 :             MKL_INT m;                       // will contain the number of eigenvalues</span>
+<span class="lineNum">     603 </span><span class="lineNoCov">          0 :             std::vector&lt;scalar_t&gt; x(m0 * n); // the first m columns will contain the eigenvectors</span>
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :             {</span>
+<span class="lineNum">     605 </span><span class="lineCov">      59292 :                 std::vector&lt;double&gt; e(m0); // will contain the first m eigenvalues</span>
+<span class="lineNum">     606 </span><span class="lineNoCov">          0 :                 {</span>
+<span class="lineNum">     607 </span><span class="lineCov">          3 :                     char uplo = 'F';             // full matrix is stored</span>
+<span class="lineNum">     608 </span>            :                     MKL_INT info;                // will contain return codes
+<span class="lineNum">     609 </span><span class="lineCov">          3 :                     double epsout;               // will contain relative error</span>
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :                     MKL_INT loop;                // will contain number of used refinement</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :                     std::vector&lt;double&gt; res(m0); // will contain the residual errors</span>
+<span class="lineNum">     612 </span><span class="lineCov">          7 : </span>
+<span class="lineNum">     613 </span><span class="lineCov">          6 :                     this-&gt;feast_csrev(&amp;uplo, &amp;n, hamiltonian.valuePtr(),</span>
+<span class="lineNum">     614 </span><span class="lineCov">          3 :                                       hamiltonian.outerIndexPtr(), hamiltonian.innerIndexPtr(),</span>
+<span class="lineNum">     615 </span><span class="lineCov">          1 :                                       &amp;fpm[0], &amp;epsout, &amp;loop, &amp;energy_lower_bound,</span>
+<span class="lineNum">     616 </span><span class="lineCov">          1 :                                       &amp;energy_upper_bound, &amp;m0, &amp;e[0], &amp;x[0], &amp;m, &amp;res[0], &amp;info);</span>
+<span class="lineNum">     617 </span>            :                 }
+<span class="lineNum">     618 </span>            : 
+<span class="lineNum">     619 </span><span class="lineCov">          3 :                 // Build the new hamiltonian</span>
+<span class="lineNum">     620 </span><span class="lineCov">          1 :                 hamiltonian.resize(m, m);</span>
+<span class="lineNum">     621 </span><span class="lineCov">      59289 :                 hamiltonian.setZero();</span>
+<span class="lineNum">     622 </span>            :                 hamiltonian.reserve(m);
+<span class="lineNum">     623 </span><span class="lineCov">      59290 :                 for (int idx = 0; idx &lt; m; ++idx) {</span>
+<span class="lineNum">     624 </span>            :                     hamiltonian.insert(idx, idx) = e[idx];
+<span class="lineNum">     625 </span><span class="lineCov">          1 :                 }</span>
+<span class="lineNum">     626 </span><span class="lineCov">     118578 :                 hamiltonian.makeCompressed();</span>
+<span class="lineNum">     627 </span><span class="lineCov">     118578 :             }</span>
+<span class="lineNum">     628 </span><span class="lineCov">      59289 : </span>
+<span class="lineNum">     629 </span>            :             // Transform the basis vectors
+<span class="lineNum">     630 </span><span class="lineCov">          1 :             eigen_sparse_t evecs = Eigen::Map&lt;eigen_dense_t&gt;(&amp;x[0], n, m).sparseView();</span>
+<span class="lineNum">     631 </span><span class="lineCov">          1 :             if (threshold == 0) {</span>
+<span class="lineNum">     632 </span>            :                 basisvectors = basisvectors * evecs;
+<span class="lineNum">     633 </span><span class="lineCov">      63453 :             } else {</span>
+<span class="lineNum">     634 </span>            :                 basisvectors = (basisvectors * evecs).pruned(threshold, 1);
+<span class="lineNum">     635 </span>            :             }
+<span class="lineNum">     636 </span><span class="lineCov">        271 :         }</span>
+<span class="lineNum">     637 </span>            : #else  // WITH_INTEL_MKL
+<span class="lineNum">     638 </span><span class="lineCov">        271 :         (void)energy_lower_bound;</span>
+<span class="lineNum">     639 </span>            :         (void)energy_upper_bound;
+<span class="lineNum">     640 </span>            :         (void)threshold;
+<span class="lineNum">     641 </span><span class="lineCov">        542 :         throw std::runtime_error(</span>
+<span class="lineNum">     642 </span><span class="lineCov">        271 :             &quot;The method does not work because the program was compiled without MKL support.&quot;);</span>
+<span class="lineNum">     643 </span>            : #endif // WITH_INTEL_MKL
+<a name="644"><span class="lineNum">     644 </span><span class="lineCov">       9146 :     }</span></a>
+<span class="lineNum">     645 </span>            : 
+<a name="646"><span class="lineNum">     646 </span><span class="lineCov">      18292 :     void diagonalize() { this-&gt;diagonalize(0); }</span></a>
+<span class="lineNum">     647 </span><span class="lineCov">       9417 : </span>
+<span class="lineNum">     648 </span>            :     void diagonalize(double threshold) {
+<span class="lineNum">     649 </span><span class="lineCov">          1 :         this-&gt;buildHamiltonian();</span>
+<span class="lineNum">     650 </span>            : 
+<span class="lineNum">     651 </span><span class="lineCov">          1 :         // Check if already diagonal</span>
+<span class="lineNum">     652 </span>            :         if (checkIsDiagonal(hamiltonian)) {
+<span class="lineNum">     653 </span>            :             return;
+<span class="lineNum">     654 </span><span class="lineCov">      27432 :         }</span>
+<span class="lineNum">     655 </span><span class="lineCov">      27427 : </span>
+<span class="lineNum">     656 </span><span class="lineCov">      27430 :         // Diagonalize hamiltonian</span>
+<span class="lineNum">     657 </span><span class="lineCov">       9142 :         Eigen::SelfAdjointEigenSolver&lt;eigen_dense_t&gt; eigensolver(hamiltonian);</span>
+<span class="lineNum">     658 </span><span class="lineCov">       9142 : </span>
+<span class="lineNum">     659 </span>            :         // Get eigenvalues and eigenvectors
+<span class="lineNum">     660 </span><span class="lineCov">          1 :         eigen_vector_double_t evals = eigensolver.eigenvalues();</span>
+<span class="lineNum">     661 </span>            :         eigen_sparse_t evecs = eigensolver.eigenvectors().sparseView();
+<span class="lineNum">     662 </span><span class="lineCov">        274 : </span>
+<span class="lineNum">     663 </span>            :         // Build the new hamiltonian
+<span class="lineNum">     664 </span><span class="lineCov">        270 :         hamiltonian.setZero();</span>
+<span class="lineNum">     665 </span><span class="lineCov">          4 :         hamiltonian.reserve(evals.size());</span>
+<span class="lineNum">     666 </span>            :         for (int idx = 0; idx &lt; evals.size(); ++idx) {
+<span class="lineNum">     667 </span><span class="lineCov">        540 :             hamiltonian.insert(idx, idx) = evals.coeffRef(idx);</span>
+<span class="lineNum">     668 </span><span class="lineCov">        274 :         }</span>
+<span class="lineNum">     669 </span>            :         hamiltonian.makeCompressed();
+<span class="lineNum">     670 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 :         // Transform the basis vectors</span>
+<span class="lineNum">     672 </span>            :         if (threshold == 0) {
+<span class="lineNum">     673 </span><span class="lineCov">        270 :             basisvectors = basisvectors * evecs;</span>
+<span class="lineNum">     674 </span>            :         } else {
+<span class="lineNum">     675 </span><span class="lineCov">          4 :             basisvectors = (basisvectors * evecs).pruned(threshold, 1);</span>
+<span class="lineNum">     676 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     677 </span>            : 
+<span class="lineNum">     678 </span><span class="lineCov">          4 :         // TODO call transformInteraction (see applyRightsideTransformator), perhaps not?</span>
+<a name="679"><span class="lineNum">     679 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     680 </span>            : 
+<span class="lineNum">     681 </span><span class="lineNoCov">          0 :     void canonicalize() {</span>
+<span class="lineNum">     682 </span><span class="lineCov">          7 :         this-&gt;buildHamiltonian();</span>
+<span class="lineNum">     683 </span>            : 
+<span class="lineNum">     684 </span><span class="lineCov">         14 :         // Transform the hamiltonian</span>
+<span class="lineNum">     685 </span><span class="lineCov">          7 :         hamiltonian = basisvectors * hamiltonian * basisvectors.adjoint();</span>
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span><span class="lineNoCov">          0 :         // Transform the basis vectors</span>
+<span class="lineNum">     688 </span><span class="lineNoCov">          0 :         basisvectors = basisvectors * basisvectors.adjoint();</span>
+<span class="lineNum">     689 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     690 </span><span class="lineNoCov">          0 :         // TODO call transformInteraction (see applyRightsideTransformator), perhaps yes?</span>
+<a name="691"><span class="lineNum">     691 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     692 </span><span class="lineCov">         19 : </span>
+<span class="lineNum">     693 </span><span class="lineCov">         18 :     void unitarize() {</span>
+<span class="lineNum">     694 </span><span class="lineCov">         19 :         this-&gt;buildHamiltonian();</span>
+<span class="lineNum">     695 </span><span class="lineCov">          6 : </span>
+<span class="lineNum">     696 </span><span class="lineCov">          6 :         // Determine hash of the list of states</span>
+<span class="lineNum">     697 </span>            :         size_t hashvalue_states =
+<span class="lineNum">     698 </span><span class="lineNoCov">          0 :             boost::hash_range(states.template get&lt;0&gt;().begin(), states.template get&lt;0&gt;().end());</span>
+<span class="lineNum">     699 </span>            : 
+<span class="lineNum">     700 </span><span class="lineCov">          1 :         // Loop over basisvectors</span>
+<span class="lineNum">     701 </span>            :         size_t num_basisvectors = basisvectors.outerSize();
+<span class="lineNum">     702 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     703 </span><span class="lineCov">          1 :         states.clear();</span>
+<span class="lineNum">     704 </span>            :         size_t idx_new = 0;
+<span class="lineNum">     705 </span><span class="lineNoCov">          0 :         for (int k = 0; k &lt; basisvectors.outerSize(); ++k) { // col == idx_vector</span>
+<span class="lineNum">     706 </span><span class="lineCov">          1 :             size_t hashvalue = hashvalue_states;</span>
+<span class="lineNum">     707 </span>            :             for (eigen_iterator_t triple(basisvectors, k); triple; ++triple) {
+<span class="lineNum">     708 </span><span class="lineNoCov">          0 :                 boost::hash_combine(hashvalue, triple.row());</span>
+<span class="lineNum">     709 </span><span class="lineNoCov">          0 :                 boost::hash_combine(hashvalue, triple.value());</span>
+<span class="lineNum">     710 </span>            :             }
+<span class="lineNum">     711 </span>            : 
+<span class="lineNum">     712 </span><span class="lineNoCov">          0 :             // Rewrite basisvectors as states</span>
+<span class="lineNum">     713 </span><span class="lineCov">          1 :             std::stringstream ss;</span>
+<span class="lineNum">     714 </span><span class="lineNoCov">          0 :             ss &lt;&lt; std::hex &lt;&lt; hashvalue;</span>
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :             states.push_back(</span>
+<span class="lineNum">     716 </span><span class="lineCov">          1 :                 enumerated_state&lt;T&gt;(idx_new++, this-&gt;createStateFromLabel&lt;T&gt;(ss.str())));</span>
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     718 </span>            :         states.shrink_to_fit();
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     720 </span><span class="lineCov">       9139 :         if (num_basisvectors != states.size()) {</span>
+<span class="lineNum">     721 </span>            :             throw std::runtime_error(&quot;A hash collision occurred.&quot;);
+<span class="lineNum">     722 </span><span class="lineCov">      18278 :         }</span>
+<span class="lineNum">     723 </span><span class="lineCov">       9139 : </span>
+<span class="lineNum">     724 </span><span class="lineNoCov">          0 :         // Adapt basisvectors</span>
+<span class="lineNum">     725 </span><span class="lineNoCov">          0 :         basisvectors.resize(states.size(), states.size());</span>
+<span class="lineNum">     726 </span><span class="lineNoCov">          0 :         basisvectors.setZero();</span>
+<span class="lineNum">     727 </span>            :         basisvectors.reserve(states.size());
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :         for (int idx = 0; idx &lt; states.size(); ++idx) {</span>
+<span class="lineNum">     729 </span><span class="lineNoCov">          0 :             basisvectors.insert(idx, idx) = 1;</span>
+<span class="lineNum">     730 </span><span class="lineCov">      27411 :         }</span>
+<span class="lineNum">     731 </span><span class="lineCov">      27408 :         basisvectors.makeCompressed();</span>
+<span class="lineNum">     732 </span><span class="lineCov">      27411 : </span>
+<span class="lineNum">     733 </span><span class="lineCov">       9136 :         // Delete caches as they are no longer meaningful</span>
+<span class="lineNum">     734 </span><span class="lineCov">       9136 :         basisvectors_unperturbed_cache.resize(0, 0);</span>
+<span class="lineNum">     735 </span>            :         hamiltonian_unperturbed_cache.resize(0, 0);
+<a name="736"><span class="lineNum">     736 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     738 </span><span class="lineCov">          3 :     void rotate(std::array&lt;double, 3&gt; to_z_axis, std::array&lt;double, 3&gt; to_y_axis) {</span>
+<span class="lineNum">     739 </span><span class="lineNoCov">          0 :         auto euler_zyz = this-&gt;getEulerAngles(to_z_axis, to_y_axis);</span>
+<span class="lineNum">     740 </span><span class="lineNoCov">          0 :         this-&gt;rotate(euler_zyz[0], euler_zyz[1], euler_zyz[2]);</span>
+<a name="741"><span class="lineNum">     741 </span><span class="lineCov">          3 :     }</span></a>
+<span class="lineNum">     742 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     743 </span><span class="lineNoCov">          0 :     void rotate(double alpha, double beta, double gamma) { // TODO applyRightsideTransformator ?</span>
+<span class="lineNum">     744 </span><span class="lineCov">          3 :         // Build Hamiltonian and basis</span>
+<span class="lineNum">     745 </span><span class="lineNoCov">          0 :         this-&gt;buildHamiltonian();</span>
+<span class="lineNum">     746 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 :         // Get the rotator for the basis states</span>
+<span class="lineNum">     748 </span><span class="lineNoCov">          0 :         eigen_sparse_t transformator = this-&gt;buildStaterotator(alpha, beta, gamma);</span>
+<span class="lineNum">     749 </span><span class="lineCov">          8 : </span>
+<span class="lineNum">     750 </span>            :         // Rotate basis
+<span class="lineNum">     751 </span><span class="lineCov">         11 :         this-&gt;transformInteraction(basisvectors.adjoint());</span>
+<span class="lineNum">     752 </span><span class="lineCov">          8 : </span>
+<span class="lineNum">     753 </span>            :         basisvectors = transformator * basisvectors;
+<span class="lineNum">     754 </span><span class="lineCov">         11 :         if (basisvectors_unperturbed_cache.size() != 0) {</span>
+<span class="lineNum">     755 </span><span class="lineNoCov">          0 :             basisvectors_unperturbed_cache = transformator * basisvectors_unperturbed_cache;</span>
+<span class="lineNum">     756 </span>            :         }
+<span class="lineNum">     757 </span><span class="lineCov">         16 : </span>
+<span class="lineNum">     758 </span><span class="lineCov">          8 :         this-&gt;transformInteraction(basisvectors);</span>
+<a name="759"><span class="lineNum">     759 </span>            :     }</a>
+<span class="lineNum">     760 </span><span class="lineCov">        388 : </span>
+<span class="lineNum">     761 </span><span class="lineCov">        380 :     void add(SystemBase&lt;T&gt; &amp;system) {</span>
+<span class="lineNum">     762 </span><span class="lineCov">        380 :         // --- Build bases ---</span>
+<span class="lineNum">     763 </span><span class="lineCov">        346 :         this-&gt;buildBasis();</span>
+<span class="lineNum">     764 </span><span class="lineCov">        346 :         system.buildBasis();</span>
+<span class="lineNum">     765 </span>            : 
+<span class="lineNum">     766 </span>            :         size_t size_this = basisvectors.cols();
+<span class="lineNum">     767 </span>            :         size_t size_other = system.basisvectors.cols();
+<span class="lineNum">     768 </span><span class="lineCov">         16 : </span>
+<span class="lineNum">     769 </span><span class="lineCov">          8 :         // --- Combine system specific variables ---</span>
+<span class="lineNum">     770 </span>            :         this-&gt;incorporate(system);
+<span class="lineNum">     771 </span>            : 
+<span class="lineNum">     772 </span><span class="lineCov">         16 :         // --- Combine universal variables ---</span>
+<span class="lineNum">     773 </span><span class="lineCov">          8 :         if (memory_saving != system.memory_saving) {</span>
+<span class="lineNum">     774 </span>            :             throw std::runtime_error(
+<span class="lineNum">     775 </span>            :                 &quot;The value of the variable 'memory_saving' must be the same for both systems.&quot;);
+<span class="lineNum">     776 </span><span class="lineCov">         16 :         }</span>
+<span class="lineNum">     777 </span><span class="lineCov">          8 :         if (is_interaction_already_contained != system.is_interaction_already_contained) {</span>
+<span class="lineNum">     778 </span>            :             throw std::runtime_error(&quot;The value of the variable 'is_interaction_already_contained' &quot;
+<span class="lineNum">     779 </span><span class="lineCov">        168 :                                      &quot;must be the same for both systems.&quot;);</span>
+<span class="lineNum">     780 </span><span class="lineCov">        160 :         }</span>
+<span class="lineNum">     781 </span>            :         if (is_new_hamiltonian_required != system.is_new_hamiltonian_required) {
+<span class="lineNum">     782 </span>            :             throw std::runtime_error(
+<span class="lineNum">     783 </span><span class="lineCov">       1227 :                 &quot;The value of the variable 'is_new_hamiltonian_required' must be the same &quot;</span>
+<span class="lineNum">     784 </span><span class="lineCov">       1067 :                 &quot;for both systems.&quot;);</span>
+<span class="lineNum">     785 </span><span class="lineCov">        417 :         }</span>
+<span class="lineNum">     786 </span><span class="lineCov">        417 : </span>
+<span class="lineNum">     787 </span>            :         // --- Combine states and build transformators ---
+<span class="lineNum">     788 </span>            :         eigen_sparse_t transformator;
+<span class="lineNum">     789 </span>            :         {
+<span class="lineNum">     790 </span><span class="lineCov">        160 :             std::vector&lt;eigen_triplet_t&gt; transformator_triplets;</span>
+<span class="lineNum">     791 </span>            :             transformator_triplets.reserve(system.states.size());
+<span class="lineNum">     792 </span>            : 
+<span class="lineNum">     793 </span>            :             for (const auto &amp;entry : system.states) {
+<span class="lineNum">     794 </span><span class="lineCov">         16 :                 auto state_iter = states.template get&lt;1&gt;().find(entry.state);</span>
+<span class="lineNum">     795 </span><span class="lineCov">          8 : </span>
+<span class="lineNum">     796 </span><span class="lineCov">          8 :                 size_t newidx = states.size();</span>
+<span class="lineNum">     797 </span><span class="lineCov">          8 :                 if (state_iter == states.template get&lt;1&gt;().end()) {</span>
+<span class="lineNum">     798 </span>            :                     states.push_back(enumerated_state&lt;T&gt;(newidx, entry.state));
+<span class="lineNum">     799 </span><span class="lineCov">        168 :                 } else {</span>
+<span class="lineNum">     800 </span><span class="lineCov">        160 :                     newidx = state_iter-&gt;idx;</span>
+<span class="lineNum">     801 </span>            :                 }
+<span class="lineNum">     802 </span>            : 
+<span class="lineNum">     803 </span>            :                 transformator_triplets.emplace_back(newidx, entry.idx, 1);
+<span class="lineNum">     804 </span><span class="lineCov">       1227 :             }</span>
+<span class="lineNum">     805 </span><span class="lineCov">       1067 : </span>
+<span class="lineNum">     806 </span><span class="lineCov">        316 :             transformator.resize(states.size(), system.basisvectors.rows());</span>
+<span class="lineNum">     807 </span><span class="lineCov">        316 :             transformator.setFromTriplets(transformator_triplets.begin(),</span>
+<span class="lineNum">     808 </span><span class="lineCov">        316 :                                           transformator_triplets.end());</span>
+<span class="lineNum">     809 </span>            :         }
+<span class="lineNum">     810 </span>            : 
+<span class="lineNum">     811 </span>            :         // --- Combine basisvectors and basisvectors_unperturbed_cache ---
+<span class="lineNum">     812 </span><span class="lineCov">        160 :         basisvectors.conservativeResize(states.size(), size_this + size_other);</span>
+<span class="lineNum">     813 </span><span class="lineCov">        158 :         basisvectors.rightCols(size_other) = transformator * system.basisvectors;</span>
+<span class="lineNum">     814 </span><span class="lineCov">        158 : </span>
+<span class="lineNum">     815 </span>            :         if ((basisvectors_unperturbed_cache.size() != 0) !=
+<span class="lineNum">     816 </span>            :             (system.basisvectors_unperturbed_cache.size() != 0)) {
+<span class="lineNum">     817 </span>            :             throw std::runtime_error(&quot;Inconsistent variables at &quot; + std::string(__FILE__) + &quot;:&quot; +
+<span class="lineNum">     818 </span><span class="lineCov">          8 :                                      std::to_string(__LINE__) + &quot;.&quot;);</span>
+<span class="lineNum">     819 </span><span class="lineCov">          8 :         }</span>
+<span class="lineNum">     820 </span>            : 
+<span class="lineNum">     821 </span><span class="lineCov">         16 :         if (basisvectors_unperturbed_cache.size() != 0) {</span>
+<span class="lineNum">     822 </span>            :             basisvectors_unperturbed_cache.conservativeResize(
+<span class="lineNum">     823 </span><span class="lineCov">          4 :                 states.size(),</span>
+<span class="lineNum">     824 </span>            :                 basisvectors_unperturbed_cache.cols() +
+<span class="lineNum">     825 </span><span class="lineCov">          4 :                     system.basisvectors_unperturbed_cache.cols());</span>
+<span class="lineNum">     826 </span><span class="lineCov">          4 :             basisvectors_unperturbed_cache.rightCols(system.basisvectors_unperturbed_cache.cols()) =</span>
+<span class="lineNum">     827 </span>            :                 transformator * system.basisvectors_unperturbed_cache;
+<span class="lineNum">     828 </span><span class="lineCov">          4 :         }</span>
+<span class="lineNum">     829 </span>            : 
+<span class="lineNum">     830 </span>            :         // --- Check if basis vectors are orthogonal ---
+<span class="lineNum">     831 </span><span class="lineCov">          8 :         eigen_sparse_t tmp =</span>
+<span class="lineNum">     832 </span><span class="lineCov">          4 :             (basisvectors.leftCols(size_this).adjoint() * basisvectors.rightCols(size_other))</span>
+<span class="lineNum">     833 </span>            :                 .pruned(1e-12, 1);
+<span class="lineNum">     834 </span><span class="lineCov">        214 :         if (tmp.nonZeros() != 0) {</span>
+<span class="lineNum">     835 </span><span class="lineCov">        210 :             throw std::runtime_error(</span>
+<span class="lineNum">     836 </span><span class="lineCov">        210 :                 &quot;Two systems cannot be combined if their basis vectors are not orthogonal.&quot;);</span>
+<span class="lineNum">     837 </span><span class="lineCov">        200 :         }</span>
+<span class="lineNum">     838 </span><span class="lineCov">        200 : </span>
+<span class="lineNum">     839 </span>            :         // --- Combine hamiltonian and hamiltonian_unperturbed_cache ---
+<span class="lineNum">     840 </span>            :         eigen_sparse_t shifter(hamiltonian.rows() + system.hamiltonian.rows(),
+<span class="lineNum">     841 </span>            :                                system.hamiltonian.rows());
+<span class="lineNum">     842 </span><span class="lineCov">          8 :         {</span>
+<span class="lineNum">     843 </span><span class="lineCov">          4 :             std::vector&lt;eigen_triplet_t&gt; shifter_triplets;</span>
+<span class="lineNum">     844 </span>            :             shifter_triplets.reserve(system.hamiltonian.rows());
+<span class="lineNum">     845 </span>            : 
+<span class="lineNum">     846 </span><span class="lineCov">          8 :             for (size_t idx = 0; idx &lt; system.hamiltonian.rows(); ++idx) {</span>
+<span class="lineNum">     847 </span><span class="lineCov">          4 :                 shifter_triplets.emplace_back(hamiltonian.rows() + idx, idx, 1);</span>
+<span class="lineNum">     848 </span>            :             }
+<span class="lineNum">     849 </span>            : 
+<span class="lineNum">     850 </span><span class="lineCov">          8 :             shifter.setFromTriplets(shifter_triplets.begin(), shifter_triplets.end());</span>
+<span class="lineNum">     851 </span><span class="lineCov">          4 :         }</span>
+<span class="lineNum">     852 </span>            : 
+<span class="lineNum">     853 </span><span class="lineCov">         46 :         hamiltonian.conservativeResize(hamiltonian.rows() + system.hamiltonian.rows(),</span>
+<span class="lineNum">     854 </span><span class="lineCov">         42 :                                        hamiltonian.cols() + system.hamiltonian.cols());</span>
+<span class="lineNum">     855 </span>            :         hamiltonian.rightCols(system.hamiltonian.cols()) = shifter * system.hamiltonian;
+<span class="lineNum">     856 </span>            : 
+<span class="lineNum">     857 </span><span class="lineCov">        153 :         if ((hamiltonian_unperturbed_cache.size() != 0) !=</span>
+<span class="lineNum">     858 </span><span class="lineCov">        111 :             (system.hamiltonian_unperturbed_cache.size() != 0)) {</span>
+<span class="lineNum">     859 </span><span class="lineCov">         73 :             throw std::runtime_error(&quot;Inconsistent variables at &quot; + std::string(__FILE__) + &quot;:&quot; +</span>
+<span class="lineNum">     860 </span><span class="lineCov">         73 :                                      std::to_string(__LINE__) + &quot;.&quot;);</span>
+<span class="lineNum">     861 </span>            :         }
+<span class="lineNum">     862 </span>            : 
+<span class="lineNum">     863 </span>            :         if (hamiltonian_unperturbed_cache.size() != 0) {
+<span class="lineNum">     864 </span><span class="lineCov">         42 :             hamiltonian_unperturbed_cache.conservativeResize(</span>
+<span class="lineNum">     865 </span>            :                 hamiltonian_unperturbed_cache.rows() + system.hamiltonian_unperturbed_cache.rows(),
+<span class="lineNum">     866 </span>            :                 hamiltonian_unperturbed_cache.cols() + system.hamiltonian_unperturbed_cache.cols());
+<span class="lineNum">     867 </span>            :             hamiltonian_unperturbed_cache.rightCols(system.hamiltonian_unperturbed_cache.cols()) =
+<span class="lineNum">     868 </span><span class="lineCov">          8 :                 shifter * system.hamiltonian_unperturbed_cache;</span>
+<span class="lineNum">     869 </span><span class="lineCov">          4 :         }</span>
+<a name="870"><span class="lineNum">     870 </span><span class="lineCov">          4 :     }</span></a>
+<span class="lineNum">     871 </span><span class="lineCov">          4 : </span>
+<span class="lineNum">     872 </span>            :     void constrainBasisvectors(std::vector&lt;size_t&gt; indices_of_wanted_basisvectors) {
+<span class="lineNum">     873 </span><span class="lineCov">         44 :         this-&gt;buildHamiltonian();</span>
+<span class="lineNum">     874 </span><span class="lineCov">         40 : </span>
+<span class="lineNum">     875 </span>            :         // Check if indices are unique
+<span class="lineNum">     876 </span>            :         {
+<span class="lineNum">     877 </span>            :             std::set&lt;size_t&gt; tmp(indices_of_wanted_basisvectors.begin(),
+<span class="lineNum">     878 </span><span class="lineCov">        151 :                                  indices_of_wanted_basisvectors.end());</span>
+<span class="lineNum">     879 </span><span class="lineCov">        111 :             if (tmp.size() &lt; indices_of_wanted_basisvectors.size()) {</span>
+<span class="lineNum">     880 </span><span class="lineCov">         55 :                 throw std::runtime_error(&quot;Indices are occuring multiple times.&quot;);</span>
+<span class="lineNum">     881 </span><span class="lineCov">         51 :             }</span>
+<span class="lineNum">     882 </span><span class="lineCov">         55 :         }</span>
+<span class="lineNum">     883 </span><span class="lineCov">          4 : </span>
+<span class="lineNum">     884 </span>            :         // Build transformator and remove vectors
+<span class="lineNum">     885 </span>            :         std::vector&lt;eigen_triplet_t&gt; triplets_transformator;
+<span class="lineNum">     886 </span><span class="lineCov">         44 :         triplets_transformator.reserve(indices_of_wanted_basisvectors.size());</span>
+<span class="lineNum">     887 </span><span class="lineCov">         42 : </span>
+<span class="lineNum">     888 </span><span class="lineCov">         40 :         size_t idx_new = 0;</span>
+<span class="lineNum">     889 </span>            :         for (const auto &amp;idx : indices_of_wanted_basisvectors) {
+<span class="lineNum">     890 </span>            :             if (idx &gt;= basisvectors.cols()) {
+<span class="lineNum">     891 </span><span class="lineCov">          4 :                 throw std::runtime_error(&quot;A basis vector with index &quot; + std::to_string(idx) +</span>
+<span class="lineNum">     892 </span><span class="lineCov">          4 :                                          &quot; could not be found.&quot;);</span>
+<span class="lineNum">     893 </span><span class="lineCov">          4 :             }</span>
+<span class="lineNum">     894 </span><span class="lineCov">          4 :             triplets_transformator.emplace_back(idx, idx_new++, 1);</span>
+<span class="lineNum">     895 </span><span class="lineCov">         12 :         }</span>
+<span class="lineNum">     896 </span>            : 
+<span class="lineNum">     897 </span><span class="lineCov">          4 :         this-&gt;applyRightsideTransformator(triplets_transformator);</span>
+<a name="898"><span class="lineNum">     898 </span><span class="lineCov">          2 :     }</span></a>
+<span class="lineNum">     899 </span><span class="lineCov">          6 : </span>
+<span class="lineNum">     900 </span><span class="lineCov">        309 :     void applySchriefferWolffTransformation(SystemBase&lt;T&gt; &amp;system0) {</span>
+<span class="lineNum">     901 </span><span class="lineCov">        303 :         this-&gt;diagonalize();</span>
+<span class="lineNum">     902 </span><span class="lineCov">          4 :         system0.buildHamiltonian();</span>
+<span class="lineNum">     903 </span><span class="lineCov">          2 : </span>
+<span class="lineNum">     904 </span>            :         // Check that system, on which applySchriefferWolffTransformation() is called, is unitary
+<span class="lineNum">     905 </span><span class="lineCov">          8 :         if (!this-&gt;checkIsUnitary(basisvectors)) {</span>
+<span class="lineNum">     906 </span><span class="lineCov">          6 :             throw std::runtime_error(&quot;The system, on which applySchriefferWolffTransformation() is &quot;</span>
+<span class="lineNum">     907 </span><span class="lineCov">          2 :                                      &quot;called, is not unitary. Call unitarize() on the system.&quot;);</span>
+<span class="lineNum">     908 </span><span class="lineCov">        174 :         }</span>
+<span class="lineNum">     909 </span><span class="lineCov">        170 : </span>
+<span class="lineNum">     910 </span><span class="lineCov">        170 :         // Check that system0, i.e. the unperturbed system, is unitary</span>
+<span class="lineNum">     911 </span><span class="lineCov">        146 :         if (!this-&gt;checkIsUnitary(system0.basisvectors)) {</span>
+<span class="lineNum">     912 </span><span class="lineCov">        146 :             throw std::runtime_error(</span>
+<span class="lineNum">     913 </span>            :                 &quot;The unperturbed system passed to applySchriefferWolffTransformation() is not &quot;
+<span class="lineNum">     914 </span><span class="lineCov">          1 :                 &quot;unitary. Call unitarize() on the system.&quot;);</span>
+<span class="lineNum">     915 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">     916 </span><span class="lineCov">          8 : </span>
+<span class="lineNum">     917 </span><span class="lineCov">          4 :         // Check that the unperturbed system is diagonal</span>
+<span class="lineNum">     918 </span><span class="lineCov">          1 :         if (!this-&gt;checkIsDiagonal(system0.hamiltonian)) {</span>
+<span class="lineNum">     919 </span><span class="lineNoCov">          0 :             throw std::runtime_error(&quot;The unperturbed system passed to &quot;</span>
+<span class="lineNum">     920 </span><span class="lineCov">          8 :                                      &quot;applySchriefferWolffTransformation() is not diagonal.&quot;);</span>
+<span class="lineNum">     921 </span><span class="lineCov">          4 :         }</span>
+<span class="lineNum">     922 </span>            : 
+<span class="lineNum">     923 </span><span class="lineCov">          2 :         // --- Express the basis vectors of system0 as a linearcombination of all states ---</span>
+<span class="lineNum">     924 </span><span class="lineCov">          8 : </span>
+<span class="lineNum">     925 </span><span class="lineCov">          4 :         // Combine states and build transformators</span>
+<span class="lineNum">     926 </span><span class="lineCov">          2 :         eigen_sparse_t transformator;</span>
+<span class="lineNum">     927 </span><span class="lineCov">        124 :         {</span>
+<span class="lineNum">     928 </span><span class="lineCov">        118 :             std::vector&lt;eigen_triplet_t&gt; transformator_triplets;</span>
+<span class="lineNum">     929 </span>            :             transformator_triplets.reserve(system0.states.size());
+<span class="lineNum">     930 </span><span class="lineCov">          1 : </span>
+<span class="lineNum">     931 </span><span class="lineCov">       1075 :             for (const auto &amp;entry : system0.states) {</span>
+<span class="lineNum">     932 </span><span class="lineCov">       1196 :                 auto state_iter = states.template get&lt;1&gt;().find(entry.state);</span>
+<span class="lineNum">     933 </span><span class="lineCov">        583 : </span>
+<span class="lineNum">     934 </span><span class="lineCov">        344 :                 // Check that all the states of system0 occur (since we already checked that the</span>
+<span class="lineNum">     935 </span><span class="lineCov">          1 :                 // number of states is the same, this ensures that all the states are the same)</span>
+<span class="lineNum">     936 </span>            :                 if (state_iter == states.template get&lt;1&gt;().end()) {
+<span class="lineNum">     937 </span>            :                     throw std::runtime_error(
+<span class="lineNum">     938 </span><span class="lineCov">        119 :                         &quot;The unperturbed system contains states that are not occuring.&quot;);</span>
+<span class="lineNum">     939 </span><span class="lineCov">          1 :                 }</span>
+<span class="lineNum">     940 </span>            :                 size_t newidx = state_iter-&gt;idx;
+<span class="lineNum">     941 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     942 </span><span class="lineCov">          8 :                 transformator_triplets.emplace_back(newidx, entry.idx, 1);</span>
+<span class="lineNum">     943 </span><span class="lineCov">          4 :             }</span>
+<span class="lineNum">     944 </span><span class="lineCov">          4 : </span>
+<span class="lineNum">     945 </span><span class="lineCov">          4 :             transformator.resize(states.size(), system0.states.size());</span>
+<span class="lineNum">     946 </span><span class="lineCov">          3 :             transformator.setFromTriplets(transformator_triplets.begin(),</span>
+<span class="lineNum">     947 </span><span class="lineCov">        127 :                                           transformator_triplets.end());</span>
+<span class="lineNum">     948 </span><span class="lineCov">        120 :         }</span>
+<span class="lineNum">     949 </span>            : 
+<span class="lineNum">     950 </span><span class="lineCov">          3 :         // Get basisvectors of system0</span>
+<span class="lineNum">     951 </span><span class="lineCov">          2 :         eigen_sparse_t low_energy_basis0 = transformator * system0.basisvectors;</span>
+<span class="lineNum">     952 </span><span class="lineCov">       1076 : </span>
+<span class="lineNum">     953 </span><span class="lineCov">        956 :         // --- Find basisvectors which corresponds to the basis vectors of system0 ---</span>
+<span class="lineNum">     954 </span><span class="lineCov">        265 : </span>
+<span class="lineNum">     955 </span><span class="lineCov">        267 :         // Get overlaps between basis vectors</span>
+<span class="lineNum">     956 </span><span class="lineCov">        265 :         eigen_vector_double_t overlap = (basisvectors.adjoint() * low_energy_basis0).cwiseAbs2() *</span>
+<span class="lineNum">     957 </span>            :             eigen_vector_double_t::Ones(low_energy_basis0.cols());
+<span class="lineNum">     958 </span><span class="lineCov">          2 : </span>
+<span class="lineNum">     959 </span><span class="lineCov">          2 :         // Get indices of the low_energy_basis0.cols() largest entries and build transformator</span>
+<span class="lineNum">     960 </span><span class="lineCov">        120 :         {</span>
+<span class="lineNum">     961 </span><span class="lineCov">        118 :             std::vector&lt;int&gt; indices(basisvectors.cols());</span>
+<span class="lineNum">     962 </span><span class="lineCov">        119 :             std::iota(indices.begin(), indices.end(), 0);</span>
+<span class="lineNum">     963 </span><span class="lineCov">          1 :             std::nth_element(indices.begin(), indices.begin() + low_energy_basis0.cols(),</span>
+<span class="lineNum">     964 </span><span class="lineCov">         65 :                              indices.end(),</span>
+<span class="lineNum">     965 </span><span class="lineCov">         64 :                              [&amp;overlap](int a, int b) { return overlap[a] &gt; overlap[b]; });</span>
+<span class="lineNum">     966 </span><span class="lineCov">          4 : </span>
+<span class="lineNum">     967 </span><span class="lineCov">          5 :             std::vector&lt;eigen_triplet_t&gt; transformator_triplets;</span>
+<span class="lineNum">     968 </span>            :             transformator_triplets.reserve(low_energy_basis0.cols());
+<span class="lineNum">     969 </span><span class="lineCov">          8 : </span>
+<span class="lineNum">     970 </span><span class="lineCov">          1 :             for (int i = 0; i &lt; low_energy_basis0.cols(); ++i) {</span>
+<span class="lineNum">     971 </span><span class="lineCov">          1 :                 transformator_triplets.emplace_back(indices[i], i, 1);</span>
+<span class="lineNum">     972 </span>            :             }
+<span class="lineNum">     973 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     974 </span>            :             transformator.resize(basisvectors.cols(), low_energy_basis0.cols());
+<span class="lineNum">     975 </span>            :             transformator.setFromTriplets(transformator_triplets.begin(),
+<span class="lineNum">     976 </span><span class="lineCov">      74269 :                                           transformator_triplets.end());</span>
+<span class="lineNum">     977 </span>            :         }
+<span class="lineNum">     978 </span><span class="lineCov">      74269 : </span>
+<span class="lineNum">     979 </span>            :         // Get corresponding basis vectors
+<span class="lineNum">     980 </span>            :         eigen_sparse_t low_energy_basis = basisvectors * transformator;
+<span class="lineNum">     981 </span><span class="lineCov">      74269 : </span>
+<span class="lineNum">     982 </span><span class="lineCov">        324 :         // --- Perform the Schrieffer Wolff transformation ---</span>
+<span class="lineNum">     983 </span>            : 
+<span class="lineNum">     984 </span>            :         // Projector on the selected basis vectors (typically low-energy subspace)
+<span class="lineNum">     985 </span><span class="lineCov">        460 :         eigen_sparse_t projector0 = low_energy_basis0 * low_energy_basis0.adjoint();</span>
+<span class="lineNum">     986 </span><span class="lineCov">        230 :         eigen_sparse_t projector = low_energy_basis * low_energy_basis.adjoint();</span>
+<span class="lineNum">     987 </span>            : 
+<span class="lineNum">     988 </span><span class="lineNoCov">          0 :         // Reflection operator which change signes of the selectes basis vectors but act</span>
+<span class="lineNum">     989 </span>            :         // trivially on others
+<span class="lineNum">     990 </span>            :         eigen_dense_t reflection0 =
+<span class="lineNum">     991 </span>            :             eigen_dense_t::Identity(states.size(), states.size()) - 2 * projector0;
+<span class="lineNum">     992 </span><span class="lineCov">        230 :         eigen_dense_t reflection =</span>
+<span class="lineNum">     993 </span><span class="lineCov">        230 :             eigen_dense_t::Identity(states.size(), states.size()) - 2 * projector;</span>
+<span class="lineNum">     994 </span><span class="lineCov">         94 : </span>
+<span class="lineNum">     995 </span>            :         // Direct rotator from low_energy_basis to low_energy_basis0
+<span class="lineNum">     996 </span>            :         eigen_sparse_t rotator = (reflection0 * reflection).sqrt().sparseView();
+<span class="lineNum">     997 </span><span class="lineCov">         94 : </span>
+<span class="lineNum">     998 </span><span class="lineCov">         94 :         if (std::isnan(std::abs(rotator.coeffRef(0, 0)))) {</span>
+<span class="lineNum">     999 </span>            :             throw std::runtime_error(
+<span class="lineNum">    1000 </span>            :                 &quot;Error in calculating the matrix square root. Try to use the picomplex module or &quot;
+<span class="lineNum">    1001 </span>            :                 &quot;increase accuracy by choosing smaller thresholds.&quot;);
+<span class="lineNum">    1002 </span><span class="lineCov">        324 :         }</span>
+<span class="lineNum">    1003 </span>            : 
+<span class="lineNum">    1004 </span>            :         // Calculate the effective Hamiltonian
+<span class="lineNum">    1005 </span><span class="lineCov">        324 :         transformator = basisvectors.adjoint() * rotator.adjoint() * projector0 * low_energy_basis0;</span>
+<span class="lineNum">    1006 </span>            : 
+<span class="lineNum">    1007 </span><span class="lineCov">        324 :         this-&gt;applyRightsideTransformator(transformator);</span>
+<span class="lineNum">    1008 </span>            :     }
+<span class="lineNum">    1009 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1010 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">    1011 </span>            :     /// Methods to manipulate entries of the Hamiltonian ///////////////
+<a name="1012"><span class="lineNum">    1012 </span><span class="lineCov">        324 :     ////////////////////////////////////////////////////////////////////</span></a>
+<span class="lineNum">    1013 </span><span class="lineCov">        324 : </span>
+<span class="lineNum">    1014 </span>            :     size_t getStateIndex(const T &amp;searched_state) {
+<span class="lineNum">    1015 </span><span class="lineCov">      74269 :         this-&gt;buildBasis();</span>
+<span class="lineNum">    1016 </span><span class="lineCov">        357 : </span>
+<span class="lineNum">    1017 </span>            :         if (utils::is_true(searched_state.isGeneralized())) {
+<span class="lineNum">    1018 </span><span class="lineCov">        357 :             throw std::runtime_error(&quot;The method must not be called on a generalized state.&quot;);</span>
+<span class="lineNum">    1019 </span>            :         }
+<span class="lineNum">    1020 </span>            : 
+<span class="lineNum">    1021 </span><span class="lineCov">        357 :         auto state_iter = states.template get&lt;1&gt;().find(searched_state);</span>
+<span class="lineNum">    1022 </span><span class="lineCov">        181 :         if (state_iter == states.template get&lt;1&gt;().end()) {</span>
+<span class="lineNum">    1023 </span>            :             throw std::runtime_error(&quot;The method is called on a non-existing state.&quot;);
+<span class="lineNum">    1024 </span>            :         }
+<span class="lineNum">    1025 </span><span class="lineCov">        262 : </span>
+<span class="lineNum">    1026 </span><span class="lineCov">        131 :         return state_iter-&gt;idx;</span>
+<a name="1027"><span class="lineNum">    1027 </span>            :     }</a>
+<span class="lineNum">    1028 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1029 </span>            :     std::vector&lt;size_t&gt; getStateIndex(const std::vector&lt;T&gt; &amp;searched_states) {
+<span class="lineNum">    1030 </span>            :         this-&gt;buildBasis();
+<span class="lineNum">    1031 </span>            : 
+<span class="lineNum">    1032 </span><span class="lineCov">        131 :         std::vector&lt;size_t&gt; indices;</span>
+<span class="lineNum">    1033 </span><span class="lineCov">        131 :         indices.reserve(searched_states.size());</span>
+<span class="lineNum">    1034 </span><span class="lineCov">         50 : </span>
+<span class="lineNum">    1035 </span>            :         for (const auto &amp;state : searched_states) {
+<span class="lineNum">    1036 </span>            :             if (utils::is_true(state.isGeneralized())) {
+<span class="lineNum">    1037 </span><span class="lineCov">         50 :                 throw std::runtime_error(&quot;The method must not be called on a generalized state.&quot;);</span>
+<span class="lineNum">    1038 </span><span class="lineCov">         50 :             }</span>
+<span class="lineNum">    1039 </span>            : 
+<span class="lineNum">    1040 </span>            :             auto state_iter = states.template get&lt;1&gt;().find(state);
+<span class="lineNum">    1041 </span>            :             if (state_iter == states.template get&lt;1&gt;().end()) {
+<span class="lineNum">    1042 </span><span class="lineCov">        181 :                 throw std::runtime_error(&quot;The method is called on a non-existing state.&quot;);</span>
+<span class="lineNum">    1043 </span>            :             }
+<span class="lineNum">    1044 </span>            :             indices.push_back(state_iter-&gt;idx);
+<span class="lineNum">    1045 </span><span class="lineCov">        181 :         }</span>
+<span class="lineNum">    1046 </span>            : 
+<span class="lineNum">    1047 </span><span class="lineCov">        181 :         return indices;</span>
+<a name="1048"><span class="lineNum">    1048 </span>            :     }</a>
+<span class="lineNum">    1049 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1050 </span>            :     size_t getBasisvectorIndex(const T &amp;searched_state) {
+<span class="lineNum">    1051 </span>            :         this-&gt;buildBasis();
+<span class="lineNum">    1052 </span><span class="lineCov">        181 : </span>
+<span class="lineNum">    1053 </span><span class="lineCov">        181 :         size_t stateidx = this-&gt;getStateIndex(searched_state);</span>
+<span class="lineNum">    1054 </span>            : 
+<span class="lineNum">    1055 </span><span class="lineCov">        357 :         double maxval = -1;</span>
+<span class="lineNum">    1056 </span><span class="lineCov">      73912 :         size_t col_with_maxval = -1;</span>
+<span class="lineNum">    1057 </span>            :         for (int k = 0; k &lt; basisvectors.outerSize(); ++k) { // col == idx_vector
+<span class="lineNum">    1058 </span><span class="lineCov">      73912 :             for (eigen_iterator_t triple(basisvectors, k); triple; ++triple) {</span>
+<span class="lineNum">    1059 </span>            :                 if (triple.row() == stateidx) {
+<span class="lineNum">    1060 </span>            :                     if (std::abs(triple.value()) &gt; maxval) {
+<span class="lineNum">    1061 </span><span class="lineCov">      73912 :                         col_with_maxval = triple.col();</span>
+<span class="lineNum">    1062 </span><span class="lineCov">        143 :                         maxval = std::abs(triple.value());</span>
+<span class="lineNum">    1063 </span>            :                     }
+<span class="lineNum">    1064 </span>            :                     break;
+<span class="lineNum">    1065 </span><span class="lineCov">        198 :                 }</span>
+<span class="lineNum">    1066 </span><span class="lineCov">         99 :             }</span>
+<span class="lineNum">    1067 </span>            :         }
+<span class="lineNum">    1068 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1069 </span>            :         return col_with_maxval;
+<a name="1070"><span class="lineNum">    1070 </span>            :     }</a>
+<span class="lineNum">    1071 </span>            : 
+<span class="lineNum">    1072 </span><span class="lineCov">         99 :     std::vector&lt;size_t&gt; getBasisvectorIndex(const std::vector&lt;T&gt; &amp;searched_states) {</span>
+<span class="lineNum">    1073 </span><span class="lineCov">         99 :         this-&gt;buildBasis();</span>
+<span class="lineNum">    1074 </span><span class="lineCov">         44 : </span>
+<span class="lineNum">    1075 </span>            :         // Ensure that the states within searched_states are unique
+<span class="lineNum">    1076 </span>            :         {
+<span class="lineNum">    1077 </span><span class="lineCov">         44 :             std::set&lt;T&gt; tmp(searched_states.begin(), searched_states.end());</span>
+<span class="lineNum">    1078 </span><span class="lineCov">         44 :             if (tmp.size() &lt; searched_states.size()) {</span>
+<span class="lineNum">    1079 </span>            :                 throw std::runtime_error(&quot;States are occuring multiple times.&quot;);
+<span class="lineNum">    1080 </span>            :             }
+<span class="lineNum">    1081 </span>            :         }
+<span class="lineNum">    1082 </span><span class="lineCov">        143 : </span>
+<span class="lineNum">    1083 </span>            :         // Construct canonical basis vectors
+<span class="lineNum">    1084 </span>            :         eigen_sparse_t canonicalbasis;
+<span class="lineNum">    1085 </span><span class="lineCov">        143 :         {</span>
+<span class="lineNum">    1086 </span>            :             std::vector&lt;size_t&gt; state_indices = this-&gt;getStateIndex(searched_states);
+<span class="lineNum">    1087 </span><span class="lineCov">        143 :             std::vector&lt;eigen_triplet_t&gt; canonicalbasis_triplets;</span>
+<span class="lineNum">    1088 </span>            :             canonicalbasis_triplets.reserve(searched_states.size());
+<span class="lineNum">    1089 </span><span class="lineNoCov">          0 :             for (size_t i = 0; i &lt; state_indices.size(); ++i) {</span>
+<span class="lineNum">    1090 </span>            :                 canonicalbasis_triplets.emplace_back(state_indices[i], i, 1);
+<span class="lineNum">    1091 </span>            :             }
+<span class="lineNum">    1092 </span><span class="lineCov">        143 :             canonicalbasis.resize(states.size(), searched_states.size());</span>
+<span class="lineNum">    1093 </span><span class="lineCov">        143 :             canonicalbasis.setFromTriplets(canonicalbasis_triplets.begin(),</span>
+<span class="lineNum">    1094 </span>            :                                            canonicalbasis_triplets.end());
+<span class="lineNum">    1095 </span><span class="lineCov">      73912 :         }</span>
+<span class="lineNum">    1096 </span>            : 
+<span class="lineNum">    1097 </span><span class="lineCov">          3 :         // Get overlaps between basis vectors</span>
+<span class="lineNum">    1098 </span>            :         eigen_sparse_double_t overlap = (canonicalbasis.adjoint() * basisvectors).cwiseAbs2();
+<span class="lineNum">    1099 </span><span class="lineCov">          3 :         eigen_vector_double_t overlap_total =</span>
+<span class="lineNum">    1100 </span>            :             eigen_vector_double_t::Ones(canonicalbasis.cols()).transpose() * overlap;
+<span class="lineNum">    1101 </span>            : 
+<span class="lineNum">    1102 </span><span class="lineCov">          3 :         // Get indices of the canonicalbasis.cols() largest entries</span>
+<span class="lineNum">    1103 </span>            :         std::vector&lt;size_t&gt; indices_available(basisvectors.cols());
+<span class="lineNum">    1104 </span><span class="lineCov">          3 :         std::iota(indices_available.begin(), indices_available.end(), 0);</span>
+<span class="lineNum">    1105 </span><span class="lineCov">          2 :         std::nth_element(</span>
+<span class="lineNum">    1106 </span>            :             indices_available.begin(), indices_available.begin() + canonicalbasis.cols(),
+<span class="lineNum">    1107 </span><span class="lineCov">          2 :             indices_available.end(),</span>
+<span class="lineNum">    1108 </span>            :             [&amp;overlap_total](size_t a, size_t b) { return overlap_total[a] &gt; overlap_total[b]; });
+<span class="lineNum">    1109 </span>            :         indices_available.resize(canonicalbasis.cols());
+<span class="lineNum">    1110 </span><span class="lineCov">          2 : </span>
+<span class="lineNum">    1111 </span>            :         // Resort the indices to match the order of searched_states, TODO use Hungarian algorithm
+<span class="lineNum">    1112 </span><span class="lineCov">          2 :         std::vector&lt;size_t&gt; indices(canonicalbasis.cols(), std::numeric_limits&lt;size_t&gt;::max());</span>
+<span class="lineNum">    1113 </span><span class="lineCov">          1 :         for (const auto &amp;k : indices_available) {</span>
+<span class="lineNum">    1114 </span>            :             size_t row_with_maxval;
+<span class="lineNum">    1115 </span><span class="lineCov">          1 :             double maxval = -1;</span>
+<span class="lineNum">    1116 </span>            :             for (eigen_iterator_double_t triple(overlap, k); triple; ++triple) {
+<span class="lineNum">    1117 </span>            :                 if (indices[triple.row()] == std::numeric_limits&lt;size_t&gt;::max() &amp;&amp;
+<span class="lineNum">    1118 </span><span class="lineCov">          1 :                     triple.value() &gt; maxval) {</span>
+<span class="lineNum">    1119 </span>            :                     row_with_maxval = triple.row();
+<span class="lineNum">    1120 </span><span class="lineCov">          1 :                     maxval = triple.value();</span>
+<span class="lineNum">    1121 </span>            :                 }
+<span class="lineNum">    1122 </span><span class="lineCov">     195097 :             }</span>
+<span class="lineNum">    1123 </span>            : 
+<span class="lineNum">    1124 </span><span class="lineCov">     390194 :             if (maxval == -1) {</span>
+<span class="lineNum">    1125 </span><span class="lineCov">     195097 :                 throw std::runtime_error(</span>
+<span class="lineNum">    1126 </span>            :                     &quot;There is a state for which no basis vector could be found.&quot;);
+<span class="lineNum">    1127 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">    1128 </span>            : 
+<span class="lineNum">    1129 </span>            :             indices[row_with_maxval] = k;
+<span class="lineNum">    1130 </span>            :         }
+<span class="lineNum">    1131 </span>            : 
+<span class="lineNum">    1132 </span><span class="lineCov">     585015 :         return indices;</span>
+<a name="1133"><span class="lineNum">    1133 </span><span class="lineCov">     584877 :     }</span></a>
+<span class="lineNum">    1134 </span><span class="lineCov">     585015 : </span>
+<span class="lineNum">    1135 </span><span class="lineCov">     194959 :     void forgetStatemixing() {</span>
+<span class="lineNum">    1136 </span><span class="lineCov">     194959 :         this-&gt;diagonalize();</span>
+<span class="lineNum">    1137 </span>            : 
+<span class="lineNum">    1138 </span>            :         std::vector&lt;eigen_triplet_t&gt; basisvectors_triplets;
+<span class="lineNum">    1139 </span>            :         basisvectors_triplets.reserve(basisvectors.cols());
+<span class="lineNum">    1140 </span><span class="lineCov">        138 :         double threshold = std::sqrt(0.5);</span>
+<span class="lineNum">    1141 </span>            : 
+<span class="lineNum">    1142 </span>            :         for (int k = 0; k &lt; basisvectors.outerSize(); ++k) { // col == idx_vector
+<span class="lineNum">    1143 </span><span class="lineCov">        138 :             for (eigen_iterator_t triple(basisvectors, k); triple; ++triple) {</span>
+<span class="lineNum">    1144 </span>            :                 if (std::abs(triple.value()) &gt; threshold) {
+<span class="lineNum">    1145 </span>            :                     basisvectors_triplets.emplace_back(triple.row(), triple.col(), 1);
+<span class="lineNum">    1146 </span><span class="lineCov">        138 :                     break;</span>
+<span class="lineNum">    1147 </span>            :                 }
+<span class="lineNum">    1148 </span>            :             }
+<span class="lineNum">    1149 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1150 </span>            : 
+<span class="lineNum">    1151 </span>            :         if (basisvectors_triplets.size() &lt; basisvectors.cols()) {
+<span class="lineNum">    1152 </span>            :             throw std::runtime_error(
+<span class="lineNum">    1153 </span><span class="lineCov">        138 :                 &quot;The states are mixed too strongly for calling forgetStatemixing().&quot;);</span>
+<span class="lineNum">    1154 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1155 </span>            : 
+<span class="lineNum">    1156 </span><span class="lineCov">        138 :         basisvectors.setFromTriplets(basisvectors_triplets.begin(), basisvectors_triplets.end());</span>
+<a name="1157"><span class="lineNum">    1157 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">    1158 </span>            : 
+<span class="lineNum">    1159 </span>            :     scalar_t getHamiltonianEntry(const T &amp;state_row, const T &amp;state_col) {
+<span class="lineNum">    1160 </span><span class="lineCov">        895 :         this-&gt;buildHamiltonian();</span>
+<span class="lineNum">    1161 </span>            : 
+<span class="lineNum">    1162 </span><span class="lineCov">       1790 :         size_t idx_row = this-&gt;getStateIndex(state_row);</span>
+<span class="lineNum">    1163 </span><span class="lineCov">        895 :         size_t idx_col = this-&gt;getStateIndex(state_col);</span>
+<span class="lineNum">    1164 </span>            : 
+<span class="lineNum">    1165 </span><span class="lineNoCov">          0 :         return (basisvectors.row(idx_row) * hamiltonian).dot(basisvectors.row(idx_col));</span>
+<a name="1166"><span class="lineNum">    1166 </span>            :     }</a>
+<span class="lineNum">    1167 </span>            : 
+<span class="lineNum">    1168 </span>            :     void setHamiltonianEntry(const T &amp;state_row, const T &amp;state_col, scalar_t value) {
+<span class="lineNum">    1169 </span>            :         this-&gt;buildHamiltonian();
+<span class="lineNum">    1170 </span><span class="lineCov">       2551 : </span>
+<span class="lineNum">    1171 </span><span class="lineCov">       2484 :         size_t idx_row = this-&gt;getStateIndex(state_row);</span>
+<span class="lineNum">    1172 </span><span class="lineCov">       2551 :         size_t idx_col = this-&gt;getStateIndex(state_col);</span>
+<span class="lineNum">    1173 </span><span class="lineCov">        828 : </span>
+<span class="lineNum">    1174 </span><span class="lineCov">        828 :         value -= (basisvectors.row(idx_row) * hamiltonian).dot(basisvectors.row(idx_col));</span>
+<span class="lineNum">    1175 </span>            : 
+<span class="lineNum">    1176 </span>            :         eigen_sparse_t tmp(states.size(), states.size());
+<span class="lineNum">    1177 </span>            :         tmp.reserve(2);
+<span class="lineNum">    1178 </span><span class="lineCov">         67 :         tmp.insert(idx_row, idx_col) = value;</span>
+<span class="lineNum">    1179 </span>            :         if (idx_row != idx_col) {
+<span class="lineNum">    1180 </span>            :             tmp.insert(idx_col, idx_row) = utils::conjugate(value);
+<span class="lineNum">    1181 </span><span class="lineCov">         67 :         }</span>
+<span class="lineNum">    1182 </span>            :         tmp.makeCompressed();
+<span class="lineNum">    1183 </span>            : 
+<span class="lineNum">    1184 </span><span class="lineCov">         67 :         hamiltonian += basisvectors.adjoint() * tmp * basisvectors;</span>
+<a name="1185"><span class="lineNum">    1185 </span>            :     }</a>
+<span class="lineNum">    1186 </span>            : 
+<span class="lineNum">    1187 </span><span class="lineNoCov">          0 :     void addHamiltonianEntry(const T &amp;state_row, const T &amp;state_col, scalar_t value) {</span>
+<span class="lineNum">    1188 </span>            :         this-&gt;buildHamiltonian();
+<span class="lineNum">    1189 </span>            : 
+<span class="lineNum">    1190 </span>            :         size_t idx_row = this-&gt;getStateIndex(state_row);
+<span class="lineNum">    1191 </span><span class="lineCov">         67 :         size_t idx_col = this-&gt;getStateIndex(state_col);</span>
+<span class="lineNum">    1192 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1193 </span>            :         eigen_sparse_t tmp(states.size(), states.size());
+<span class="lineNum">    1194 </span><span class="lineCov">         67 :         tmp.reserve(2);</span>
+<span class="lineNum">    1195 </span><span class="lineNoCov">          0 :         tmp.insert(idx_row, idx_col) = value;</span>
+<span class="lineNum">    1196 </span>            :         if (idx_row != idx_col) {
+<span class="lineNum">    1197 </span>            :             tmp.insert(idx_col, idx_row) = utils::conjugate(value);
+<span class="lineNum">    1198 </span><span class="lineCov">     194202 :         }</span>
+<span class="lineNum">    1199 </span>            :         tmp.makeCompressed();
+<span class="lineNum">    1200 </span><span class="lineCov">     388404 : </span>
+<span class="lineNum">    1201 </span><span class="lineCov">     194202 :         hamiltonian += basisvectors.adjoint() * tmp * basisvectors;</span>
+<span class="lineNum">    1202 </span>            :     }
+<a name="1203"><span class="lineNum">    1203 </span><span class="lineNoCov">          0 : </span></a>
+<span class="lineNum">    1204 </span>            : protected:
+<span class="lineNum">    1205 </span><span class="lineCov">         50 :     SystemBase(MatrixElementCache &amp;cache)</span>
+<span class="lineNum">    1206 </span>            :         : cache(cache), threshold_for_sqnorm(0.05),
+<span class="lineNum">    1207 </span><span class="lineCov">         50 :           energy_min(std::numeric_limits&lt;double&gt;::lowest()),</span>
+<span class="lineNum">    1208 </span><span class="lineCov">     582514 :           energy_max(std::numeric_limits&lt;double&gt;::max()), memory_saving(false),</span>
+<a name="1209"><span class="lineNum">    1209 </span><span class="lineCov">     582443 :           is_interaction_already_contained(false), is_new_hamiltonian_required(false) {}</span></a>
+<span class="lineNum">    1210 </span><span class="lineCov">     582464 : </span>
+<span class="lineNum">    1211 </span><span class="lineCov">     194131 :     SystemBase(MatrixElementCache &amp;cache, bool memory_saving)</span>
+<span class="lineNum">    1212 </span><span class="lineCov">     194131 :         : cache(cache), threshold_for_sqnorm(0.05),</span>
+<span class="lineNum">    1213 </span><span class="lineNoCov">          0 :           energy_min(std::numeric_limits&lt;double&gt;::lowest()),</span>
+<span class="lineNum">    1214 </span><span class="lineNoCov">          0 :           energy_max(std::numeric_limits&lt;double&gt;::max()), memory_saving(memory_saving),</span>
+<span class="lineNum">    1215 </span><span class="lineNoCov">          0 :           is_interaction_already_contained(false), is_new_hamiltonian_required(false) {}</span>
+<span class="lineNum">    1216 </span><span class="lineCov">         71 : </span>
+<span class="lineNum">    1217 </span>            :     virtual void initializeBasis() = 0;
+<span class="lineNum">    1218 </span>            :     virtual void initializeInteraction() = 0;
+<span class="lineNum">    1219 </span><span class="lineCov">         71 : </span>
+<span class="lineNum">    1220 </span>            :     virtual void transformInteraction(const eigen_sparse_t &amp;transformator) = 0;
+<span class="lineNum">    1221 </span>            :     virtual void addInteraction() = 0;
+<span class="lineNum">    1222 </span><span class="lineCov">         71 :     virtual void deleteInteraction() = 0;</span>
+<span class="lineNum">    1223 </span>            : 
+<span class="lineNum">    1224 </span>            :     virtual eigen_sparse_t rotateStates(const std::vector&lt;size_t&gt; &amp;states_indices, double alpha,
+<span class="lineNum">    1225 </span><span class="lineNoCov">          0 :                                         double beta, double gamma) = 0;</span>
+<span class="lineNum">    1226 </span>            :     virtual eigen_sparse_t buildStaterotator(double alpha, double beta, double gamma) = 0;
+<a name="1227"><span class="lineNum">    1227 </span>            :     virtual void incorporate(SystemBase&lt;T&gt; &amp;system) = 0;</a>
+<span class="lineNum">    1228 </span>            : 
+<span class="lineNum">    1229 </span><span class="lineCov">         71 :     virtual void onStatesChange(){};</span>
+<span class="lineNum">    1230 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1231 </span>            :     MatrixElementCache &amp;cache;
+<span class="lineNum">    1232 </span><span class="lineCov">         71 : </span>
+<span class="lineNum">    1233 </span><span class="lineNoCov">          0 :     double threshold_for_sqnorm;</span>
+<span class="lineNum">    1234 </span>            : 
+<span class="lineNum">    1235 </span>            :     double energy_min, energy_max;
+<span class="lineNum">    1236 </span>            :     std::set&lt;int&gt; range_n, range_l;
+<span class="lineNum">    1237 </span><span class="lineCov">          1 :     std::set&lt;float&gt; range_j, range_m;</span>
+<span class="lineNum">    1238 </span><span class="lineCov">          1 :     std::set&lt;T&gt; states_to_add;</span>
+<span class="lineNum">    1239 </span><span class="lineCov">          1 : </span>
+<span class="lineNum">    1240 </span><span class="lineNoCov">          0 :     bool memory_saving;</span>
+<span class="lineNum">    1241 </span><span class="lineNoCov">          0 :     bool is_interaction_already_contained;</span>
+<span class="lineNum">    1242 </span><span class="lineNoCov">          0 :     bool is_new_hamiltonian_required;</span>
+<span class="lineNum">    1243 </span><span class="lineCov">          1 : </span>
+<span class="lineNum">    1244 </span><span class="lineCov">          1 :     typename states_set&lt;T&gt;::type states;</span>
+<span class="lineNum">    1245 </span><span class="lineCov">          1 :     eigen_sparse_t basisvectors;</span>
+<span class="lineNum">    1246 </span>            :     eigen_sparse_t hamiltonian;
+<span class="lineNum">    1247 </span><span class="lineCov">          2 :     eigen_sparse_t basisvectors_unperturbed_cache;</span>
+<span class="lineNum">    1248 </span>            :     eigen_sparse_t hamiltonian_unperturbed_cache;
+<span class="lineNum">    1249 </span><span class="lineCov">          2 : </span>
+<span class="lineNum">    1250 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">    1251 </span>            :     /// Helper method that shoul be called by the derived classes //////
+<a name="1252"><span class="lineNum">    1252 </span><span class="lineCov">          2 :     ////////////////////////////////////////////////////////////////////</span></a>
+<span class="lineNum">    1253 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1254 </span><span class="lineCov">        139 :     void onParameterChange() {</span>
+<span class="lineNum">    1255 </span>            :         // Check variables for consistency
+<span class="lineNum">    1256 </span><span class="lineCov">        139 :         if ((basisvectors_unperturbed_cache.size() == 0) !=</span>
+<span class="lineNum">    1257 </span><span class="lineCov">        141 :             (hamiltonian_unperturbed_cache.size() == 0)) {</span>
+<span class="lineNum">    1258 </span><span class="lineCov">          2 :             throw std::runtime_error(&quot;Inconsistent variables at &quot; + std::string(__FILE__) + &quot;:&quot; +</span>
+<span class="lineNum">    1259 </span><span class="lineNoCov">          0 :                                      std::to_string(__LINE__) + &quot;.&quot;);</span>
+<span class="lineNum">    1260 </span>            :         }
+<span class="lineNum">    1261 </span><span class="lineCov">          4 : </span>
+<span class="lineNum">    1262 </span><span class="lineCov">          4 :         // Throw error if the Hamiltonian cannot be changed anymore</span>
+<span class="lineNum">    1263 </span><span class="lineCov">        143 :         if (is_interaction_already_contained &amp;&amp; basisvectors_unperturbed_cache.size() == 0) {</span>
+<span class="lineNum">    1264 </span><span class="lineCov">          2 :             throw std::runtime_error(</span>
+<span class="lineNum">    1265 </span><span class="lineCov">          2 :                 &quot;If memory saving is activated or unitarize() has been called, one cannot change &quot;</span>
+<span class="lineNum">    1266 </span><span class="lineCov">         25 :                 &quot;parameters after interaction was added to the Hamiltonian.&quot;);</span>
+<span class="lineNum">    1267 </span><span class="lineCov">         23 :         }</span>
+<span class="lineNum">    1268 </span><span class="lineCov">        268 : </span>
+<span class="lineNum">    1269 </span><span class="lineCov">        384 :         is_new_hamiltonian_required = true;</span>
+<a name="1270"><span class="lineNum">    1270 </span><span class="lineCov">        162 :     }</span></a>
+<span class="lineNum">    1271 </span><span class="lineCov">        222 : </span>
+<span class="lineNum">    1272 </span><span class="lineCov">        237 :     void onSymmetryChange() {</span>
+<span class="lineNum">    1273 </span>            :         // Throw error if the Symmetry cannot be changed anymore
+<span class="lineNum">    1274 </span><span class="lineCov">         15 :         if (!states.empty()) {</span>
+<span class="lineNum">    1275 </span><span class="lineCov">         23 :             throw std::runtime_error(&quot;One cannot change symmetries after the basis was built.&quot;);</span>
+<span class="lineNum">    1276 </span><span class="lineCov">         23 :         }</span>
+<span class="lineNum">    1277 </span><span class="lineCov">         15 :     }</span>
+<span class="lineNum">    1278 </span>            : 
+<span class="lineNum">    1279 </span><span class="lineCov">          2 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">    1280 </span><span class="lineCov">         45 :     /// Helper methods to check diagonality and unitarity of a matrix //</span>
+<a name="1281"><span class="lineNum">    1281 </span><span class="lineCov">         81 :     ////////////////////////////////////////////////////////////////////</span></a>
+<span class="lineNum">    1282 </span><span class="lineCov">         23 : </span>
+<span class="lineNum">    1283 </span><span class="lineCov">         62 :     bool checkIsDiagonal(const eigen_sparse_t &amp;mat) {</span>
+<span class="lineNum">    1284 </span><span class="lineCov">        167 :         eigen_sparse_t tmp = mat;</span>
+<span class="lineNum">    1285 </span><span class="lineCov">         58 :         tmp.prune(1e-12, 1);</span>
+<span class="lineNum">    1286 </span><span class="lineCov">         23 : </span>
+<span class="lineNum">    1287 </span><span class="lineCov">         23 :         for (int k = 0; k &lt; tmp.outerSize(); ++k) {</span>
+<span class="lineNum">    1288 </span><span class="lineCov">         20 :             for (eigen_iterator_t triple(tmp, k); triple; ++triple) {</span>
+<span class="lineNum">    1289 </span><span class="lineCov">         45 :                 if (triple.row() != triple.col()) {</span>
+<span class="lineNum">    1290 </span><span class="lineCov">         25 :                     return false;</span>
+<span class="lineNum">    1291 </span><span class="lineNoCov">          0 :                 }</span>
+<span class="lineNum">    1292 </span>            :             }
+<span class="lineNum">    1293 </span>            :         }
+<span class="lineNum">    1294 </span><span class="lineCov">          2 :         return true;</span>
+<a name="1295"><span class="lineNum">    1295 </span><span class="lineCov">          2 :     }</span></a>
+<span class="lineNum">    1296 </span><span class="lineCov">         27 : </span>
+<span class="lineNum">    1297 </span><span class="lineCov">         25 :     bool checkIsUnitary(const eigen_sparse_t &amp;mat) {</span>
+<span class="lineNum">    1298 </span>            :         eigen_sparse_t tmp = (mat.adjoint() * mat).pruned(1e-12, 1);
+<span class="lineNum">    1299 </span><span class="lineCov">        247 : </span>
+<span class="lineNum">    1300 </span><span class="lineCov">        245 :         if (tmp.nonZeros() != tmp.outerSize()) {</span>
+<span class="lineNum">    1301 </span>            :             return false;
+<span class="lineNum">    1302 </span>            :         }
+<span class="lineNum">    1303 </span>            : 
+<span class="lineNum">    1304 </span>            :         for (int k = 0; k &lt; tmp.outerSize(); ++k) {
+<span class="lineNum">    1305 </span><span class="lineNoCov">          0 :             for (eigen_iterator_t triple(tmp, k); triple; ++triple) {</span>
+<span class="lineNum">    1306 </span><span class="lineCov">          4 :                 if (triple.row() != triple.col()) {</span>
+<span class="lineNum">    1307 </span><span class="lineCov">          2 :                     return false;</span>
+<span class="lineNum">    1308 </span><span class="lineCov">          2 :                 }</span>
+<span class="lineNum">    1309 </span><span class="lineCov">          2 :                 if (std::abs(std::real(triple.value()) - 1) &gt; 1e-12 ||</span>
+<span class="lineNum">    1310 </span><span class="lineCov">          2 :                     std::abs(std::imag(triple.value())) &gt; 1e-12) {</span>
+<span class="lineNum">    1311 </span><span class="lineCov">          2 :                     return false;</span>
+<span class="lineNum">    1312 </span><span class="lineCov">          2 :                 }</span>
+<span class="lineNum">    1313 </span>            :             }
+<span class="lineNum">    1314 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">    1315 </span>            :         return true;
+<span class="lineNum">    1316 </span>            :     }
+<span class="lineNum">    1317 </span>            : 
+<span class="lineNum">    1318 </span>            :     ////////////////////////////////////////////////////////////////////
+<span class="lineNum">    1319 </span><span class="lineCov">          2 :     /// Helper methods to check the validity of states /////////////////</span>
+<span class="lineNum">    1320 </span>            :     ////////////////////////////////////////////////////////////////////
+<a name="1321"><span class="lineNum">    1321 </span><span class="lineCov">          4 : </span></a>
+<span class="lineNum">    1322 </span>            :     template &lt;class V&gt;
+<span class="lineNum">    1323 </span><span class="lineCov">          4 :     bool checkIsQuantumnumberValid(V q, std::set&lt;V&gt; range_q) {</span>
+<span class="lineNum">    1324 </span><span class="lineNoCov">          0 :         return range_q.empty() || range_q.find(q) != range_q.end();</span>
+<a name="1325"><span class="lineNum">    1325 </span><span class="lineCov">          2 :     }</span></a>
+<span class="lineNum">    1326 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1327 </span><span class="lineNoCov">          0 :     bool checkIsQuantumstateValid(const T &amp;state) {</span>
+<span class="lineNum">    1328 </span>            :         return checkIsQuantumstateValid(state, state.isArtificial());
+<a name="1329"><span class="lineNum">    1329 </span><span class="lineCov">          4 :     }</span></a>
+<span class="lineNum">    1330 </span><span class="lineCov">        257 : </span>
+<span class="lineNum">    1331 </span><span class="lineCov">          2 :     bool checkIsQuantumstateValid(const T &amp;state, bool a) {</span>
+<span class="lineNum">    1332 </span><span class="lineCov">        259 :         return a ||</span>
+<span class="lineNum">    1333 </span><span class="lineCov">        259 :             (checkIsQuantumnumberValid(state.getN(), range_n) &amp;&amp;</span>
+<span class="lineNum">    1334 </span><span class="lineCov">          2 :              checkIsQuantumnumberValid(state.getL(), range_l) &amp;&amp;</span>
+<span class="lineNum">    1335 </span><span class="lineNoCov">          0 :              checkIsQuantumnumberValid(state.getJ(), range_j) &amp;&amp;</span>
+<span class="lineNum">    1336 </span>            :              checkIsQuantumnumberValid(state.getM(), range_m));
+<a name="1337"><span class="lineNum">    1337 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">    1338 </span><span class="lineCov">          2 : </span>
+<span class="lineNum">    1339 </span><span class="lineCov">        259 :     bool checkIsQuantumstateValid(const T &amp;state, std::array&lt;bool, 2&gt; a) {</span>
+<span class="lineNum">    1340 </span><span class="lineCov">          2 :         bool valid = true;</span>
+<span class="lineNum">    1341 </span><span class="lineCov">         20 :         for (int idx = 0; idx &lt; 2; ++idx) {</span>
+<span class="lineNum">    1342 </span><span class="lineCov">         18 :             valid = valid &amp;&amp;</span>
+<span class="lineNum">    1343 </span>            :                 (a[idx] ||
+<span class="lineNum">    1344 </span><span class="lineCov">          2 :                  (checkIsQuantumnumberValid(state.getN(idx), range_n) &amp;&amp;</span>
+<span class="lineNum">    1345 </span><span class="lineCov">        257 :                   checkIsQuantumnumberValid(state.getL(idx), range_l) &amp;&amp;</span>
+<span class="lineNum">    1346 </span><span class="lineCov">        257 :                   checkIsQuantumnumberValid(state.getJ(idx), range_j) &amp;&amp;</span>
+<span class="lineNum">    1347 </span>            :                   checkIsQuantumnumberValid(state.getM(idx), range_m)));
+<span class="lineNum">    1348 </span><span class="lineCov">         60 :         }</span>
+<span class="lineNum">    1349 </span><span class="lineCov">          2 :         return valid;</span>
+<a name="1350"><span class="lineNum">    1350 </span><span class="lineCov">         57 :     }</span></a>
+<span class="lineNum">    1351 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1352 </span><span class="lineCov">          1 :     bool checkIsEnergyValid(double e) {</span>
+<span class="lineNum">    1353 </span><span class="lineCov">         56 :         return (e &gt; energy_min || energy_min == std::numeric_limits&lt;double_t&gt;::lowest()) &amp;&amp;</span>
+<span class="lineNum">    1354 </span>            :             (e &lt; energy_max ||
+<span class="lineNum">    1355 </span>            :              energy_max ==
+<span class="lineNum">    1356 </span>            :                  std::numeric_limits&lt;double_t&gt;::max()); // TODO take into account numerical errors
+<span class="lineNum">    1357 </span>            :     }
+<span class="lineNum">    1358 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1359 </span><span class="lineNoCov">          0 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">    1360 </span><span class="lineNoCov">          0 :     /// Helper methods to change the set of basis vectors //////////////</span>
+<a name="1361"><span class="lineNum">    1361 </span><span class="lineNoCov">          0 :     ////////////////////////////////////////////////////////////////////</span></a>
+<span class="lineNum">    1362 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1363 </span><span class="lineNoCov">          0 :     void applyLeftsideTransformator(std::vector&lt;eigen_triplet_t&gt; &amp;triplets_transformator) {</span>
+<span class="lineNum">    1364 </span><span class="lineNoCov">          0 :         eigen_sparse_t transformator(triplets_transformator.size(), basisvectors.rows());</span>
+<span class="lineNum">    1365 </span><span class="lineNoCov">          0 :         transformator.setFromTriplets(triplets_transformator.begin(), triplets_transformator.end());</span>
+<span class="lineNum">    1366 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1367 </span>            :         this-&gt;applyLeftsideTransformator(transformator);
+<a name="1368"><span class="lineNum">    1368 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">    1369 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1370 </span><span class="lineNoCov">          0 :     void applyLeftsideTransformator(eigen_sparse_t &amp;transformator) {</span>
+<span class="lineNum">    1371 </span><span class="lineNoCov">          0 :         // Apply transformator in order to remove rows from the basisvector matrix (i.e. states)</span>
+<span class="lineNum">    1372 </span>            :         basisvectors = transformator * basisvectors;
+<span class="lineNum">    1373 </span><span class="lineNoCov">          0 :         if (basisvectors_unperturbed_cache.size() != 0) {</span>
+<span class="lineNum">    1374 </span><span class="lineNoCov">          0 :             basisvectors_unperturbed_cache = transformator * basisvectors_unperturbed_cache;</span>
+<span class="lineNum">    1375 </span>            :         }
+<a name="1376"><span class="lineNum">    1376 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">    1377 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1378 </span><span class="lineNoCov">          0 :     void applyRightsideTransformator(std::vector&lt;eigen_triplet_t&gt; &amp;triplets_transformator) {</span>
+<span class="lineNum">    1379 </span><span class="lineNoCov">          0 :         eigen_sparse_t transformator(basisvectors.cols(), triplets_transformator.size());</span>
+<span class="lineNum">    1380 </span><span class="lineNoCov">          0 :         transformator.setFromTriplets(triplets_transformator.begin(), triplets_transformator.end());</span>
+<span class="lineNum">    1381 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1382 </span><span class="lineNoCov">          0 :         this-&gt;applyRightsideTransformator(transformator);</span>
+<a name="1383"><span class="lineNum">    1383 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">    1384 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1385 </span><span class="lineNoCov">          0 :     void applyRightsideTransformator(eigen_sparse_t &amp;transformator) {</span>
+<span class="lineNum">    1386 </span><span class="lineNoCov">          0 :         // Apply transformator in order to remove columns from the basisvector matrix (i.e. basis</span>
+<span class="lineNum">    1387 </span><span class="lineNoCov">          0 :         // vectors)</span>
+<span class="lineNum">    1388 </span><span class="lineNoCov">          0 :         basisvectors = basisvectors * transformator;</span>
+<span class="lineNum">    1389 </span><span class="lineNoCov">          0 :         if (basisvectors_unperturbed_cache.size() != 0) {</span>
+<span class="lineNum">    1390 </span>            :             basisvectors_unperturbed_cache = basisvectors_unperturbed_cache * transformator;
+<span class="lineNum">    1391 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1392 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1393 </span>            :         // Apply transformator in order to remove rows and columns from the matrices that help
+<span class="lineNum">    1394 </span><span class="lineNoCov">          0 :         // constructing the total Hamiltonian</span>
+<span class="lineNum">    1395 </span><span class="lineNoCov">          0 :         this-&gt;transformInteraction(transformator);</span>
+<span class="lineNum">    1396 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1397 </span>            :         // Apply transformator in order to remove rows and columns from the total Hamiltonian
+<span class="lineNum">    1398 </span>            :         hamiltonian = transformator.adjoint() * hamiltonian * transformator;
+<span class="lineNum">    1399 </span><span class="lineNoCov">          0 :         if (hamiltonian_unperturbed_cache.size() != 0) {</span>
+<span class="lineNum">    1400 </span><span class="lineNoCov">          0 :             hamiltonian_unperturbed_cache =</span>
+<span class="lineNum">    1401 </span><span class="lineNoCov">          0 :                 transformator.adjoint() * hamiltonian_unperturbed_cache * transformator;</span>
+<span class="lineNum">    1402 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1403 </span><span class="lineNoCov">          0 :     }</span>
+<a name="1404"><span class="lineNum">    1404 </span><span class="lineNoCov">          0 : </span></a>
+<span class="lineNum">    1405 </span><span class="lineNoCov">          0 :     template &lt;typename F&gt;</span>
+<span class="lineNum">    1406 </span><span class="lineNoCov">          0 :     void removeRestrictedStates(F &amp;&amp;checkIsValidEntry) {</span>
+<span class="lineNum">    1407 </span><span class="lineNoCov">          0 :         // Validate the call signature of the passed in object</span>
+<span class="lineNum">    1408 </span><span class="lineNoCov">          0 :         static_assert(</span>
+<span class="lineNum">    1409 </span><span class="lineNoCov">          0 :             std::is_same&lt;decltype(checkIsValidEntry(std::declval&lt;enumerated_state&lt;T&gt; const &amp;&gt;())),</span>
+<span class="lineNum">    1410 </span><span class="lineNoCov">          0 :                          bool&gt;::value,</span>
+<span class="lineNum">    1411 </span><span class="lineNoCov">          0 :             &quot;Function signature mismatch!  Expected `bool &quot;</span>
+<span class="lineNum">    1412 </span><span class="lineNoCov">          0 :             &quot;checkIsValidEntry(enumerated_state&lt;T&gt; const &amp;)'&quot;);</span>
+<span class="lineNum">    1413 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1414 </span>            :         // Build transformator and remove states
+<span class="lineNum">    1415 </span><span class="lineNoCov">          0 :         typename states_set&lt;T&gt;::type states_new;</span>
+<span class="lineNum">    1416 </span><span class="lineNoCov">          0 :         states_new.reserve(states.size());</span>
+<span class="lineNum">    1417 </span>            :         std::vector&lt;eigen_triplet_t&gt; triplets_transformator;
+<span class="lineNum">    1418 </span><span class="lineNoCov">          0 :         triplets_transformator.reserve(states.size());</span>
+<span class="lineNum">    1419 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1420 </span>            :         size_t idx_new = 0;
+<span class="lineNum">    1421 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1422 </span><span class="lineNoCov">          0 :         for (const auto &amp;entry : states) {</span>
+<span class="lineNum">    1423 </span><span class="lineNoCov">          0 :             if (checkIsValidEntry(entry)) {</span>
+<span class="lineNum">    1424 </span><span class="lineNoCov">          0 :                 states_new.push_back(enumerated_state&lt;T&gt;(idx_new, entry.state));</span>
+<span class="lineNum">    1425 </span><span class="lineNoCov">          0 :                 triplets_transformator.emplace_back(idx_new, entry.idx, 1);</span>
+<span class="lineNum">    1426 </span><span class="lineNoCov">          0 :                 ++idx_new;</span>
+<span class="lineNum">    1427 </span><span class="lineNoCov">          0 :             }</span>
+<span class="lineNum">    1428 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1429 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1430 </span><span class="lineNoCov">          0 :         states_new.shrink_to_fit();</span>
+<span class="lineNum">    1431 </span><span class="lineNoCov">          0 :         states = states_new;</span>
+<span class="lineNum">    1432 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1433 </span><span class="lineNoCov">          0 :         this-&gt;applyLeftsideTransformator(triplets_transformator);</span>
+<span class="lineNum">    1434 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">    1435 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1436 </span><span class="lineNoCov">          0 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">    1437 </span><span class="lineNoCov">          0 :     /// Utility methods ////////////////////////////////////////////////</span>
+<span class="lineNum">    1438 </span><span class="lineNoCov">          0 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">    1439 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1440 </span><span class="lineNoCov">          0 :     template &lt;class S&gt;</span>
+<span class="lineNum">    1441 </span><span class="lineNoCov">          0 :     S createStateFromLabel(const std::string &amp;label) const;</span>
+<a name="1442"><span class="lineNum">    1442 </span>            : </a>
+<span class="lineNum">    1443 </span><span class="lineNoCov">          0 :     template &lt;class V&gt;</span>
+<span class="lineNum">    1444 </span>            :     void range(std::set&lt;V&gt; &amp;rset, V rmin, V rmax) {
+<span class="lineNum">    1445 </span><span class="lineNoCov">          0 :         rset.clear();</span>
+<span class="lineNum">    1446 </span><span class="lineNoCov">          0 :         for (V r = rmin; r &lt;= rmax; ++r) {</span>
+<span class="lineNum">    1447 </span><span class="lineNoCov">          0 :             rset.insert(r);</span>
+<span class="lineNum">    1448 </span><span class="lineNoCov">          0 :         }</span>
+<a name="1449"><span class="lineNum">    1449 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">    1450 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1451 </span><span class="lineNoCov">          0 :     Eigen::Matrix&lt;double, 3, 3&gt; buildRotator(std::array&lt;double, 3&gt; to_z_axis,</span>
+<span class="lineNum">    1452 </span><span class="lineNoCov">          0 :                                              std::array&lt;double, 3&gt; to_y_axis) {</span>
+<span class="lineNum">    1453 </span><span class="lineNoCov">          0 :         auto to_z_axis_mapped = Eigen::Map&lt;Eigen::Matrix&lt;double, 3, 1&gt;&gt;(&amp;to_z_axis[0]).normalized();</span>
+<span class="lineNum">    1454 </span><span class="lineNoCov">          0 :         auto to_y_axis_mapped = Eigen::Map&lt;Eigen::Matrix&lt;double, 3, 1&gt;&gt;(&amp;to_y_axis[0]).normalized();</span>
+<span class="lineNum">    1455 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1456 </span><span class="lineNoCov">          0 :         double tolerance = 1e-16;</span>
+<span class="lineNum">    1457 </span><span class="lineNoCov">          0 :         if (std::abs(to_z_axis_mapped.dot(to_y_axis_mapped)) &gt; tolerance) {</span>
+<span class="lineNum">    1458 </span><span class="lineNoCov">          0 :             throw std::runtime_error(&quot;The z-axis and the y-axis are not orhogonal.&quot;);</span>
+<span class="lineNum">    1459 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">    1460 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1461 </span><span class="lineNoCov">          0 :         Eigen::Matrix&lt;double, 3, 3&gt; transformator;</span>
+<span class="lineNum">    1462 </span><span class="lineNoCov">          0 :         transformator &lt;&lt; to_y_axis_mapped.cross(to_z_axis_mapped), to_y_axis_mapped,</span>
+<span class="lineNum">    1463 </span>            :             to_z_axis_mapped;
+<span class="lineNum">    1464 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1465 </span><span class="lineNoCov">          0 :         return transformator;</span>
+<a name="1466"><span class="lineNum">    1466 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">    1467 </span>            : 
+<span class="lineNum">    1468 </span><span class="lineNoCov">          0 :     Eigen::Matrix&lt;double, 3, 3&gt; buildRotator(const double &amp;alpha, const double &amp;beta,</span>
+<span class="lineNum">    1469 </span><span class="lineNoCov">          0 :                                              const double &amp;gamma) {</span>
+<span class="lineNum">    1470 </span><span class="lineNoCov">          0 :         Eigen::Matrix&lt;double, 3, 3&gt; transformator;</span>
+<span class="lineNum">    1471 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1472 </span>            :         transformator = Eigen::AngleAxisd(alpha, Eigen::Matrix&lt;double, 3, 1&gt;::UnitZ()) *
+<span class="lineNum">    1473 </span><span class="lineNoCov">          0 :             Eigen::AngleAxisd(beta, Eigen::Matrix&lt;double, 3, 1&gt;::UnitY()) *</span>
+<span class="lineNum">    1474 </span><span class="lineNoCov">          0 :             Eigen::AngleAxisd(gamma, Eigen::Matrix&lt;double, 3, 1&gt;::UnitZ());</span>
+<span class="lineNum">    1475 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1476 </span><span class="lineNoCov">          0 :         return transformator;</span>
+<a name="1477"><span class="lineNum">    1477 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">    1478 </span>            : 
+<span class="lineNum">    1479 </span><span class="lineCov">          2 :     Eigen::Matrix&lt;double, 3, 1&gt; getEulerAngles(const std::array&lt;double, 3&gt; &amp;to_z_axis,</span>
+<span class="lineNum">    1480 </span><span class="lineNoCov">          0 :                                                const std::array&lt;double, 3&gt; &amp;to_y_axis) {</span>
+<span class="lineNum">    1481 </span><span class="lineCov">          2 :         Eigen::Matrix&lt;double, 3, 3&gt; rotator = this-&gt;buildRotator(to_z_axis, to_y_axis);</span>
+<span class="lineNum">    1482 </span><span class="lineNoCov">          0 :         Eigen::Matrix&lt;double, 3, 1&gt; euler_zyz = rotator.eulerAngles(2, 1, 2);</span>
+<span class="lineNum">    1483 </span><span class="lineNoCov">          0 :         return euler_zyz; // alpha, beta, gamma</span>
+<span class="lineNum">    1484 </span><span class="lineCov">          2 :     }</span>
+<a name="1485"><span class="lineNum">    1485 </span><span class="lineNoCov">          0 : </span></a>
+<span class="lineNum">    1486 </span><span class="lineNoCov">          0 : private:</span>
+<span class="lineNum">    1487 </span><span class="lineNoCov">          0 :     void forgetRestrictions() {</span>
+<span class="lineNum">    1488 </span><span class="lineNoCov">          0 :         energy_min = std::numeric_limits&lt;double&gt;::lowest();</span>
+<span class="lineNum">    1489 </span><span class="lineCov">          2 :         energy_max = std::numeric_limits&lt;double&gt;::max();</span>
+<span class="lineNum">    1490 </span><span class="lineCov">          2 :         range_n.clear();</span>
+<span class="lineNum">    1491 </span><span class="lineNoCov">          0 :         range_l.clear();</span>
+<span class="lineNum">    1492 </span><span class="lineNoCov">          0 :         range_j.clear();</span>
+<span class="lineNum">    1493 </span><span class="lineCov">          4 :         range_m.clear();</span>
+<span class="lineNum">    1494 </span><span class="lineCov">          4 :         states_to_add.clear();</span>
+<span class="lineNum">    1495 </span><span class="lineCov">          4 :     }</span>
+<a name="1496"><span class="lineNum">    1496 </span><span class="lineCov">          2 : </span></a>
+<span class="lineNum">    1497 </span><span class="lineCov">          2 : #ifdef WITH_INTEL_MKL</span>
+<span class="lineNum">    1498 </span><span class="lineCov">         25 :     void feast_csrev(const char *uplo, const MKL_INT *n, const double *a, const MKL_INT *ia,</span>
+<span class="lineNum">    1499 </span><span class="lineCov">         23 :                      const MKL_INT *ja, MKL_INT *fpm, double *epsout, MKL_INT *loop,</span>
+<span class="lineNum">    1500 </span><span class="lineCov">        268 :                      const double *emin, const double *emax, MKL_INT *m0, double *e, double *x,</span>
+<span class="lineNum">    1501 </span><span class="lineCov">        245 :                      MKL_INT *m, double *res, MKL_INT *info) {</span>
+<span class="lineNum">    1502 </span><span class="lineCov">         23 :         dfeast_scsrev(uplo, n, a, ia, ja, fpm, epsout, loop, emin, emax, m0, e, x, m, res, info);</span>
+<a name="1503"><span class="lineNum">    1503 </span><span class="lineCov">        222 :     }</span></a>
+<span class="lineNum">    1504 </span><span class="lineCov">        222 : </span>
+<span class="lineNum">    1505 </span><span class="lineNoCov">          0 :     void feast_csrev(const char *uplo, const MKL_INT *n, const MKL_Complex16 *a, const MKL_INT *ia,</span>
+<span class="lineNum">    1506 </span><span class="lineNoCov">          0 :                      const MKL_INT *ja, MKL_INT *fpm, double *epsout, MKL_INT *loop,</span>
+<span class="lineNum">    1507 </span><span class="lineCov">         23 :                      const double *emin, const double *emax, MKL_INT *m0, double *e,</span>
+<span class="lineNum">    1508 </span><span class="lineCov">         86 :                      MKL_Complex16 *x, MKL_INT *m, double *res, MKL_INT *info) {</span>
+<span class="lineNum">    1509 </span><span class="lineCov">         63 :         zfeast_hcsrev(uplo, n, a, ia, ja, fpm, epsout, loop, emin, emax, m0, e, x, m, res, info);</span>
+<span class="lineNum">    1510 </span><span class="lineCov">        309 :     }</span>
+<span class="lineNum">    1511 </span><span class="lineCov">        248 : #endif // WITH_INTEL_MKL</span>
+<span class="lineNum">    1512 </span><span class="lineCov">          2 : </span>
+<span class="lineNum">    1513 </span><span class="lineCov">         63 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">    1514 </span><span class="lineCov">         63 :     /// Method to update the system ////////////////////////////////////</span>
+<a name="1515"><span class="lineNum">    1515 </span><span class="lineCov">         67 :     ////////////////////////////////////////////////////////////////////</span></a>
+<span class="lineNum">    1516 </span><span class="lineCov">        311 : </span>
+<span class="lineNum">    1517 </span><span class="lineCov">        246 :     void updateEverything() {</span>
+<span class="lineNum">    1518 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1519 </span><span class="lineCov">         63 :         if (!range_n.empty() || !range_l.empty() || !range_j.empty() || !range_m.empty()) {</span>
+<span class="lineNum">    1520 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1521 </span><span class="lineNoCov">          0 :             ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">    1522 </span><span class="lineNoCov">          0 :             /// Remove restricted states ///////////////////////////////////////</span>
+<span class="lineNum">    1523 </span><span class="lineNoCov">          0 :             ////////////////////////////////////////////////////////////////////</span>
+<a name="1524"><span class="lineNum">    1524 </span><span class="lineNoCov">          0 : </span></a>
+<span class="lineNum">    1525 </span><span class="lineNoCov">          0 :             // Remove states if the quantum numbers are not allowed</span>
+<span class="lineNum">    1526 </span><span class="lineCov">          2 :             removeRestrictedStates([=](const enumerated_state&lt;T&gt; &amp;entry) -&gt; bool {</span>
+<span class="lineNum">    1527 </span><span class="lineCov">          2 :                 return this-&gt;checkIsQuantumstateValid(entry.state);</span>
+<span class="lineNum">    1528 </span><span class="lineCov">         27 :             });</span>
+<span class="lineNum">    1529 </span><span class="lineCov">         25 : </span>
+<span class="lineNum">    1530 </span><span class="lineNoCov">          0 :             // Comunicate that the list of states has changed</span>
+<span class="lineNum">    1531 </span><span class="lineCov">        247 :             this-&gt;onStatesChange();</span>
+<span class="lineNum">    1532 </span><span class="lineCov">        245 :         }</span>
+<span class="lineNum">    1533 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1534 </span><span class="lineNoCov">          0 :         if (!range_n.empty() || !range_l.empty() || !range_j.empty() || !range_m.empty() ||</span>
+<span class="lineNum">    1535 </span>            :             energy_min != std::numeric_limits&lt;double&gt;::lowest() ||
+<span class="lineNum">    1536 </span>            :             energy_max != std::numeric_limits&lt;double&gt;::max()) {
+<span class="lineNum">    1537 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1538 </span><span class="lineCov">          4 :             ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">    1539 </span><span class="lineCov">          2 :             /// Remove vectors with restricted energies or too small norm //////</span>
+<span class="lineNum">    1540 </span><span class="lineCov">          2 :             ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">    1541 </span><span class="lineCov">          2 : </span>
+<span class="lineNum">    1542 </span><span class="lineCov">          2 :             // Build transformator and remove vectors (if their energy is not allowed or the squared</span>
+<span class="lineNum">    1543 </span><span class="lineCov">          2 :             // norm too small)</span>
+<span class="lineNum">    1544 </span><span class="lineCov">          5 :             std::vector&lt;eigen_triplet_t&gt; triplets_transformator;</span>
+<span class="lineNum">    1545 </span><span class="lineNoCov">          0 :             triplets_transformator.reserve(basisvectors.cols());</span>
+<span class="lineNum">    1546 </span><span class="lineCov">          4 : </span>
+<span class="lineNum">    1547 </span><span class="lineNoCov">          0 :             size_t idx_new = 0;</span>
+<span class="lineNum">    1548 </span><span class="lineCov">          3 :             for (int idx = 0; idx &lt; basisvectors.cols(); ++idx) { // idx = col = num basis vector</span>
+<span class="lineNum">    1549 </span>            : 
+<span class="lineNum">    1550 </span>            :                 if (checkIsEnergyValid(std::real(hamiltonian.coeff(idx, idx)))) {
+<span class="lineNum">    1551 </span><span class="lineCov">          2 :                     double_t sqnorm = 0;</span>
+<span class="lineNum">    1552 </span><span class="lineCov">          3 : </span>
+<span class="lineNum">    1553 </span><span class="lineCov">          4 :                     // Calculate the square norm of the columns of the basisvector matrix</span>
+<span class="lineNum">    1554 </span>            :                     for (eigen_iterator_t triple(basisvectors, idx); triple; ++triple) {
+<span class="lineNum">    1555 </span><span class="lineCov">          4 :                         sqnorm += std::pow(std::abs(triple.value()), 2);</span>
+<span class="lineNum">    1556 </span>            :                     }
+<span class="lineNum">    1557 </span><span class="lineCov">          2 :                     if (sqnorm &gt; threshold_for_sqnorm) {</span>
+<span class="lineNum">    1558 </span><span class="lineNoCov">          0 :                         triplets_transformator.emplace_back(idx, idx_new++, 1);</span>
+<span class="lineNum">    1559 </span>            :                     }
+<span class="lineNum">    1560 </span>            :                 }
+<span class="lineNum">    1561 </span><span class="lineCov">          4 :             }</span>
+<span class="lineNum">    1562 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1563 </span><span class="lineCov">          2 :             this-&gt;applyRightsideTransformator(triplets_transformator);</span>
+<span class="lineNum">    1564 </span><span class="lineCov">          2 : </span>
+<span class="lineNum">    1565 </span><span class="lineCov">          2 :             ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">    1566 </span><span class="lineCov">          2 :             /// Remove states that barely occur within the vectors /////////////</span>
+<span class="lineNum">    1567 </span><span class="lineNoCov">          0 :             ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">    1568 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">    1569 </span><span class="lineNoCov">          0 :             // Calculate the square norm of the rows of the basisvector matrix</span>
+<span class="lineNum">    1570 </span><span class="lineCov">          2 :             std::vector&lt;double&gt; sqnorm_list(basisvectors.rows(), 0);</span>
+<span class="lineNum">    1571 </span><span class="lineCov">          2 :             for (int k = 0; k &lt; this-&gt;basisvectors.cols(); ++k) {</span>
+<span class="lineNum">    1572 </span><span class="lineCov">          2 :                 for (eigen_iterator_t triple(basisvectors, k); triple; ++triple) {</span>
+<span class="lineNum">    1573 </span><span class="lineCov">         20 :                     sqnorm_list[triple.row()] += std::pow(std::abs(triple.value()), 2);</span>
+<span class="lineNum">    1574 </span><span class="lineCov">         18 :                 }</span>
+<span class="lineNum">    1575 </span>            :             }
+<a name="1576"><span class="lineNum">    1576 </span><span class="lineCov">          2 : </span></a>
+<span class="lineNum">    1577 </span><span class="lineNoCov">          0 :             // Remove states if the squared norm is to small</span>
+<span class="lineNum">    1578 </span>            :             removeRestrictedStates([=](const enumerated_state&lt;T&gt; &amp;entry) -&gt; bool {
+<span class="lineNum">    1579 </span>            :                 return sqnorm_list[entry.idx] &gt; threshold_for_sqnorm;
+<span class="lineNum">    1580 </span><span class="lineCov">          4 :             });</span>
+<span class="lineNum">    1581 </span><span class="lineCov">          6 : </span>
+<span class="lineNum">    1582 </span><span class="lineCov">          9 :             // Comunicate that the list of states has changed</span>
+<span class="lineNum">    1583 </span><span class="lineCov">          4 :             this-&gt;onStatesChange();</span>
+<span class="lineNum">    1584 </span><span class="lineCov">          1 :         }</span>
+<span class="lineNum">    1585 </span><span class="lineCov">        132 : </span>
+<span class="lineNum">    1586 </span><span class="lineCov">        260 :         if (!states_to_add.empty()) {</span>
+<span class="lineNum">    1587 </span><span class="lineCov">        132 :             throw std::runtime_error(</span>
+<span class="lineNum">    1588 </span><span class="lineCov">         73 :                 &quot;States cannot be added anymore once the basis vectors have been created.&quot;);</span>
+<span class="lineNum">    1589 </span>            :         }
+<span class="lineNum">    1590 </span>            : 
+<span class="lineNum">    1591 </span>            :         // Forget basis restrictions as they were applied now
+<span class="lineNum">    1592 </span><span class="lineCov">          2 :         this-&gt;forgetRestrictions();</span>
+<span class="lineNum">    1593 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">    1594 </span><span class="lineCov">          1 : </span>
+<span class="lineNum">    1595 </span><span class="lineCov">          2 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">    1596 </span><span class="lineCov">        190 :     /// Method for serialization ///////////////////////////////////////</span>
+<span class="lineNum">    1597 </span><span class="lineCov">        142 :     ////////////////////////////////////////////////////////////////////</span>
+<span class="lineNum">    1598 </span><span class="lineCov">        513 : </span>
+<span class="lineNum">    1599 </span><span class="lineCov">        585 :     friend class boost::serialization::access;</span>
+<a name="1600"><span class="lineNum">    1600 </span><span class="lineCov">         73 : </span></a>
+<span class="lineNum">    1601 </span><span class="lineCov">          1 :     template &lt;class Archive&gt;</span>
+<span class="lineNum">    1602 </span><span class="lineCov">        512 :     void serialize(Archive &amp;ar, const unsigned int /*version*/) {</span>
+<span class="lineNum">    1603 </span><span class="lineCov">        124 :         ar &amp;cache &amp;threshold_for_sqnorm;</span>
+<span class="lineNum">    1604 </span><span class="lineCov">      14537 :         ar &amp;energy_min &amp;energy_max &amp;range_n &amp;range_l &amp;range_j &amp;range_m &amp;states_to_add;</span>
+<span class="lineNum">    1605 </span><span class="lineCov">      14466 :         ar &amp;memory_saving &amp;is_interaction_already_contained &amp;is_new_hamiltonian_required;</span>
+<span class="lineNum">    1606 </span><span class="lineCov">       7804 :         ar &amp;states &amp;basisvectors &amp;hamiltonian;</span>
+<span class="lineNum">    1607 </span><span class="lineCov">       8441 :         ar &amp;basisvectors_unperturbed_cache &amp;hamiltonian_unperturbed_cache;</span>
+<span class="lineNum">    1608 </span><span class="lineCov">       7810 :     }</span>
+<span class="lineNum">    1609 </span><span class="lineCov">          3 : };</span>
+<span class="lineNum">    1610 </span><span class="lineCov">        634 : </span>
+<span class="lineNum">    1611 </span><span class="lineCov">        765 : #endif</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

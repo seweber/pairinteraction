@@ -1,0 +1,310 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/GreenTensor.cpp</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - GreenTensor.cpp<span style="font-size: 80%;"> (source / <a href="GreenTensor.cpp.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">77</td>
+            <td class="headerCovTableEntry">137</td>
+            <td class="headerCovTableEntryLo">56.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryMed">81.8 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2019 Sebastian Weber, Henri Menke, Johannes Block. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #include &quot;GreenTensor.h&quot;
+<a name="21"><span class="lineNum">      21 </span>            : #include &lt;limits&gt;</a>
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span><span class="lineCov">         42 : GreenTensor::GreenTensor(double x, double y, double z)</span>
+<span class="lineNum">      24 </span><span class="lineCov">         42 :     : x(x), y(y), z(z), zA(std::numeric_limits&lt;double&gt;::max()),</span>
+<span class="lineNum">      25 </span><span class="lineCov">         42 :       zB(std::numeric_limits&lt;double&gt;::max()), dd_tensor_calculated(false),</span>
+<a name="26"><span class="lineNum">      26 </span><span class="lineCov">         42 :       dq_tensor_calculated(false), qd_tensor_calculated(false) {}</span></a>
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span><span class="lineCov">         37 : void GreenTensor::addSurface(double d) {</span>
+<span class="lineNum">      29 </span><span class="lineCov">         37 :     if (y != 0) {</span>
+<span class="lineNum">      30 </span><span class="lineNoCov">          0 :         throw std::runtime_error(&quot;The atoms must be in the xz-plane if a surface is present&quot;);</span>
+<span class="lineNum">      31 </span>            :     }
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span><span class="lineCov">         37 :     double angle = std::atan(x / z);</span>
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span><span class="lineCov">         37 :     zA = d - z * std::sin(angle) / 2.;</span>
+<span class="lineNum">      36 </span><span class="lineCov">         37 :     zB = d + z * std::sin(angle) / 2.;</span>
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span><span class="lineCov">         37 :     if (zA &lt; 0 || zB &lt; 0) {</span>
+<span class="lineNum">      39 </span>            :         throw std::runtime_error(
+<span class="lineNum">      40 </span><span class="lineNoCov">          0 :             &quot;zA or zB &lt; 0. One of the atoms is inside the plate. Plate is half-space z &lt; 0.&quot;);</span>
+<span class="lineNum">      41 </span>            :     }
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span><span class="lineCov">         37 :     dd_tensor_calculated = false;</span>
+<span class="lineNum">      44 </span><span class="lineCov">         37 :     dq_tensor_calculated = false;</span>
+<span class="lineNum">      45 </span><span class="lineCov">         37 :     qd_tensor_calculated = false;</span>
+<a name="46"><span class="lineNum">      46 </span><span class="lineCov">         37 : }</span></a>
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span><span class="lineCov">         42 : const eigen_matrix33 &amp;GreenTensor::getDDTensor() {</span>
+<span class="lineNum">      49 </span><span class="lineCov">         42 :     if (!dd_tensor_calculated) {</span>
+<span class="lineNum">      50 </span><span class="lineCov">         42 :         dd_tensor = getDDTensorVacuum(x, y, z);</span>
+<span class="lineNum">      51 </span><span class="lineCov">         42 :         if (zA != std::numeric_limits&lt;double&gt;::max()) {</span>
+<span class="lineNum">      52 </span><span class="lineCov">         37 :             dd_tensor += getDDTensorPlate(x, zA, zB);</span>
+<span class="lineNum">      53 </span>            :         }
+<span class="lineNum">      54 </span><span class="lineCov">         42 :         dd_tensor_calculated = true;</span>
+<span class="lineNum">      55 </span>            :     }
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineCov">         42 :     return dd_tensor;</span>
+<a name="58"><span class="lineNum">      58 </span>            : }</a>
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span><span class="lineCov">          1 : const eigen_tensor333 &amp;GreenTensor::getDQTensor() {</span>
+<span class="lineNum">      61 </span><span class="lineCov">          1 :     if (!dq_tensor_calculated) {</span>
+<span class="lineNum">      62 </span><span class="lineCov">          1 :         dq_tensor = getDQTensorVacuum(x, y, z);</span>
+<span class="lineNum">      63 </span><span class="lineCov">          1 :         if (zA != std::numeric_limits&lt;double&gt;::max()) {</span>
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 :             dq_tensor += getDQTensorPlate(x, zA, zB);</span>
+<span class="lineNum">      65 </span>            :         }
+<span class="lineNum">      66 </span><span class="lineCov">          1 :         dq_tensor_calculated = true;</span>
+<span class="lineNum">      67 </span>            :     }
+<span class="lineNum">      68 </span><span class="lineCov">          1 :     return dq_tensor;</span>
+<a name="69"><span class="lineNum">      69 </span>            : }</a>
+<span class="lineNum">      70 </span>            : 
+<span class="lineNum">      71 </span><span class="lineCov">          1 : const eigen_tensor333 &amp;GreenTensor::getQDTensor() {</span>
+<span class="lineNum">      72 </span><span class="lineCov">          1 :     if (!qd_tensor_calculated) {</span>
+<span class="lineNum">      73 </span><span class="lineCov">          1 :         qd_tensor = getQDTensorVacuum(x, y, z);</span>
+<span class="lineNum">      74 </span><span class="lineCov">          1 :         if (zA != std::numeric_limits&lt;double&gt;::max()) {</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :             qd_tensor += getQDTensorPlate(x, zA, zB);</span>
+<span class="lineNum">      76 </span>            :         }
+<span class="lineNum">      77 </span><span class="lineCov">          1 :         qd_tensor_calculated = true;</span>
+<span class="lineNum">      78 </span>            :     }
+<span class="lineNum">      79 </span><span class="lineCov">          1 :     return qd_tensor;</span>
+<a name="80"><span class="lineNum">      80 </span>            : }</a>
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span><span class="lineCov">         42 : eigen_matrix33 GreenTensor::getDDTensorVacuum(double x, double y, double z) const {</span>
+<span class="lineNum">      83 </span>            :     // Build distance vector
+<span class="lineNum">      84 </span><span class="lineCov">         42 :     Eigen::Matrix&lt;double, 3, 1&gt; distance;</span>
+<span class="lineNum">      85 </span><span class="lineCov">         42 :     distance &lt;&lt; x, y, z;</span>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            :     // Construct Green tensor
+<span class="lineNum">      88 </span>            :     eigen_matrix33 vacuum_tensor =
+<span class="lineNum">      89 </span><span class="lineCov">         42 :         -Eigen::MatrixXd::Identity(3, 3) / std::pow(distance.norm(), 3.) +</span>
+<span class="lineNum">      90 </span><span class="lineCov">         84 :         3. * distance * distance.transpose() / std::pow(distance.norm(), 5.);</span>
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span><span class="lineCov">         84 :     return vacuum_tensor;</span>
+<a name="93"><span class="lineNum">      93 </span>            : }</a>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineCov">         37 : eigen_matrix33 GreenTensor::getDDTensorPlate(double x, double zA, double zB) const {</span>
+<span class="lineNum">      96 </span>            :     // Calculate distances to mirror dipole
+<span class="lineNum">      97 </span><span class="lineCov">         37 :     double zp = zA + zB;</span>
+<span class="lineNum">      98 </span><span class="lineCov">         37 :     double rp = std::sqrt(x * x + zp * zp);</span>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            :     // Construct Green tensor
+<span class="lineNum">     101 </span><span class="lineCov">         37 :     eigen_matrix33 plate_tensor_second_matrix;</span>
+<span class="lineNum">     102 </span><span class="lineCov">         37 :     plate_tensor_second_matrix &lt;&lt; x * x, 0., -x * zp, 0., 0., 0., x * zp, 0., x * x;</span>
+<span class="lineNum">     103 </span>            : 
+<span class="lineNum">     104 </span>            :     eigen_matrix33 plate_tensor =
+<span class="lineNum">     105 </span><span class="lineCov">         37 :         Eigen::Vector3d({1., 1., 2.}).asDiagonal().toDenseMatrix() / std::pow(rp, 3.) -</span>
+<span class="lineNum">     106 </span><span class="lineCov">         74 :         3. * plate_tensor_second_matrix / std::pow(rp, 5);</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">         74 :     return plate_tensor;</span>
+<a name="109"><span class="lineNum">     109 </span>            : }</a>
+<span class="lineNum">     110 </span>            : 
+<span class="lineNum">     111 </span><span class="lineCov">          1 : eigen_tensor333 GreenTensor::getDQTensorVacuum(double x, double y, double z) const {</span>
+<span class="lineNum">     112 </span><span class="lineCov">          1 :     eigen_tensor333 vacuum_tensor;</span>
+<span class="lineNum">     113 </span><span class="lineCov">          1 :     vacuum_tensor.setZero();</span>
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span><span class="lineCov">          1 :     eigen_matrix33 Eye = eigen_matrix33::Identity(3, 3);</span>
+<span class="lineNum">     116 </span><span class="lineCov">          1 :     Eigen::Matrix&lt;double, 3, 1&gt; distance;</span>
+<span class="lineNum">     117 </span><span class="lineCov">          1 :     distance &lt;&lt; x, y, z;</span>
+<span class="lineNum">     118 </span><span class="lineCov">          1 :     double dist = sqrt(x * x + y * y + z * z);</span>
+<span class="lineNum">     119 </span>            : 
+<span class="lineNum">     120 </span><span class="lineCov">          4 :     for (int i = 0; i &lt; 3; i++) {</span>
+<span class="lineNum">     121 </span><span class="lineCov">         12 :         for (int j = 0; j &lt; 3; j++) {</span>
+<span class="lineNum">     122 </span><span class="lineCov">         36 :             for (int k = 0; k &lt; 3; k++) {</span>
+<span class="lineNum">     123 </span><span class="lineCov">         27 :                 vacuum_tensor(i, j, k) += -3 / std::pow(dist, 5.) *</span>
+<span class="lineNum">     124 </span><span class="lineCov">         27 :                         (Eye(i, j) * distance(k) + distance(i) * Eye(j, k) +</span>
+<span class="lineNum">     125 </span><span class="lineCov">         27 :                          distance(j) * Eye(i, k)) +</span>
+<span class="lineNum">     126 </span><span class="lineCov">         27 :                     15. / std::pow(dist, 7.) * distance(i) * distance(j) * distance(k);</span>
+<span class="lineNum">     127 </span>            :             }
+<span class="lineNum">     128 </span>            :         }
+<span class="lineNum">     129 </span>            :     }
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span><span class="lineCov">          2 :     return vacuum_tensor;</span>
+<a name="132"><span class="lineNum">     132 </span>            : }</a>
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span><span class="lineCov">          1 : eigen_tensor333 GreenTensor::getQDTensorVacuum(double x, double y, double z) const {</span>
+<span class="lineNum">     135 </span><span class="lineCov">          1 :     eigen_tensor333 vacuum_tensor;</span>
+<span class="lineNum">     136 </span><span class="lineCov">          1 :     vacuum_tensor.setZero();</span>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineCov">          1 :     eigen_matrix33 Eye = eigen_matrix33::Identity(3, 3);</span>
+<span class="lineNum">     139 </span><span class="lineCov">          1 :     Eigen::Matrix&lt;double, 3, 1&gt; distance;</span>
+<span class="lineNum">     140 </span><span class="lineCov">          1 :     distance &lt;&lt; x, y, z;</span>
+<span class="lineNum">     141 </span><span class="lineCov">          1 :     double dist = sqrt(x * x + y * y + z * z);</span>
+<span class="lineNum">     142 </span>            : 
+<span class="lineNum">     143 </span><span class="lineCov">          4 :     for (int i = 0; i &lt; 3; i++) {</span>
+<span class="lineNum">     144 </span><span class="lineCov">         12 :         for (int j = 0; j &lt; 3; j++) {</span>
+<span class="lineNum">     145 </span><span class="lineCov">         36 :             for (int k = 0; k &lt; 3; k++) {</span>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span><span class="lineCov">         27 :                 vacuum_tensor(i, j, k) += 3 / std::pow(dist, 5.) *</span>
+<span class="lineNum">     148 </span><span class="lineCov">         27 :                         (distance(i) * Eye(j, k) + Eye(i, j) * distance(k) +</span>
+<span class="lineNum">     149 </span><span class="lineCov">         27 :                          Eye(i, k) * distance(j)) -</span>
+<span class="lineNum">     150 </span><span class="lineCov">         27 :                     15. / std::pow(dist, 7.) * distance(i) * distance(j) * distance(k);</span>
+<span class="lineNum">     151 </span>            :             }
+<span class="lineNum">     152 </span>            :         }
+<span class="lineNum">     153 </span>            :     }
+<span class="lineNum">     154 </span>            : 
+<span class="lineNum">     155 </span><span class="lineCov">          2 :     return vacuum_tensor;</span>
+<a name="156"><span class="lineNum">     156 </span>            : }</a>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 : eigen_tensor333 GreenTensor::getDQTensorPlate(double x, double zA, double zB) const {</span>
+<span class="lineNum">     159 </span><span class="lineNoCov">          0 :     eigen_tensor333 plate_tensor;</span>
+<span class="lineNum">     160 </span><span class="lineNoCov">          0 :     plate_tensor.setZero();</span>
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span><span class="lineNoCov">          0 :     double zp = zA + zB;</span>
+<span class="lineNum">     163 </span><span class="lineNoCov">          0 :     Eigen::Matrix&lt;double, 3, 1&gt; distanceplus;</span>
+<span class="lineNum">     164 </span><span class="lineNoCov">          0 :     distanceplus &lt;&lt; -x, 0., zp;</span>
+<span class="lineNum">     165 </span><span class="lineNoCov">          0 :     double rp = distanceplus.norm();</span>
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            :     eigen_matrix33 plate_tensor_first_matrix =
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :         Eigen::Vector3d({1., 1., 2.}).asDiagonal().toDenseMatrix();</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :     eigen_matrix33 plate_tensor_second_matrix;</span>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :     plate_tensor_second_matrix &lt;&lt; x * x, 0., -x * zp, 0., 0., 0., x * zp, 0., x * x;</span>
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span><span class="lineNoCov">          0 :     eigen_tensor333 plate_tensor_second_gradient;</span>
+<span class="lineNum">     173 </span><span class="lineNoCov">          0 :     plate_tensor_second_gradient.setZero();</span>
+<span class="lineNum">     174 </span><span class="lineNoCov">          0 :     plate_tensor_second_gradient(0, 0, 0) = -2. * x;</span>
+<span class="lineNum">     175 </span><span class="lineNoCov">          0 :     plate_tensor_second_gradient(2, 2, 0) = -2. * x;</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :     plate_tensor_second_gradient(0, 2, 0) = zp;</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :     plate_tensor_second_gradient(2, 0, 0) = -zp;</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :     plate_tensor_second_gradient(0, 2, 2) = -x;</span>
+<span class="lineNum">     179 </span><span class="lineNoCov">          0 :     plate_tensor_second_gradient(2, 0, 2) = x;</span>
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; 3; i++) {</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :         for (int j = 0; j &lt; 3; j++) {</span>
+<span class="lineNum">     183 </span><span class="lineNoCov">          0 :             for (int k = 0; k &lt; 3; k++) {</span>
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :                 plate_tensor(i, j, k) +=</span>
+<span class="lineNum">     185 </span><span class="lineNoCov">          0 :                     -3. * plate_tensor_first_matrix(i, j) * distanceplus(k) / std::pow(rp, 5.);</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :                 plate_tensor(i, j, k) +=</span>
+<span class="lineNum">     187 </span><span class="lineNoCov">          0 :                     15. * plate_tensor_second_matrix(i, j) * distanceplus(k) / std::pow(rp, 7.);</span>
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :                 plate_tensor(i, j, k) +=</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :                     -3. * plate_tensor_second_gradient(i, j, k) / std::pow(rp, 5.);</span>
+<span class="lineNum">     190 </span>            :             }
+<span class="lineNum">     191 </span>            :         }
+<span class="lineNum">     192 </span>            :     }
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :     return plate_tensor;</span>
+<a name="195"><span class="lineNum">     195 </span>            : }</a>
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span><span class="lineNoCov">          0 : eigen_tensor333 GreenTensor::getQDTensorPlate(double x, double zA, double zB) const {</span>
+<span class="lineNum">     198 </span><span class="lineNoCov">          0 :     eigen_tensor333 plate_tensor;</span>
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :     plate_tensor.setZero();</span>
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :     double zp = zA + zB;</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :     Eigen::Matrix&lt;double, 3, 1&gt; distanceplus;</span>
+<span class="lineNum">     203 </span><span class="lineNoCov">          0 :     distanceplus &lt;&lt; x, 0., zp;</span>
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :     double rp = distanceplus.norm();</span>
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            :     eigen_matrix33 plate_tensor_first_matrix =
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :         Eigen::Vector3d({1., 1., 2.}).asDiagonal().toDenseMatrix();</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :     eigen_matrix33 plate_tensor_second_matrix;</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :     plate_tensor_second_matrix &lt;&lt; x * x, 0., -x * zp, 0., 0., 0., x * zp, 0., x * x;</span>
+<span class="lineNum">     210 </span>            : 
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :     eigen_tensor333 gradient_plate_tensor_second;</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :     gradient_plate_tensor_second.setZero();</span>
+<span class="lineNum">     213 </span><span class="lineNoCov">          0 :     gradient_plate_tensor_second(0, 0, 0) = 2. * x;</span>
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 :     gradient_plate_tensor_second(0, 2, 2) = 2. * x;</span>
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :     gradient_plate_tensor_second(0, 0, 2) = -zp;</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :     gradient_plate_tensor_second(0, 2, 0) = zp;</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :     gradient_plate_tensor_second(2, 0, 2) = -x;</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :     gradient_plate_tensor_second(2, 2, 0) = x;</span>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :     for (int i = 0; i &lt; 3; i++) {</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :         for (int j = 0; j &lt; 3; j++) {</span>
+<span class="lineNum">     222 </span><span class="lineNoCov">          0 :             for (int k = 0; k &lt; 3; k++) {</span>
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :                 plate_tensor(i, j, k) +=</span>
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 :                     -3. * distanceplus(i) * plate_tensor_first_matrix(j, k) / std::pow(rp, 5.);</span>
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :                 plate_tensor(i, j, k) +=</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :                     15. * distanceplus(i) * plate_tensor_second_matrix(j, k) / std::pow(rp, 7.);</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :                 plate_tensor(i, j, k) +=</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :                     -3. * gradient_plate_tensor_second(i, j, k) / std::pow(rp, 5.);</span>
+<span class="lineNum">     229 </span>            :             }
+<span class="lineNum">     230 </span>            :         }
+<span class="lineNum">     231 </span>            :     }
+<span class="lineNum">     232 </span>            : 
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :     return plate_tensor;</span>
+<span class="lineNum">     234 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

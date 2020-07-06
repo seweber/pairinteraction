@@ -1,0 +1,485 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - coverage.info - pairinteraction/SQLite.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">pairinteraction</a> - SQLite.h<span style="font-size: 80%;"> (source / <a href="SQLite.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">coverage.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">86</td>
+            <td class="headerCovTableEntry">115</td>
+            <td class="headerCovTableEntryLo">74.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2020-07-06 14:19:54</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">27</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntryHi">90.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : /*</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2016 Sebastian Weber, Henri Menke. All rights reserved.
+<span class="lineNum">       3 </span>            :  *
+<span class="lineNum">       4 </span>            :  * This file is part of the pairinteraction library.
+<span class="lineNum">       5 </span>            :  *
+<span class="lineNum">       6 </span>            :  * The pairinteraction library is free software: you can redistribute it and/or modify
+<span class="lineNum">       7 </span>            :  * it under the terms of the GNU Lesser General Public License as published by
+<span class="lineNum">       8 </span>            :  * the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       9 </span>            :  * (at your option) any later version.
+<span class="lineNum">      10 </span>            :  *
+<span class="lineNum">      11 </span>            :  * The pairinteraction library is distributed in the hope that it will be useful,
+<span class="lineNum">      12 </span>            :  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      13 </span>            :  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      14 </span>            :  * GNU Lesser General Public License for more details.
+<span class="lineNum">      15 </span>            :  *
+<span class="lineNum">      16 </span>            :  * You should have received a copy of the GNU Lesser General Public License
+<span class="lineNum">      17 </span>            :  * along with the pairinteraction library. If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      18 </span>            :  */
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span>            : #ifndef SQLITE_BINDINGS
+<span class="lineNum">      21 </span>            : #define SQLITE_BINDINGS
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &lt;iostream&gt;
+<span class="lineNum">      24 </span>            : #include &lt;memory&gt;
+<span class="lineNum">      25 </span>            : #include &lt;random&gt;
+<span class="lineNum">      26 </span>            : #include &lt;sstream&gt;
+<span class="lineNum">      27 </span>            : #include &lt;string&gt;
+<span class="lineNum">      28 </span>            : #include &lt;thread&gt;
+<span class="lineNum">      29 </span>            : #include &lt;type_traits&gt;
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #include &lt;boost/iterator/iterator_facade.hpp&gt;
+<span class="lineNum">      32 </span>            : #include &lt;sqlite3.h&gt;
+<span class="lineNum">      33 </span>            : #include &lt;utility&gt;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #include &quot;utils.h&quot;
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span>            : namespace sqlite {
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : /** \brief SQLite error
+<span class="lineNum">      40 </span>            :  *
+<span class="lineNum">      41 </span>            :  * Exception to identify SQLite errors.
+<span class="lineNum">      42 </span>            :  * \code
+<span class="lineNum">      43 </span>            :  * try
+<span class="lineNum">      44 </span>            :  * {
+<span class="lineNum">      45 </span>            :  *   // code with sqlite
+<span class="lineNum">      46 </span>            :  * }
+<span class="lineNum">      47 </span>            :  * catch (sqlite::error &amp;e)
+<span class="lineNum">      48 </span>            :  * {
+<span class="lineNum">      49 </span>            :  *   // handle exception
+<span class="lineNum">      50 </span>            :  * }
+<span class="lineNum">      51 </span>            :  * \endcode
+<span class="lineNum">      52 </span>            :  */
+<span class="lineNum">      53 </span>            : struct error : public std::exception {
+<span class="lineNum">      54 </span>            : public:
+<span class="lineNum">      55 </span>            :     /** \brief Constructor
+<span class="lineNum">      56 </span>            :      *
+<span class="lineNum">      57 </span>            :      * \param[in] err   error code
+<a name="58"><span class="lineNum">      58 </span>            :      * \param[in] msg   error message</a>
+<span class="lineNum">      59 </span>            :      */
+<span class="lineNum">      60 </span><span class="lineCov">          5 :     explicit error(int err, std::string const &amp;msg)</span>
+<span class="lineNum">      61 </span><span class="lineCov">          5 :         : m_msg(std::string(&quot;SQLite error &quot;) + std::to_string(err) + &quot;: &quot; + msg) {}</span>
+<span class="lineNum">      62 </span>            : 
+<span class="lineNum">      63 </span>            :     /** \brief %what() function
+<span class="lineNum">      64 </span>            :      *
+<a name="65"><span class="lineNum">      65 </span>            :      * \returns error message</a>
+<span class="lineNum">      66 </span>            :      */
+<span class="lineNum">      67 </span><span class="lineNoCov">          0 :     const char *what() const noexcept override { return m_msg.c_str(); }</span>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            : private:
+<span class="lineNum">      70 </span>            :     std::string m_msg;
+<span class="lineNum">      71 </span>            : };
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : /** \brief SQLite Statement handle
+<span class="lineNum">      74 </span>            :  *
+<span class="lineNum">      75 </span>            :  * This object wraps an SQLite statement.  It is iterable in a while
+<span class="lineNum">      76 </span>            :  * loop with the step() function or in a range-based for loop.
+<span class="lineNum">      77 </span>            :  */
+<span class="lineNum">      78 </span>            : class statement {
+<span class="lineNum">      79 </span>            :     sqlite3 *m_db;
+<span class="lineNum">      80 </span>            :     std::unique_ptr&lt;sqlite3_stmt, int (*)(sqlite3_stmt *)&gt; m_stmt;
+<span class="lineNum">      81 </span>            :     std::string m_sql;
+<span class="lineNum">      82 </span>            :     bool m_prepared;
+<a name="83"><span class="lineNum">      83 </span>            :     bool m_valid;</a>
+<span class="lineNum">      84 </span>            : 
+<span class="lineNum">      85 </span><span class="lineCov">      39522 :     void handle_error(int err) {</span>
+<span class="lineNum">      86 </span><span class="lineCov">      39522 :         if (err != 0) {</span>
+<span class="lineNum">      87 </span><span class="lineCov">          4 :             throw error(err, sqlite3_errstr(err));</span>
+<span class="lineNum">      88 </span>            :         }
+<span class="lineNum">      89 </span><span class="lineCov">      39518 :     }</span>
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            : public:
+<span class="lineNum">      92 </span>            :     /** \brief Constructor
+<span class="lineNum">      93 </span>            :      *
+<span class="lineNum">      94 </span>            :      * This is called in the query function of the the handle object.
+<span class="lineNum">      95 </span>            :      *
+<a name="96"><span class="lineNum">      96 </span>            :      * \param[in] db    unmanaged raw pointer to the sqlite database</a>
+<span class="lineNum">      97 </span>            :      */
+<span class="lineNum">      98 </span><span class="lineCov">        645 :     explicit statement(sqlite3 *db) : statement{db, {}} {}</span>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            :     /** \brief Constructor
+<span class="lineNum">     101 </span>            :      *
+<span class="lineNum">     102 </span>            :      * This is called in the query function of the the handle object.
+<span class="lineNum">     103 </span>            :      * This variant also sets a default query.
+<span class="lineNum">     104 </span>            :      *
+<span class="lineNum">     105 </span>            :      * \param[in] db    unmanaged raw pointer to the sqlite database
+<a name="106"><span class="lineNum">     106 </span>            :      * \param[in] sql   an initial query as a string</a>
+<span class="lineNum">     107 </span>            :      */
+<span class="lineNum">     108 </span><span class="lineCov">        674 :     explicit statement(sqlite3 *db, std::string sql)</span>
+<span class="lineNum">     109 </span><span class="lineCov">       1348 :         : m_db{db}, m_stmt{nullptr, sqlite3_finalize}, m_sql{std::move(sql)},</span>
+<span class="lineNum">     110 </span><span class="lineCov">        674 :           m_prepared{false}, m_valid{true} {}</span>
+<span class="lineNum">     111 </span>            : 
+<span class="lineNum">     112 </span>            :     /** \brief Set the query string
+<span class="lineNum">     113 </span>            :      *
+<span class="lineNum">     114 </span>            :      * \param[in] sql   the query string
+<a name="115"><span class="lineNum">     115 </span>            :      * \throws sqlite::error</a>
+<span class="lineNum">     116 </span>            :      */
+<span class="lineNum">     117 </span><span class="lineCov">       4145 :     void set(std::string const &amp;sql) {</span>
+<span class="lineNum">     118 </span><span class="lineCov">       4145 :         m_sql = sql;</span>
+<span class="lineNum">     119 </span><span class="lineCov">       4145 :         m_prepared = false;</span>
+<span class="lineNum">     120 </span><span class="lineCov">       4145 :     }</span>
+<a name="121"><span class="lineNum">     121 </span>            : </a>
+<span class="lineNum">     122 </span>            :     /** \overload void set(std::string const &amp;sql) */
+<span class="lineNum">     123 </span><span class="lineCov">          1 :     void set(std::stringstream const &amp;ss) { return set(ss.str()); }</span>
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            :     /** \brief Prepare the statement
+<span class="lineNum">     126 </span>            :      *
+<span class="lineNum">     127 </span>            :      * Prepare the statement for stepping.
+<span class="lineNum">     128 </span>            :      *
+<a name="129"><span class="lineNum">     129 </span>            :      * \throws sqlite::error</a>
+<span class="lineNum">     130 </span>            :      */
+<span class="lineNum">     131 </span><span class="lineCov">       3529 :     void prepare() {</span>
+<span class="lineNum">     132 </span>            :         sqlite3_stmt *pStmt; // is managed below
+<span class="lineNum">     133 </span><span class="lineCov">       3529 :         auto err = sqlite3_prepare_v2(m_db, m_sql.c_str(), -1, &amp;pStmt, nullptr);</span>
+<span class="lineNum">     134 </span><span class="lineCov">       3529 :         m_stmt.reset(pStmt);</span>
+<span class="lineNum">     135 </span>            : 
+<span class="lineNum">     136 </span><span class="lineCov">       3529 :         handle_error(err);</span>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineCov">       3528 :         m_prepared = true;</span>
+<span class="lineNum">     139 </span><span class="lineCov">       3528 :     }</span>
+<span class="lineNum">     140 </span>            : 
+<span class="lineNum">     141 </span>            :     /** \brief Step the statement
+<span class="lineNum">     142 </span>            :      *
+<span class="lineNum">     143 </span>            :      * This steps the statement.
+<span class="lineNum">     144 </span>            :      *
+<span class="lineNum">     145 </span>            :      * \returns true if there is a row, false otherwise
+<span class="lineNum">     146 </span>            :      *
+<a name="147"><span class="lineNum">     147 </span>            :      * \throws sqlite::error</a>
+<span class="lineNum">     148 </span>            :      */
+<span class="lineNum">     149 </span><span class="lineCov">       6234 :     bool step() {</span>
+<span class="lineNum">     150 </span><span class="lineCov">       6234 :         if (!m_prepared) {</span>
+<span class="lineNum">     151 </span><span class="lineCov">          1 :             handle_error(SQLITE_MISUSE);</span>
+<span class="lineNum">     152 </span>            :         }
+<span class="lineNum">     153 </span><span class="lineCov">       6233 :         if (!m_valid) {</span>
+<span class="lineNum">     154 </span><span class="lineCov">          1 :             handle_error(SQLITE_DONE);</span>
+<span class="lineNum">     155 </span>            :         }
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span><span class="lineCov">       6232 :         auto err = sqlite3_step(m_stmt.get());</span>
+<span class="lineNum">     158 </span>            : 
+<span class="lineNum">     159 </span><span class="lineCov">       6232 :         switch (err) {</span>
+<span class="lineNum">     160 </span><span class="lineCov">       3321 :         case SQLITE_DONE:</span>
+<span class="lineNum">     161 </span><span class="lineCov">       3321 :             m_valid = false;</span>
+<span class="lineNum">     162 </span><span class="lineCov">       3321 :             return false;</span>
+<span class="lineNum">     163 </span><span class="lineCov">       2911 :         case SQLITE_ROW:</span>
+<span class="lineNum">     164 </span><span class="lineCov">       2911 :             m_valid = true;</span>
+<span class="lineNum">     165 </span><span class="lineCov">       2911 :             return true;</span>
+<span class="lineNum">     166 </span>            :         }
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :         m_valid = false;</span>
+<span class="lineNum">     169 </span><span class="lineNoCov">          0 :         handle_error(err);</span>
+<span class="lineNum">     170 </span><span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     171 </span>            :     }
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            :     /** \brief Reset the statement
+<span class="lineNum">     174 </span>            :      *
+<span class="lineNum">     175 </span>            :      * Reset the statement so you can rebind values.
+<span class="lineNum">     176 </span>            :      *
+<a name="177"><span class="lineNum">     177 </span>            :      * \throws sqlite::error</a>
+<span class="lineNum">     178 </span>            :      */
+<span class="lineNum">     179 </span><span class="lineCov">       5619 :     void reset() {</span>
+<span class="lineNum">     180 </span><span class="lineCov">       5619 :         handle_error(sqlite3_reset(m_stmt.get()));</span>
+<span class="lineNum">     181 </span><span class="lineCov">       5619 :         m_valid = true;</span>
+<span class="lineNum">     182 </span><span class="lineCov">       5619 :     }</span>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :     /** \brief Execute SQLite statements
+<span class="lineNum">     185 </span>            :      *
+<span class="lineNum">     186 </span>            :      * The SQL statements are passed to this function as a string and
+<span class="lineNum">     187 </span>            :      * are executed in-place.
+<span class="lineNum">     188 </span>            :      *
+<span class="lineNum">     189 </span>            :      * \param[in] sql   SQL statements
+<a name="190"><span class="lineNum">     190 </span>            :      * \throws sqlite::error</a>
+<span class="lineNum">     191 </span>            :      */
+<span class="lineNum">     192 </span><span class="lineCov">        646 :     void exec(std::string const &amp;sql) {</span>
+<span class="lineNum">     193 </span><span class="lineCov">        646 :         set(sql);</span>
+<span class="lineNum">     194 </span><span class="lineCov">        646 :         auto err = sqlite3_exec(m_db, m_sql.c_str(), nullptr, nullptr, nullptr);</span>
+<span class="lineNum">     195 </span><span class="lineCov">        646 :         handle_error(err);</span>
+<span class="lineNum">     196 </span><span class="lineCov">        645 :     }</span>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            :     /** \brief Bind a value to a position in the query
+<span class="lineNum">     199 </span>            :      *
+<span class="lineNum">     200 </span>            :      * \param[in] where   position in the query (one-based)
+<span class="lineNum">     201 </span>            :      * \param[in] s       string to bind
+<a name="202"><span class="lineNum">     202 </span>            :      * \throws sqlite::error</a>
+<span class="lineNum">     203 </span>            :      */
+<span class="lineNum">     204 </span><span class="lineCov">       4458 :     void bind(int where, std::string const &amp;s) {</span>
+<span class="lineNum">     205 </span><span class="lineCov">       4458 :         handle_error(sqlite3_bind_text(m_stmt.get(), where, s.c_str(), s.length(), SQLITE_STATIC));</span>
+<span class="lineNum">     206 </span><span class="lineCov">       4458 :     }</span>
+<a name="207"><span class="lineNum">     207 </span>            : </a>
+<span class="lineNum">     208 </span>            :     /** \overload void bind(int where, std::string const &amp;s) */
+<span class="lineNum">     209 </span><span class="lineCov">          2 :     void bind(int where, std::string &amp;&amp;s) {</span>
+<span class="lineNum">     210 </span><span class="lineCov">          2 :         handle_error(</span>
+<span class="lineNum">     211 </span><span class="lineCov">          2 :             sqlite3_bind_text(m_stmt.get(), where, s.c_str(), s.length(), SQLITE_TRANSIENT));</span>
+<span class="lineNum">     212 </span><span class="lineCov">          2 :     }</span>
+<a name="213"><span class="lineNum">     213 </span>            : </a>
+<span class="lineNum">     214 </span>            :     /** \overload void bind(int where, std::string const &amp;s) */
+<span class="lineNum">     215 </span><span class="lineCov">      11236 :     void bind(int where, double d) { handle_error(sqlite3_bind_double(m_stmt.get(), where, d)); }</span>
+<a name="216"><span class="lineNum">     216 </span>            : </a>
+<span class="lineNum">     217 </span>            :     /** \overload void bind(int where, std::string const &amp;s) */
+<span class="lineNum">     218 </span><span class="lineCov">      14030 :     void bind(int where, int i) { handle_error(sqlite3_bind_int(m_stmt.get(), where, i)); }</span>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span>            : #ifdef SCANNED_BY_DOXYGEN
+<span class="lineNum">     221 </span>            :     /** \brief Get value of a field
+<span class="lineNum">     222 </span>            :      *
+<span class="lineNum">     223 </span>            :      * Retrieve the value stored at position \p field as datatype \p
+<span class="lineNum">     224 </span>            :      * ReturnType.
+<span class="lineNum">     225 </span>            :      *
+<span class="lineNum">     226 </span>            :      * \tparam ReturnType   requested return type
+<span class="lineNum">     227 </span>            :      * \param[in]           field
+<span class="lineNum">     228 </span>            :      * \returns             the value stored in \p field as datatype \p
+<span class="lineNum">     229 </span>            :      * ReturnType
+<span class="lineNum">     230 </span>            :      */
+<span class="lineNum">     231 </span>            :     template &lt;typename ReturnType&gt;
+<span class="lineNum">     232 </span>            :     ReturnType get(int field);
+<span class="lineNum">     233 </span>            : #else
+<a name="234"><span class="lineNum">     234 </span>            :     template &lt;typename T,</a>
+<span class="lineNum">     235 </span>            :               typename = typename std::enable_if&lt;std::is_floating_point&lt;T&gt;::value&gt;::type&gt;
+<span class="lineNum">     236 </span><span class="lineCov">       7527 :     double get(int field) {</span>
+<span class="lineNum">     237 </span><span class="lineCov">       7527 :         return sqlite3_column_double(m_stmt.get(), field);</span>
+<span class="lineNum">     238 </span>            :     }
+<a name="239"><span class="lineNum">     239 </span><span class="lineNoCov">          0 : </span></a>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :     template &lt;typename T, typename = typename std::enable_if&lt;std::is_same&lt;T, int&gt;::value&gt;::type&gt;</span>
+<span class="lineNum">     241 </span><span class="lineCov">         77 :     int get(int field) {</span>
+<span class="lineNum">     242 </span><span class="lineCov">         77 :         return sqlite3_column_int(m_stmt.get(), field);</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :     }</span>
+<span class="lineNum">     244 </span>            : 
+<a name="245"><span class="lineNum">     245 </span>            :     template &lt;typename T,</a>
+<span class="lineNum">     246 </span>            :               typename = typename std::enable_if&lt;std::is_same&lt;T, std::string&gt;::value&gt;::type&gt;
+<span class="lineNum">     247 </span><span class="lineCov">       1669 :     std::string get(int field) {</span>
+<span class="lineNum">     248 </span><span class="lineCov">       1665 :         return std::string(</span>
+<span class="lineNum">     249 </span><span class="lineCov">          4 :             reinterpret_cast&lt;char const *&gt;(sqlite3_column_text(m_stmt.get(), field)));</span>
+<span class="lineNum">     250 </span>            :     }
+<span class="lineNum">     251 </span>            : #endif
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span>            :     /** \brief Statement iterator
+<span class="lineNum">     254 </span>            :      *
+<span class="lineNum">     255 </span>            :      * The iterator builds upon Boost Iterator Facade to implement an
+<span class="lineNum">     256 </span>            :      * iterator over the statement with minimal boilerplate.  We refer
+<span class="lineNum">     257 </span>            :      * to the official documentation for the internal functions:
+<span class="lineNum">     258 </span>            :      * http://www.boost.org/libs/iterator/
+<span class="lineNum">     259 </span>            :      */
+<span class="lineNum">     260 </span>            :     class iterator
+<span class="lineNum">     261 </span>            :         : public boost::iterator_facade&lt;iterator, statement, boost::forward_traversal_tag&gt; {
+<span class="lineNum">     262 </span>            :     private:
+<span class="lineNum">     263 </span>            :         friend class boost::iterator_core_access;
+<span class="lineNum">     264 </span>            :         statement *m_stmt;
+<span class="lineNum">     265 </span>            :         bool m_done;
+<a name="266"><span class="lineNum">     266 </span>            :         bool m_end;</a>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span><span class="lineCov">          2 :         void increment() {</span>
+<span class="lineNum">     269 </span><span class="lineCov">          2 :             if (!m_done) {</span>
+<span class="lineNum">     270 </span><span class="lineCov">          1 :                 m_done = m_stmt-&gt;step();</span>
+<span class="lineNum">     271 </span>            :             } else {
+<span class="lineNum">     272 </span><span class="lineCov">          1 :                 m_end = true;</span>
+<span class="lineNum">     273 </span>            :             }
+<a name="274"><span class="lineNum">     274 </span><span class="lineCov">          2 :         }</span></a>
+<span class="lineNum">     275 </span>            : 
+<a name="276"><span class="lineNum">     276 </span><span class="lineCov">          3 :         bool equal(iterator const &amp; /*unused*/) const { return m_end; }</span></a>
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span><span class="lineCov">          3 :         statement &amp;dereference() const {</span>
+<span class="lineNum">     279 </span>            : #ifndef NDEBUG
+<span class="lineNum">     280 </span><span class="lineCov">          3 :             if (m_end)</span>
+<span class="lineNum">     281 </span><span class="lineCov">          1 :                 throw std::out_of_range(&quot;iterator out of range&quot;);</span>
+<span class="lineNum">     282 </span>            : #endif
+<span class="lineNum">     283 </span><span class="lineCov">          2 :             return *m_stmt;</span>
+<span class="lineNum">     284 </span>            :         }
+<a name="285"><span class="lineNum">     285 </span>            : </a>
+<span class="lineNum">     286 </span>            :     public:
+<a name="287"><span class="lineNum">     287 </span><span class="lineCov">          2 :         iterator() : m_stmt{nullptr}, m_done{true}, m_end{true} {}</span></a>
+<span class="lineNum">     288 </span>            : 
+<span class="lineNum">     289 </span><span class="lineCov">          1 :         explicit iterator(statement *p) : m_stmt{p}, m_done{false}, m_end{false} { m_stmt-&gt;step(); }</span>
+<span class="lineNum">     290 </span>            :     };
+<span class="lineNum">     291 </span>            : 
+<span class="lineNum">     292 </span>            :     /** \brief returns an iterator to the beginning
+<span class="lineNum">     293 </span>            :      *
+<span class="lineNum">     294 </span>            :      * With this, a statement can be iterated in a C++11 range-based for loop.
+<span class="lineNum">     295 </span>            :      *
+<span class="lineNum">     296 </span>            :      * \warning This is *not* zero overhead!  If you care about
+<span class="lineNum">     297 </span>            :      * performance use a while loop using step() instead.
+<span class="lineNum">     298 </span>            :      * \code
+<span class="lineNum">     299 </span>            :      * while(stmt.step())
+<span class="lineNum">     300 </span>            :      *     stmt.get&lt;...&gt;(...);
+<span class="lineNum">     301 </span>            :      * \endcode
+<span class="lineNum">     302 </span>            :      *
+<a name="303"><span class="lineNum">     303 </span>            :      * \returns iterator to the beginning</a>
+<span class="lineNum">     304 </span>            :      */
+<span class="lineNum">     305 </span><span class="lineCov">          1 :     iterator begin() { return iterator{this}; }</span>
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span>            :     /** \brief returns an empty iterator
+<span class="lineNum">     308 </span>            :      *
+<span class="lineNum">     309 </span>            :      * The iterator for the SQLite statement is a forward iterator
+<span class="lineNum">     310 </span>            :      * which is implemented in terms of the step() function.  Since
+<span class="lineNum">     311 </span>            :      * the step() function will determine the end by itself, this
+<span class="lineNum">     312 </span>            :      * iterator is merely a sentinel.
+<span class="lineNum">     313 </span>            :      *
+<a name="314"><span class="lineNum">     314 </span>            :      * \returns empty iterator</a>
+<span class="lineNum">     315 </span>            :      */
+<span class="lineNum">     316 </span><span class="lineCov">          2 :     iterator end() { return iterator{}; }</span>
+<span class="lineNum">     317 </span>            : };
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span>            : /** \brief SQLite Database handle
+<span class="lineNum">     320 </span>            :  *
+<span class="lineNum">     321 </span>            :  * This object handles the connection to the underlying SQLite databse.  It
+<span class="lineNum">     322 </span>            :  * provides a high-level object oriented RAII interface to the C-bindings of
+<span class="lineNum">     323 </span>            :  * SQLite3.
+<span class="lineNum">     324 </span>            :  */
+<span class="lineNum">     325 </span>            : class handle final {
+<span class="lineNum">     326 </span>            :     std::unique_ptr&lt;sqlite3, decltype(&amp;sqlite3_close)&gt; m_db;
+<a name="327"><span class="lineNum">     327 </span>            :     int m_threshold;</a>
+<span class="lineNum">     328 </span>            : 
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :     static int busy_handler(void *self, int num_prior_calls) {</span>
+<span class="lineNum">     330 </span><span class="lineNoCov">          0 :         int thresh = static_cast&lt;handle *&gt;(self)-&gt;m_threshold;</span>
+<span class="lineNum">     331 </span>            :         // Sleep if handler has been called less than num_prior_calls
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :         if (num_prior_calls &lt; thresh) {</span>
+<span class="lineNum">     333 </span><span class="lineNoCov">          0 :             std::this_thread::sleep_for(std::chrono::microseconds(utils::randint(2000, 20000)));</span>
+<span class="lineNum">     334 </span><span class="lineNoCov">          0 :             return 1;</span>
+<span class="lineNum">     335 </span><span class="lineNoCov">          0 :         }</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     337 </span><span class="lineNoCov">          0 :         return 0; // Make sqlite3 return SQLITE_BUSY</span>
+<a name="338"><span class="lineNum">     338 </span><span class="lineNoCov">          0 :     }</span></a>
+<span class="lineNum">     339 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     340 </span><span class="lineCov">         64 :     void install_busy_handler() {</span>
+<span class="lineNum">     341 </span><span class="lineCov">         64 :         auto err = sqlite3_busy_handler(m_db.get(), busy_handler, this);</span>
+<span class="lineNum">     342 </span>            : 
+<span class="lineNum">     343 </span><span class="lineCov">         64 :         if (err != 0) {</span>
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :             throw error(err, sqlite3_errmsg(m_db.get()));</span>
+<span class="lineNum">     345 </span>            :         }
+<span class="lineNum">     346 </span><span class="lineCov">         64 :     }</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     348 </span>            : public:
+<span class="lineNum">     349 </span><span class="lineNoCov">          0 :     /** \brief Conversion operator</span>
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :      *</span>
+<span class="lineNum">     351 </span>            :      * The handle object implicitly behaves like the underlying
+<span class="lineNum">     352 </span><span class="lineNoCov">          0 :      * pointer.</span>
+<span class="lineNum">     353 </span>            :      *
+<a name="354"><span class="lineNum">     354 </span>            :      * \returns the raw database pointer</a>
+<span class="lineNum">     355 </span>            :      */
+<span class="lineNum">     356 </span><span class="lineCov">     161116 :     operator sqlite3 *() { return m_db.get(); }</span>
+<span class="lineNum">     357 </span>            : 
+<span class="lineNum">     358 </span>            :     /** \brief Constructor
+<span class="lineNum">     359 </span>            :      *
+<span class="lineNum">     360 </span>            :      * It takes a filename and a bitmask of parameters to open the
+<span class="lineNum">     361 </span>            :      * database connection.  This is useful if you have to open the
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :      * connection, e.g., read-only.  By default it uses the standard</span>
+<span class="lineNum">     363 </span>            :      * flags for opening a database connection.  See
+<span class="lineNum">     364 </span>            :      * https://www.sqlite.org/c3ref/open.html for details.
+<span class="lineNum">     365 </span>            :      *
+<span class="lineNum">     366 </span>            :      * \param[in] filename    fully-qualified filename of the database
+<span class="lineNum">     367 </span>            :      * \param[in] flags       options to open the database (optional)
+<a name="368"><span class="lineNum">     368 </span>            :      * \throws sqlite::error</a>
+<span class="lineNum">     369 </span>            :      */
+<span class="lineNum">     370 </span><span class="lineCov">         65 :     explicit handle(std::string const &amp;filename,</span>
+<span class="lineNum">     371 </span>            :                     int flags = SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE)
+<span class="lineNum">     372 </span><span class="lineCov">         66 :         : m_db{nullptr, sqlite3_close}, m_threshold{100000} {</span>
+<span class="lineNum">     373 </span>            :         sqlite3 *tmp_db;
+<span class="lineNum">     374 </span><span class="lineCov">         65 :         auto err = sqlite3_open_v2(filename.c_str(), &amp;tmp_db, flags, nullptr);</span>
+<span class="lineNum">     375 </span><span class="lineCov">         65 :         m_db.reset(tmp_db);</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     377 </span><span class="lineCov">         65 :         if (err != 0) {</span>
+<span class="lineNum">     378 </span><span class="lineCov">          1 :             throw error(err, sqlite3_errmsg(m_db.get()));</span>
+<span class="lineNum">     379 </span>            :         }
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     381 </span><span class="lineCov">         64 :         install_busy_handler();</span>
+<span class="lineNum">     382 </span><span class="lineCov">         64 :     }</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 : </span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :     /** \brief Move constructor</span>
+<span class="lineNum">     385 </span>            :      *
+<span class="lineNum">     386 </span>            :      * Reinstalls the busy handler.
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :      */</span>
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :     handle(handle &amp;&amp;other) noexcept : m_db{std::move(other.m_db)}, m_threshold{other.m_threshold} {</span>
+<span class="lineNum">     389 </span>            :         install_busy_handler();
+<span class="lineNum">     390 </span>            :     }
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span>            :     /** \brief Move assignment operator
+<span class="lineNum">     393 </span>            :      *
+<span class="lineNum">     394 </span>            :      * Reinstalls the busy handler.
+<span class="lineNum">     395 </span>            :      */
+<span class="lineNum">     396 </span>            :     handle &amp;operator=(handle &amp;&amp;other) noexcept {
+<span class="lineNum">     397 </span>            :         if (this != std::addressof(other)) // skip self-assignment
+<span class="lineNum">     398 </span>            :         {
+<span class="lineNum">     399 </span>            :             m_db = std::move(other.m_db);
+<span class="lineNum">     400 </span>            :             m_threshold = other.m_threshold;
+<span class="lineNum">     401 </span>            :             install_busy_handler();
+<span class="lineNum">     402 </span>            :         }
+<span class="lineNum">     403 </span>            :         return *this;
+<span class="lineNum">     404 </span>            :     }
+<span class="lineNum">     405 </span>            : };
+<span class="lineNum">     406 </span>            : 
+<span class="lineNum">     407 </span>            : } // namespace sqlite
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span>            : #endif // SQLITE_BINDINGS
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.13</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
