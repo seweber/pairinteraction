@@ -195,6 +195,7 @@ class SystemDict(GuiDict):
         store["refO"] = {"widget": ui.checkbox_system_refO, "unit": None}
         store["conserveM"] = {"widget": ui.checkbox_system_conserveM, "unit": None}
         store["sametrafo"] = {"widget": ui.checkbox_system_sametrafo, "unit": None}
+        store["python_binding"] = {"widget": ui.checkbox_use_python_binding, "unit": None}
 
     # field map of atom 1 (samebasis == False)
     keys_for_cprogram_field1 = [
@@ -3025,13 +3026,17 @@ class MainWindow(QtWidgets.QMainWindow):
                 # undefined one thread per CPU is used.
                 ompthreads = {} if self.numprocessors == 0 else {"OMP_NUM_THREADS": str(self.numprocessors)}
 
-                self.proc = subprocess.Popen(
-                    [path_cpp, "-c", self.path_config, "-o", self.path_cache],
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    cwd=self.path_workingdir,
-                    env=dict(os.environ, **ompthreads),
-                )
+                if self.ui.checkbox_use_python_binding.isChecked():
+                    # TODO new implementation
+                    raise NotImplementedError("new implementation")
+                else:
+                    self.proc = subprocess.Popen(
+                        [path_cpp, "-c", self.path_config, "-o", self.path_cache],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT,
+                        cwd=self.path_workingdir,
+                        env=dict(os.environ, **ompthreads),
+                    )
 
                 self.starttime = time()
 
