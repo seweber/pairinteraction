@@ -19,6 +19,7 @@ import json
 import locale
 import multiprocessing
 import os
+import pickle
 import shutil
 import signal
 import subprocess
@@ -1514,26 +1515,31 @@ class MainWindow(QtWidgets.QMainWindow):
                     # save data
                     self.storage_data[idx].append([filestep, blocknumber, filename])
 
-                    eigensystem = Eigensystem(filename)
-                    energies = eigensystem.energies
-                    basis = eigensystem.basis
+                    if "pkl" in filename:
+                        data = pickle.load(open(filename, "rb"))
+                        energies, basis, params = data["energies"], data["basis"], data["params"]
+                    else:
+                        eigensystem = Eigensystem(filename)
+                        energies = eigensystem.energies
+                        basis = eigensystem.basis
+                        params = eigensystem.params
 
                     if idx == 2:
                         symmetrycolor = []
 
-                        if eigensystem.params["inversion"] == "1":
+                        if params["inversion"] == "1":
                             symmetrycolor.append(self.ui.colorbutton_plot_invE.color().getRgb()[:-1])
-                        elif eigensystem.params["inversion"] == "-1":
+                        elif params["inversion"] == "-1":
                             symmetrycolor.append(self.ui.colorbutton_plot_invO.color().getRgb()[:-1])
 
-                        if eigensystem.params["permutation"] == "1":
+                        if params["permutation"] == "1":
                             symmetrycolor.append(self.ui.colorbutton_plot_perE.color().getRgb()[:-1])
-                        elif eigensystem.params["permutation"] == "-1":
+                        elif params["permutation"] == "-1":
                             symmetrycolor.append(self.ui.colorbutton_plot_perO.color().getRgb()[:-1])
 
-                        if eigensystem.params["reflection"] == "1":
+                        if params["reflection"] == "1":
                             symmetrycolor.append(self.ui.colorbutton_plot_refE.color().getRgb()[:-1])
-                        elif eigensystem.params["reflection"] == "-1":
+                        elif params["reflection"] == "-1":
                             symmetrycolor.append(self.ui.colorbutton_plot_refO.color().getRgb()[:-1])
 
                         if len(symmetrycolor) > 0:
@@ -1596,22 +1602,22 @@ class MainWindow(QtWidgets.QMainWindow):
 
                     if self.xAxis[idx] == "B":
                         fields = [
-                            [float(eigensystem.params["Bx"])],
-                            [float(eigensystem.params["By"])],
-                            [float(eigensystem.params["Bz"])],
+                            [float(params["Bx"])],
+                            [float(params["By"])],
+                            [float(params["Bz"])],
                         ]
                         fields = np.dot(rotator, fields).flatten()
                         position = self.get1DPosition(fields) * self.converter_x[idx]
                     elif self.xAxis[idx] == "E":
                         fields = [
-                            [float(eigensystem.params["Ex"])],
-                            [float(eigensystem.params["Ey"])],
-                            [float(eigensystem.params["Ez"])],
+                            [float(params["Ex"])],
+                            [float(params["Ey"])],
+                            [float(params["Ez"])],
                         ]
                         fields = np.dot(rotator, fields).flatten()
                         position = self.get1DPosition(fields) * self.converter_x[idx]
                     elif self.xAxis[idx] == "R":
-                        position = float(eigensystem.params["R"]) * self.converter_x[idx]
+                        position = float(params.get("pair.distance", params.get("R"))) * self.converter_x[idx]
 
                     # --- draw labels at the beginning of the plotting ---
                     if self.ui.groupbox_plot_labels.isChecked() and filestep == 0:
@@ -2922,14 +2928,19 @@ class MainWindow(QtWidgets.QMainWindow):
                 with open(self.path_config, "w") as f:
                     if self.senderbutton == self.ui.pushbutton_potential_calc:
                         keys = self.systemdict.keys_for_cprogram_potential
+                        button_id = 2
                     elif self.samebasis:
                         keys = self.systemdict.keys_for_cprogram_field12
+                        button_id = 3
                     elif self.senderbutton == self.ui.pushbutton_field1_calc:
                         keys = self.systemdict.keys_for_cprogram_field1
+                        button_id = 0
                     elif self.senderbutton == self.ui.pushbutton_field2_calc:
                         keys = self.systemdict.keys_for_cprogram_field2
+                        button_id = 1
 
                     params = {k: self.systemdict[k].toUU().magnitude for k in keys}
+                    params["button_id"] = button_id
 
                     if self.senderbutton == self.ui.pushbutton_potential_calc:
                         params["zerotheta"] = self.angle == 0
@@ -3027,8 +3038,19 @@ class MainWindow(QtWidgets.QMainWindow):
                 ompthreads = {} if self.numprocessors == 0 else {"OMP_NUM_THREADS": str(self.numprocessors)}
 
                 if self.ui.checkbox_use_python_binding.isChecked():
-                    # TODO new implementation
-                    raise NotImplementedError("new implementation")
+                    self.proc = subprocess.Popen(
+                        [self.path_base + "/start_pipy.py", "--run_gui", "-c", self.path_config, "-o", self.path_cache],
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.STDOUT,
+                        cwd=self.path_workingdir,
+                        env=dict(
+                            os.environ,
+                            **{
+                                "NUM_PROCESSES": str(self.numprocessors),
+                                "OMP_NUM_THREADS": "1",
+                            },
+                        ),
+                    )
                 else:
                     self.proc = subprocess.Popen(
                         [path_cpp, "-c", self.path_config, "-o", self.path_cache],
@@ -3172,11 +3194,17 @@ class MainWindow(QtWidgets.QMainWindow):
             filestep_last = None
 
             for filestep, _blocknumber, filename in sorted(self.storage_data[idx], key=itemgetter(0, 1)):
-                eigensystem = Eigensystem(filename)
-                energies = eigensystem.energies * self.converter_y  # nBasis
-                # nState, nBasis (stored in Compressed Sparse Column format,
-                # CSC)
-                basis = eigensystem.basis
+                if "pkl" in filename:
+                    data = pickle.load(open(filename, "rb"))
+                    energies, basis, params = data["energies"], data["basis"], data["params"]
+                else:
+                    eigensystem = Eigensystem(filename)
+                    energies = eigensystem.energies  # nBasis
+                    basis = eigensystem.basis
+                    # nState, nBasis (stored in Compressed Sparse Column format,
+                    # CSC)
+                    params = eigensystem.params
+                energies *= self.converter_y
 
                 if self.stateidx_field[idx] is not None:
                     overlaps = np.abs(self.stateidx_field[idx].conjugate() * basis)
@@ -3186,22 +3214,24 @@ class MainWindow(QtWidgets.QMainWindow):
                 if filestep != filestep_last:  # new step
                     field = np.array(
                         [
-                            float(eigensystem.params["Bx"]),
-                            float(eigensystem.params["By"]),
-                            float(eigensystem.params["Bz"]),
+                            float(params["Bx"]),
+                            float(params["By"]),
+                            float(params["Bz"]),
                         ]
                     )
                     data["bfields"].append(np.dot(rotator, field).flatten() * self.converter_bfield)
                     field = np.array(
                         [
-                            float(eigensystem.params["Ex"]),
-                            float(eigensystem.params["Ey"]),
-                            float(eigensystem.params["Ez"]),
+                            float(params["Ex"]),
+                            float(params["Ey"]),
+                            float(params["Ez"]),
                         ]
                     )
                     data["efields"].append(np.dot(rotator, field).flatten() * self.converter_efield)
                     if idx == 2:
-                        data["distances"].append(float(eigensystem.params["R"]) * self.converter_length)
+                        data["distances"].append(
+                            float(params.get("pair.distance", params.get("R"))) * self.converter_length
+                        )
 
                     if minE is None and maxE is None:
                         data["eigenvectors"].append(basis)
@@ -3362,25 +3392,25 @@ class MainWindow(QtWidgets.QMainWindow):
             # close zip file
             ziparchive.close()
 
-        """ symmetry = eigensystem.params["symmetry"] # TODO ausgelesene Symmetrie auch beim Plotten verwenden
+        """ symmetry = params["symmetry"] # TODO ausgelesene Symmetrie auch beim Plotten verwenden
 
                 # save configuration
                 if firstround:
                     firstround = False
 
-                    del eigensystem.params["Bx"]
-                    del eigensystem.params["By"]
-                    del eigensystem.params["Bz"]
-                    del eigensystem.params["Ex"]
-                    del eigensystem.params["Ey"]
-                    del eigensystem.params["Ez"]
+                    del params["Bx"]
+                    del params["By"]
+                    del params["Bz"]
+                    del params["Ex"]
+                    del params["Ey"]
+                    del params["Ez"]
                     if idx == 2:
-                        del eigensystem.params["R"]
-                        del eigensystem.params["symmetry"]
+                        del params["R"]
+                        del params["symmetry"]
 
                     # TODO abgespeicherte Konfiguration ladbar machen
 
-                    print(eigensystem.params)"""
+                    print(params)"""
 
     @QtCore.pyqtSlot()
     def saveSystemConf(self):
@@ -3433,6 +3463,8 @@ class MainWindow(QtWidgets.QMainWindow):
             "cache_matrix_real.db",
             "cache_matrix_complex",
             "cache_matrix_real",
+            "cache_matrix_complex_new",
+            "cache_matrix_real_new",
         ]  # TODO: sicherstellen, dass gleiche Namen wie im C++ Programm
         for file in files:
             path = os.path.join(self.path_cache, file)
