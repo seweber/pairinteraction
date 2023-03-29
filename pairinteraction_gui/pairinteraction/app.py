@@ -520,7 +520,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.labelmat = [None] * 3
         self.labelstates = [None] * 3
         self.momentumstrings = [None] * 3
-        self.stateidx_field = [None] * 3
+        self.stateidx_field = [{}, {}, {}]
         self.yMin_field = [None] * 3
         self.yMax_field = [None] * 3
 
@@ -579,7 +579,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tab_field2 = self.ui.tabwidget_plotter.widget(1)
 
         self.storage_data = [[], [], []]
-        self.storage_states = [None, None, None]
+        self.storage_states = [{}, {}, {}]
         self.storage_configuration = [[None, None], [None, None], [None, None]]
 
         self.manualRangeX = [False, False, False]
@@ -1109,6 +1109,11 @@ class MainWindow(QtWidgets.QMainWindow):
             if basisfile != "":
                 # load basis
                 basis = np.loadtxt(basisfile)
+                if "blocknumber_" in basisfile:
+                    _ind = basisfile.index("blocknumber_") + len("blocknumber_")
+                    bn = int(basisfile[_ind:-4])
+                else:
+                    bn = -1
 
                 if len(basis.shape) == 1:
                     basis = np.array([basis])
@@ -1120,11 +1125,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 if nState == 0:
                     # save basis
-                    self.storage_states[idx] = None
+                    self.storage_states[idx][bn] = None
 
                 else:
                     # save basis
-                    self.storage_states[idx] = basis
+                    self.storage_states[idx][bn] = basis
 
                     # determine which state to highlite
                     if self.ui.groupbox_plot_overlap.isChecked():
@@ -1397,9 +1402,9 @@ class MainWindow(QtWidgets.QMainWindow):
                             stateamount = np.arange(len(stateidx))
 
                         if len(stateidx) < 1:
-                            self.stateidx_field[idx] = None
+                            self.stateidx_field[idx][bn] = None
                         else:
-                            self.stateidx_field[idx] = sparse.csc_matrix(
+                            self.stateidx_field[idx][bn] = sparse.csc_matrix(
                                 (statecoeff, (stateamount, stateidx)), shape=(np.max(stateamount) + 1, nState)
                             )
 
@@ -1408,7 +1413,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         QtWidgets.QApplication.processEvents()
 
                     else:
-                        self.stateidx_field[idx] = None
+                        self.stateidx_field[idx][bn] = None
 
                     # calculate a matrix that can be used to determine the momenta
                     # inside a basis element
@@ -1487,7 +1492,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             # --- check if there is some new data and if yes, plot it ---
 
-            if not dataqueue.empty() and self.storage_states[idx] is None:
+            if not dataqueue.empty() and len(self.storage_states[idx]) == 0:
                 dataqueue.get()  # TODO make this hack unnecessary
 
             elif not dataqueue.empty():
@@ -1518,28 +1523,33 @@ class MainWindow(QtWidgets.QMainWindow):
                     if "pkl" in filename:
                         data = pickle.load(open(filename, "rb"))
                         energies, basis, params = data["energies"], data["basis"], data["params"]
+                        bn = blocknumber
                     else:
                         eigensystem = Eigensystem(filename)
                         energies = eigensystem.energies
                         basis = eigensystem.basis
                         params = eigensystem.params
+                        bn = -1
 
                     if idx == 2:
                         symmetrycolor = []
 
-                        if params["inversion"] == "1":
+                        inversion = params.get("inversion", params.get("pair.inversion"))
+                        if inversion in ["1", "EVEN"]:
                             symmetrycolor.append(self.ui.colorbutton_plot_invE.color().getRgb()[:-1])
-                        elif params["inversion"] == "-1":
+                        elif inversion in ["1", "ODD"]:
                             symmetrycolor.append(self.ui.colorbutton_plot_invO.color().getRgb()[:-1])
 
-                        if params["permutation"] == "1":
+                        permutation = params.get("permutation", params.get("pair.permutation"))
+                        if permutation in ["1", "EVEN"]:
                             symmetrycolor.append(self.ui.colorbutton_plot_perE.color().getRgb()[:-1])
-                        elif params["permutation"] == "-1":
+                        elif permutation in ["1", "ODD"]:
                             symmetrycolor.append(self.ui.colorbutton_plot_perO.color().getRgb()[:-1])
 
-                        if params["reflection"] == "1":
+                        reflection = params.get("reflection", params.get("pair.reflection"))
+                        if reflection in ["1", "EVEN"]:
                             symmetrycolor.append(self.ui.colorbutton_plot_refE.color().getRgb()[:-1])
-                        elif params["reflection"] == "-1":
+                        elif reflection in ["1", "ODD"]:
                             symmetrycolor.append(self.ui.colorbutton_plot_refO.color().getRgb()[:-1])
 
                         if len(symmetrycolor) > 0:
@@ -1602,22 +1612,22 @@ class MainWindow(QtWidgets.QMainWindow):
 
                     if self.xAxis[idx] == "B":
                         fields = [
-                            [float(params["Bx"])],
-                            [float(params["By"])],
-                            [float(params["Bz"])],
+                            [float(params.get("Bx", params.get("atom1.Bx")))],
+                            [float(params.get("By", params.get("atom1.By")))],
+                            [float(params.get("Bz", params.get("atom1.Bz")))],
                         ]
                         fields = np.dot(rotator, fields).flatten()
                         position = self.get1DPosition(fields) * self.converter_x[idx]
                     elif self.xAxis[idx] == "E":
                         fields = [
-                            [float(params["Ex"])],
-                            [float(params["Ey"])],
-                            [float(params["Ez"])],
+                            [float(params.get("Ex", params.get("atom1.Ex")))],
+                            [float(params.get("Ey", params.get("atom1.Ey")))],
+                            [float(params.get("Ez", params.get("atom1.Ez")))],
                         ]
                         fields = np.dot(rotator, fields).flatten()
                         position = self.get1DPosition(fields) * self.converter_x[idx]
                     elif self.xAxis[idx] == "R":
-                        position = float(params.get("pair.distance", params.get("R"))) * self.converter_x[idx]
+                        position = float(params.get("R", params.get("pair.distance"))) * self.converter_x[idx]
 
                     # --- draw labels at the beginning of the plotting ---
                     if self.ui.groupbox_plot_labels.isChecked() and filestep == 0:
@@ -1776,8 +1786,8 @@ class MainWindow(QtWidgets.QMainWindow):
                             self.yMin_field[idx] = minE
 
                         # calculate overlap
-                        if self.stateidx_field[idx] is not None:
-                            overlap = np.abs(self.stateidx_field[idx].conjugate() * basis)
+                        if self.stateidx_field[idx].get(bn, None) is not None:
+                            overlap = np.abs(self.stateidx_field[idx][bn].conjugate() * basis)
                             overlap.data **= 2
                             overlap = overlap.sum(axis=0).getA1()
 
@@ -1787,7 +1797,7 @@ class MainWindow(QtWidgets.QMainWindow):
                             self.buffer_energiesMap[idx][filestep].append(energies)
 
                             # append the overlaps to the arrays
-                            if self.stateidx_field[idx] is not None:
+                            if self.stateidx_field[idx].get(bn, None) is not None:
                                 self.buffer_overlapMap[idx][filestep].append(overlap)
                             else:
                                 self.buffer_overlapMap[idx][filestep].append(np.zeros_like(energies))
@@ -1837,14 +1847,14 @@ class MainWindow(QtWidgets.QMainWindow):
                             )
 
                             # append the overlaps to the arrays
-                            if self.stateidx_field[idx] is not None:
+                            if self.stateidx_field[idx].get(bn, None) is not None:
                                 self.buffer_overlapMap[idx][filestep].append(overlap[boolarr])
                             else:
                                 self.buffer_overlapMap[idx][filestep].append(np.zeros_like(energies[boolarr]))
 
                         # extract line to fit C3 or C6
                         if (
-                            self.stateidx_field[idx] is not None
+                            self.stateidx_field[idx].get(bn, None) is not None
                             and len(overlap) > 0
                             and (
                                 blocknumber not in self.linesO[idx].keys()
@@ -2825,7 +2835,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.saveSettingsPlotter(filelike_plotter)
 
                     self.storage_data[idx] = []
-                    self.storage_states[idx] = None
+                    self.storage_states[idx] = {}
                     self.storage_configuration[idx] = [filelike_system.getvalue(), filelike_plotter.getvalue()]
 
                     # clear plot
@@ -3164,14 +3174,20 @@ class MainWindow(QtWidgets.QMainWindow):
                 data["distances_description"] = "distance(0, idxStep)"
 
             # save states
-            if self.storage_states[idx] is not None:
+            if len(self.storage_states[idx]) == 1 and -1 in self.storage_states[idx]:
+                data["states"] = self.storage_states[idx][-1]
+                data["numStates"] = len(data["states"])
+            elif len(self.storage_states[idx]) > 0:
                 # nState, i-n1-l1-j1-m1-n2-l2-j2-m2 # nState, i-n-l-j-m
                 data["states"] = self.storage_states[idx]
-                data["numStates"] = len(data["states"])
+                data["numStates"] = {k: len(v) for k, v in data["states"].items()}
 
             # save overlaps
-            if self.stateidx_field[idx] is not None:
-                data["numOverlapvectors"] = self.stateidx_field[idx].shape[0]
+            if len(self.storage_overlaps[idx]) == 1 and -1 in self.storage_overlaps[idx]:
+                data["numOverlapvectors"] = self.stateidx_field[idx][-1].shape[0]
+                data["overlapvectors"] = self.stateidx_field[idx][-1]
+            elif len(self.stateidx_field[idx]) > 0:
+                data["numOverlapvectors"] = {k: v.shape[0] for k, v in self.stateidx_field[idx].items()}
                 data["overlapvectors"] = self.stateidx_field[idx]
 
             # save data
@@ -3197,6 +3213,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 if "pkl" in filename:
                     data = pickle.load(open(filename, "rb"))
                     energies, basis, params = data["energies"], data["basis"], data["params"]
+                    bn = _blocknumber
                 else:
                     eigensystem = Eigensystem(filename)
                     energies = eigensystem.energies  # nBasis
@@ -3204,27 +3221,28 @@ class MainWindow(QtWidgets.QMainWindow):
                     # nState, nBasis (stored in Compressed Sparse Column format,
                     # CSC)
                     params = eigensystem.params
+                    bn = -1
                 energies *= self.converter_y
 
-                if self.stateidx_field[idx] is not None:
-                    overlaps = np.abs(self.stateidx_field[idx].conjugate() * basis)
+                if self.stateidx_field[idx].get(bn, None) is not None:
+                    overlaps = np.abs(self.stateidx_field[idx][bn].conjugate() * basis)
                     overlaps.data **= 2
                     overlaps = overlaps.sum(axis=0).getA1()
 
                 if filestep != filestep_last:  # new step
                     field = np.array(
                         [
-                            float(params["Bx"]),
-                            float(params["By"]),
-                            float(params["Bz"]),
+                            float(params.get("Bx", params.get("atom1.Bx"))),
+                            float(params.get("By", params.get("atom1.By"))),
+                            float(params.get("Bz", params.get("atom1.Bz"))),
                         ]
                     )
                     data["bfields"].append(np.dot(rotator, field).flatten() * self.converter_bfield)
                     field = np.array(
                         [
-                            float(params["Ex"]),
-                            float(params["Ey"]),
-                            float(params["Ez"]),
+                            float(params.get("Ex", params.get("atom1.Ex"))),
+                            float(params.get("Ey", params.get("atom1.Ey"))),
+                            float(params.get("Ez", params.get("atom1.Ez"))),
                         ]
                     )
                     data["efields"].append(np.dot(rotator, field).flatten() * self.converter_efield)
@@ -3236,7 +3254,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     if minE is None and maxE is None:
                         data["eigenvectors"].append(basis)
                         data["eigenvalues"].append(energies)
-                        if self.stateidx_field[idx] is not None:
+                        if self.stateidx_field[idx].get(bn, None) is not None:
                             data["overlaps"].append(overlaps)
                     else:
                         # Select which eigenpairs should be saved
@@ -3249,14 +3267,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
                         data["eigenvectors"].append(basis[:, selector])
                         data["eigenvalues"].append(energies[selector])
-                        if self.stateidx_field[idx] is not None:
+                        if self.stateidx_field[idx].get(bn, None) is not None:
                             data["overlaps"].append(overlaps[selector])
 
                 else:  # new block
                     if minE is None and maxE is None:
                         csc_happend(data["eigenvectors"][-1], basis)
                         data["eigenvalues"][-1] = np.append(data["eigenvalues"][-1], energies)
-                        if self.stateidx_field[idx] is not None:
+                        if self.stateidx_field[idx].get(bn, None) is not None:
                             data["overlaps"][-1] = np.append(data["overlaps"][-1], overlaps)
                     else:
                         # Select which eigenpairs should be saved
@@ -3270,7 +3288,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                         csc_happend(data["eigenvectors"][-1], basis[:, selector])
                         data["eigenvalues"][-1] = np.append(data["eigenvalues"][-1], energies[selector])
-                        if self.stateidx_field[idx] is not None:
+                        if self.stateidx_field[idx].get(bn, None) is not None:
                             data["overlaps"][-1] = np.append(data["overlaps"][-1], overlaps[selector])
 
                 filestep_last = filestep
