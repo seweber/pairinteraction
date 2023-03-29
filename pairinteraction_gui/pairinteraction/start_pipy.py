@@ -11,7 +11,6 @@ import sys
 from functools import partial
 
 import numpy as np
-from scipy import sparse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/../..")
 import pipy  # noqa
@@ -43,13 +42,12 @@ def main(args):
     output(f"{'>>END':5}")
 
 
-def do_simulations(settings):
+def do_simulations(settings, pass_atom="direct"):
     param_list = pipy.calc.get_param_list(settings)
     ip_list = list(range(len(param_list)))
 
-    # TODO init and save atom?
     atom = pipy.calc.atom_from_config(settings["config"])
-    atom.system
+    atom.system.buildHamiltonian()
 
     if atom.nAtoms == 2:
         allQunumbers = [[*qns[:, 0], *qns[:, 1]] for qns in np.array(atom.allQunumbers)]
@@ -62,7 +60,16 @@ def do_simulations(settings):
     output(f"{'>>BAS':5}{len(basis):7}")
     output(f"{'>>STA':5} {path_basis} ")
 
-    config = {"atom": atom}
+    if pass_atom == "direct":
+        config = {"atom": atom}
+    elif pass_atom == "path":
+        atom_path = path_basis.replace("basis_", "atom_").replace(".csv", ".pkl")
+        with open(atom_path, "wb") as file:
+            pickle.dump(atom, file)
+        config = {"atom_path": atom_path}
+    else:
+        config = settings["config"]
+
     p_one_run = partial(one_run, config, param_list)
 
     num_pr = settings.get("runtimeoptions", {}).get("NUM_PROCESSES", 1)
@@ -77,13 +84,17 @@ def do_simulations(settings):
             result = p_one_run(i)
             print_completed(settings, result)
 
+    if "atom_path" in config:
+        os.remove(config["atom_path"])
+
 
 def one_run(config, param_list, ip):
     # get default Atom from config (either given, load it or newly construct it)
     if "atom" in config:
         atom = config["atom"]
     elif "atom_path" in config:
-        atom = pipy.calc.load_atom(config["atom_path"])
+        with open(config["atom_path"], "rb") as f:
+            atom = pickle.load(f)
     else:
         atom = pipy.calc.atom_from_config(config)
     config = atom.config
@@ -100,12 +111,10 @@ def one_run(config, param_list, ip):
     if not os.path.exists(filename):
         output(f"Calculating {ip}, {dimension}x{dimension}")
         atom.calcEnergies()
-        basis = sparse.csc_matrix(np.sqrt(atom.overlaps))
-        # basis is actually overlaps, naming just for consistency with pairinteraction code
         energies0 = config.pair.getEnergies() if atom.nAtoms == 2 else config.atom.getEnergies()
         data = {
             "energies": atom.energies - np.mean(energies0),
-            "basis": basis,
+            "basis": atom.vectors,
             "params": config.toDict(),
         }
         with open(filename, "wb") as f:
@@ -158,6 +167,11 @@ def conf_to_settings(conf, pathCache):
         **{mm + "distance": conf.get(mm + "R", None) for mm in ["min", "max"]},
         **{mm + key: conf.get(mm + key, None) for key in ["Ex", "Ey", "Ez", "Bx", "By", "Bz"] for mm in ["min", "max"]},
     }
+    no_steps = all(
+        listoptions["min" + key] == listoptions["max" + key] for key in ["Ex", "Ey", "Ez", "Bx", "By", "Bz", "distance"]
+    )
+    if no_steps:
+        listoptions["steps"] = 1
     config["isReal"] = all([listoptions.get(k, 0) == 0 for k in ["minBy", "maxBy", "minEy", "maxEy"]])
 
     if config["nAtoms"] == 2:

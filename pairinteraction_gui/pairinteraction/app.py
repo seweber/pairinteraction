@@ -1537,19 +1537,19 @@ class MainWindow(QtWidgets.QMainWindow):
                         inversion = params.get("inversion", params.get("pair.inversion"))
                         if inversion in ["1", "EVEN"]:
                             symmetrycolor.append(self.ui.colorbutton_plot_invE.color().getRgb()[:-1])
-                        elif inversion in ["1", "ODD"]:
+                        elif inversion in ["-1", "ODD"]:
                             symmetrycolor.append(self.ui.colorbutton_plot_invO.color().getRgb()[:-1])
 
                         permutation = params.get("permutation", params.get("pair.permutation"))
                         if permutation in ["1", "EVEN"]:
                             symmetrycolor.append(self.ui.colorbutton_plot_perE.color().getRgb()[:-1])
-                        elif permutation in ["1", "ODD"]:
+                        elif permutation in ["-1", "ODD"]:
                             symmetrycolor.append(self.ui.colorbutton_plot_perO.color().getRgb()[:-1])
 
                         reflection = params.get("reflection", params.get("pair.reflection"))
                         if reflection in ["1", "EVEN"]:
                             symmetrycolor.append(self.ui.colorbutton_plot_refE.color().getRgb()[:-1])
-                        elif reflection in ["1", "ODD"]:
+                        elif reflection in ["-1", "ODD"]:
                             symmetrycolor.append(self.ui.colorbutton_plot_refO.color().getRgb()[:-1])
 
                         if len(symmetrycolor) > 0:
@@ -2275,6 +2275,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.proc = None
 
             # Stop this timer
+            print(f"Total time needed: {time() - self.starttime:.2f} s")
             self.timer.stop()
 
             # Change buttons
