@@ -196,7 +196,7 @@ class SystemDict(GuiDict):
         store["refO"] = {"widget": ui.checkbox_system_refO, "unit": None}
         store["conserveM"] = {"widget": ui.checkbox_system_conserveM, "unit": None}
         store["sametrafo"] = {"widget": ui.checkbox_system_sametrafo, "unit": None}
-        store["python_binding"] = {"widget": ui.checkbox_use_python_binding, "unit": None}
+        store["python_api"] = {"widget": ui.checkbox_use_python_api, "unit": None}
 
     # field map of atom 1 (samebasis == False)
     keys_for_cprogram_field1 = [
@@ -3048,7 +3048,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 # undefined one thread per CPU is used.
                 ompthreads = {} if self.numprocessors == 0 else {"OMP_NUM_THREADS": str(self.numprocessors)}
 
-                if self.ui.checkbox_use_python_binding.isChecked():
+                if self.ui.checkbox_use_python_api.isChecked():
                     self.proc = subprocess.Popen(
                         [self.path_base + "/start_pipy.py", "--run_gui", "-c", self.path_config, "-o", self.path_cache],
                         stdout=subprocess.PIPE,
