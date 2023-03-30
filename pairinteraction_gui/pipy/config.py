@@ -4,7 +4,6 @@ This class is used to store all the configurations that are needed for the calcu
 from hashlib import blake2b
 
 import numpy as np
-
 from pipy.misc import CustomDict
 
 InvalidKey = object()

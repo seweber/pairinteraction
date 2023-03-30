@@ -7,7 +7,6 @@ import logging
 import os
 
 import numpy as np
-
 from pipy import Config
 from pipy import picomplex
 from pipy import pireal

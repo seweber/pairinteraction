@@ -26,7 +26,6 @@ import time
 from functools import partial
 
 import numpy as np
-
 from pipy import atom_from_config
 
 logger = logging.getLogger(__name__)
