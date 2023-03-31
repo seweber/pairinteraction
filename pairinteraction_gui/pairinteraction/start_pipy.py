@@ -44,10 +44,10 @@ def main(args):
 
 
 def do_simulations(settings, pass_atom="direct"):
-    param_list = pipy.calc.get_param_list(settings)
+    param_list = get_param_list(settings)
     ip_list = list(range(len(param_list)))
 
-    atom = pipy.calc.atom_from_config(settings["config"])
+    atom = pipy.atom_from_config(settings["config"])
     atom.system.buildHamiltonian()
 
     if atom.nAtoms == 2:
@@ -97,14 +97,14 @@ def one_run(config, param_list, ip):
         with open(config["atom_path"], "rb") as f:
             atom = pickle.load(f)
     else:
-        atom = pipy.calc.atom_from_config(config)
+        atom = pipy.atom_from_config(config)
     config = atom.config
 
     atom.updateFromParams(param_list[ip])
     dimension = len(atom.basisQunumbers)
 
-    real_complex = "real" if config.isReal else "complex"
-    pathCacheMatrix = config.pathCache + f"cache_matrix_{real_complex}_new/"
+    real_complex = "real" if config.isReal() else "complex"
+    pathCacheMatrix = config.pathCache() + f"cache_matrix_{real_complex}_new/"
     os.makedirs(pathCacheMatrix, exist_ok=True)
     _name = f"{'one' if atom.nAtoms == 1 else 'two'}_{config.toHash()}"
     filename = pathCacheMatrix + _name + ".pkl"
@@ -112,11 +112,11 @@ def one_run(config, param_list, ip):
     if not os.path.exists(filename):
         output(f"Calculating {ip}, {dimension}x{dimension}")
         atom.calcEnergies()
-        energies0 = config.pair.getEnergies() if atom.nAtoms == 2 else config.atom.getEnergies()
+        energies0 = config.getEnergiesPair() if atom.nAtoms == 2 else config.getEnergiesSingle()
         data = {
             "energies": atom.energies - np.mean(energies0),
             "basis": atom.vectors,
-            "params": config.toDict(),
+            "params": config.toOutDict(),
         }
         with open(filename, "wb") as f:
             pickle.dump(data, f)
@@ -127,6 +127,24 @@ def one_run(config, param_list, ip):
         "filename": filename,
     }
     return result
+
+
+def get_param_list(settings):
+    scriptoptions = settings.setdefault("scriptoptions", {})
+    if "param_list" in scriptoptions:
+        return scriptoptions["param_list"]
+    elif "listoptions" in scriptoptions and "steps" in scriptoptions["listoptions"]:
+        listoptions = scriptoptions["listoptions"]
+        steps = listoptions["steps"]
+        k_lists = {}
+        for k in ["Bx", "By", "Bz", "Ex", "Ey", "Ez", "distance"]:
+            if listoptions.get("min" + k) is not None and listoptions.get("max" + k, None) is not None:
+                k_lists[k] = np.linspace(listoptions["min" + k], listoptions["max" + k], steps)
+        param_list = [{k: v[i] for k, v in k_lists.items()} for i in range(steps)]
+        scriptoptions["param_list"] = param_list
+    else:
+        raise NotImplementedError("TODO: create param list from individual lists, including symmetries")
+    return param_list
 
 
 def print_completed(settings, result):

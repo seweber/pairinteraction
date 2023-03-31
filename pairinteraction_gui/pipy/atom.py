@@ -59,7 +59,7 @@ class Atom:
 
     def __repr__(self):
         config = self.config
-        return f"{self.__class__.__name__}({config.atom.species}, ...)"
+        return f"{self.__class__.__name__}({config.species()}, ...)"
 
     @property
     def system(self):
@@ -172,7 +172,7 @@ class Atom:
             logger.warning("calcEnergies was already called, sure you want to recalculate the energies?")
         system = self.system
         logger.debug("Calculating energies for %s", type(system).__name__)
-        system.diagonalize(self.config.diagonalizeThreshold)
+        system.diagonalize(self.config.diagonalizeThreshold())
         self.energies = np.real_if_close(system.getHamiltonian().diagonal())
         self.vectors = system.getBasisvectors()  # sparse matrix (getNumStates, getNumBasisvectors)
         self._createBasis()  # just in case something reordered
@@ -213,19 +213,19 @@ class Atom:
             inds = [self.findQunumberIndex(qunumber) for qunumber in qunumbers]
             overlaps = overlaps_all[inds, :]
         elif self.nAtoms == 1:
-            pi = pireal if self.config.isReal else picomplex
+            pi = pireal if self.config.isReal() else picomplex
             qunumbers = [(int(q[0]), int(q[1]), float(q[2]), float(q[3])) for q in qunumbers]
-            states = [pi.StateOne(self.config.atom.species, *q) for q in qunumbers]
+            states = [pi.StateOne(self.config.species(), *q) for q in qunumbers]
             overlaps = np.array([self.system.getOverlap(state) for state in states])
             if self.sorted_inds is not None:
                 overlaps = overlaps[:, self.sorted_inds]
         elif self.nAtoms == 2:
-            pi = pireal if self.config.isReal else picomplex
+            pi = pireal if self.config.isReal() else picomplex
             qunumbers = [
                 ([int(q[0]), int(q[4])], [int(q[1]), int(q[5])], [float(q[2]), float(q[6])], [float(q[3]), float(q[7])])
                 for q in qunumbers
             ]
-            species = [self.config.atom1.species, self.config.atom2.species]
+            species = [self.config.species(1), self.config.species(2)]
             states = [pi.StateTwo(species, *q) for q in qunumbers]
             overlaps = np.array([self.system.getOverlap(state) for state in states])
             if self.sorted_inds is not None:
@@ -264,11 +264,11 @@ class Atom:
 
     def getCache(self):
         if not hasattr(self, "_cache") or self._cache is not None:
-            pathCache = self.config.pathCache
+            pathCache = self.config.pathCache()
             os.makedirs(pathCache, exist_ok=True)
             logger.debug("Using cache at %s", pathCache)
-            pi = pireal if self.config.isReal else picomplex
-            if self.config.method == "WHITTAKER":
+            pi = pireal if self.config.isReal() else picomplex
+            if self.config.method() == "WHITTAKER":
                 pi.MatrixElementCache.setMethod(pi.WHITTAKER)
             self._cache = pi.MatrixElementCache(pathCache)
         return self._cache
@@ -296,26 +296,26 @@ class AtomOne(Atom):
 
     def _createSystem(self):
         """Creating the actual pi.SystemOne."""
-        aconfig = self.config.atom
-        pi = pireal if self.config.isReal else picomplex
-        system = pi.SystemOne(aconfig.species, self.getCache())
+        config = self.config
+        pi = pireal if config.isReal() else picomplex
+        system = pi.SystemOne(config.species(), self.getCache())
 
         for Q in ["N", "L", "J", "M"]:
-            minQ, maxQ = aconfig.restrictQN(Q)
+            minQ, maxQ = config.restrictQnSingle(Q)
             if minQ is not None and maxQ is not None:
                 restrict = getattr(system, "restrict" + Q)
                 restrict(minQ, maxQ)
-        minEnergy, maxEnergy = aconfig.restrictEnergy(pi=pi)
+        minEnergy, maxEnergy = config.restrictEnergySingle(pi=pi)
         if minEnergy is not None and maxEnergy is not None:
             system.restrictEnergy(minEnergy, maxEnergy)
 
-        if aconfig.conserveMomenta:
-            system.setConservedMomentaUnderRotation([aconfig.momenta])
-        if aconfig.Efield != [0, 0, 0]:
-            system.setEfield(aconfig.Efield)
-        if aconfig.Bfield != [0, 0, 0]:
-            system.setBfield(aconfig.Bfield)
-        system.enableDiamagnetism(aconfig.diamagnetism)
+        if config.conserveMomentaSingle():
+            system.setConservedMomentaUnderRotation(config.momentaSingle())
+        if config.Efield() != [0, 0, 0]:
+            system.setEfield(config.Efield())
+        if config.Bfield() != [0, 0, 0]:
+            system.setBfield(config.Bfield())
+        system.enableDiamagnetism(config.diamagnetism())
 
         self._system = system
         super()._createSystem()
@@ -338,20 +338,20 @@ class AtomOne(Atom):
         if any(k not in ["Ex", "Ey", "Ez", "Bx", "By", "Bz"] for k in new):
             raise ValueError("Invalid key in AtomOne updateFromParams")
 
-        atom = self.config.atom
-        Efield = [new.get("Ex", atom.Ex), new.get("Ey", atom.Ey), new.get("Ez", atom.Ez)]
-        Bfield = [new.get("Bx", atom.Bx), new.get("By", atom.By), new.get("Bz", atom.Bz)]
+        config = self.config
+        Efield = [new.get("Ex", config.Ex()), new.get("Ey", config.Ey()), new.get("Ez", config.Ez())]
+        Bfield = [new.get("Bx", config.Bx()), new.get("By", config.By()), new.get("Bz", config.Bz())]
         update = {
-            "Efield": Efield != atom.Efield,
-            "Bfield": Bfield != atom.Bfield,
+            "Efield": Efield != config.Efield(),
+            "Bfield": Bfield != config.Bfield(),
         }
 
         if update["Efield"]:
-            atom.setEfield(Efield)
-            self.system.setEfield(atom.Efield)
+            config.setEfield(Efield, "")
+            self.system.setEfield(config.Efield())
         if update["Bfield"]:
-            atom.setBfield(Bfield)
-            self.system.setBfield(atom.Bfield)
+            config.setBfield(Bfield, "")
+            self.system.setBfield(config.Bfield())
 
         if any(update.values()):
             self.energies, self.overlaps, self.vectors = None, None, None
@@ -385,7 +385,7 @@ class AtomTwo(Atom):
 
     @property
     def atom2(self) -> AtomOne:
-        if self.config.useSameAtom:
+        if self.config.useSameAtom():
             return self.atom1
         if self._atom2 is None:
             self._createAtom(2)
@@ -393,7 +393,7 @@ class AtomTwo(Atom):
 
     @property
     def atoms(self) -> "list[AtomOne]":
-        if self.config.useSameAtom:
+        if self.config.useSameAtom():
             return [self.atom1]
         return [self.atom1, self.atom2]
 
@@ -405,7 +405,7 @@ class AtomTwo(Atom):
         new = AtomTwo(config)
         if self._atom1 is not None:
             new._atom1 = self.atom1.copy()
-        if self._atom2 is not None and not self.config.useSameAtom:
+        if self._atom2 is not None and not self.config.useSameAtom():
             new._atom2 = self.atom2.copy()
         new._system = self.copySystem()
         return new
@@ -414,39 +414,39 @@ class AtomTwo(Atom):
         """Creating the AtomOne objects for atom 1 or 2."""
         config = self.config.shallowCopy()
         config.force_nAtoms = 1
-        config.force_iAtom = iAtom
+        config.iAtom = iAtom
         atom = AtomOne(config)
-        setattr(self, "_atom" + str(iAtom), atom)
+        setattr(self, f"_atom{iAtom}", atom)
 
     def _createSystem(self):
         """Creating the actual pi.SystemTwo, based on the AtomOne.system's."""
-        pconfig = self.config.pair
-        pi = pireal if self.config.isReal else picomplex
+        config = self.config
+        pi = pireal if config.isReal() else picomplex
         for atom in self.atoms:
             atom.calcEnergies()
         system = pi.SystemTwo(self.atom1.system, self.atom2.system, self.getCache())
 
         for q in ["N", "L", "J", "M"]:
-            minq, maxq = pconfig.restrictQN(q)
+            minq, maxq = config.restrictQnPair(q)
             if minq is not None and maxq is not None:
                 raise NotImplementedError("Restricting QN for SystemTwo is not implemented yet.")
-        minEnergy, maxEnergy = pconfig.restrictEnergy(atom1=self.atom1, atom2=self.atom2)
+        minEnergy, maxEnergy = config.restrictEnergyPair(atom1=self.atom1, atom2=self.atom2)
         if minEnergy is not None and maxEnergy is not None:
             system.restrictEnergy(minEnergy, maxEnergy)
 
-        if pconfig.minimalNorm is not None:
-            system.setMinimalNorm(pconfig.minimalNorm)
-        if pconfig.conserveMomenta:
-            system.setConservedMomentaUnderRotation([pconfig.momenta])
-        if pconfig.angle is not None:
-            system.setAngle(pconfig.angle)
-        if not np.isinf(pconfig.distance) and pconfig.distance is not None:
-            system.setDistance(pconfig.distance)
-        if pconfig.order is not None:
-            system.setOrder(pconfig.order)
+        if config.minimalNorm() is not None:
+            system.setMinimalNorm(config.minimalNorm())
+        if config.conserveMomentaPair():
+            system.setConservedMomentaUnderRotation(config.momentaPair())
+        if config.angle() is not None:
+            system.setAngle(config.angle())
+        if not np.isinf(config.distance()) and config.distance() is not None:
+            system.setDistance(config.distance())
+        if config.order() is not None:
+            system.setOrder(config.order())
 
         for sym in ["inversion", "permutation", "reflection"]:
-            value = getattr(pconfig, sym)
+            value = config.symmetry(sym)
             if value is None:
                 continue
             logger.debug("Setting %s to %s", sym, value)
@@ -485,23 +485,23 @@ class AtomTwo(Atom):
         if any(k not in ["distance", "angle", "inversion", "permutation", "reflection"] for k in new):
             raise ValueError(f"Invalid key {k} in AtomTwo updateFromParams")
 
-        pair = self.config.pair
+        config = self.config
         update = {
-            **{"atom" + str(atom.config.iAtom): atom.updateFromParams(atom_new) for atom in self.atoms},
+            **{f"atom{i}": atom.updateFromParams(atom_new) for i, atom in enumerate(self.atoms)},
         }
         for k in ["angle", "distance", "inversion", "permutation", "reflection"]:
             if k in new:
-                update[k] = new[k] != getattr(pair, k)
+                update[k] = new[k] != getattr(config, k)()
 
         if update.get("angle", False):
-            pair.setAngle(new["angle"])
-            self.system.setAngle(pair.angle)
+            config.setAngle(new["angle"])
+            self.system.setAngle(config.angle())
         if update.get("distance", False):
-            pair.setDistance(new["distance"])
-            self.system.setDistance(pair.distance)
+            config.setDistance(new["distance"])
+            self.system.setDistance(config.distance())
         for sym in ["inversion", "permutation", "reflection"]:
             if update.get(sym, False):
-                pair.setSymmetry(sym, new[sym])
+                config.setSymmetry(sym, new[sym])
 
         if any(update.get(k, False) for k in ["atom1", "atom2"]):
             # for now we have to build the system again, because internal SystemTwo makes a copy of the SystemOne's ...
@@ -528,7 +528,7 @@ class AtomTwo(Atom):
 def atom_from_config(_config):
     """Creating an Atom object from a config dictionary."""
     config = Config(_config)
-    if config.nAtoms == 1:
+    if config.nAtoms() == 1:
         return AtomOne(config)
-    elif config.nAtoms == 2:
+    elif config.nAtoms() == 2:
         return AtomTwo(config)
