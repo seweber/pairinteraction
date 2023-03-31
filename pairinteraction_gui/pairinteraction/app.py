@@ -1521,8 +1521,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.storage_data[idx].append([filestep, blocknumber, filename])
 
                     if "pkl" in filename:
-                        data = pickle.load(open(filename, "rb"))
-                        energies, basis, params = data["energies"], data["basis"], data["params"]
+                        pkl_data = pickle.load(open(filename, "rb"))
+                        energies, basis, params = pkl_data["energies"], pkl_data["basis"], pkl_data["params"]
                         bn = blocknumber
                     else:
                         eigensystem = Eigensystem(filename)
@@ -3175,16 +3175,16 @@ class MainWindow(QtWidgets.QMainWindow):
                 data["distances_description"] = "distance(0, idxStep)"
 
             # save states
+            # nState, i-n1-l1-j1-m1-n2-l2-j2-m2 # nState, i-n-l-j-m
             if len(self.storage_states[idx]) == 1 and -1 in self.storage_states[idx]:
                 data["states"] = self.storage_states[idx][-1]
-                data["numStates"] = len(data["states"])
+                data["numStates"] = data["states"].shape[0]
             elif len(self.storage_states[idx]) > 0:
-                # nState, i-n1-l1-j1-m1-n2-l2-j2-m2 # nState, i-n-l-j-m
                 data["states"] = self.storage_states[idx]
-                data["numStates"] = {k: len(v) for k, v in data["states"].items()}
+                data["numStates"] = {k: v.shape[0] for k, v in data["states"].items()}
 
             # save overlaps
-            if len(self.storage_overlaps[idx]) == 1 and -1 in self.storage_overlaps[idx]:
+            if len(self.stateidx_field[idx]) == 1 and -1 in self.stateidx_field[idx]:
                 data["numOverlapvectors"] = self.stateidx_field[idx][-1].shape[0]
                 data["overlapvectors"] = self.stateidx_field[idx][-1]
             elif len(self.stateidx_field[idx]) > 0:
@@ -3212,8 +3212,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
             for filestep, _blocknumber, filename in sorted(self.storage_data[idx], key=itemgetter(0, 1)):
                 if "pkl" in filename:
-                    data = pickle.load(open(filename, "rb"))
-                    energies, basis, params = data["energies"], data["basis"], data["params"]
+                    pkl_data = pickle.load(open(filename, "rb"))
+                    energies, basis, params = pkl_data["energies"], pkl_data["basis"], pkl_data["params"]
                     bn = _blocknumber
                 else:
                     eigensystem = Eigensystem(filename)
