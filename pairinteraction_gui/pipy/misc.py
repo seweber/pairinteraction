@@ -1,10 +1,7 @@
 """Defining class CustomDict.
 This dictionary class keeps track of the keys that are not used.
 """
-import logging
 from collections.abc import MutableMapping
-
-logger = logging.getLogger(__name__)
 
 
 class CustomDict(MutableMapping):
