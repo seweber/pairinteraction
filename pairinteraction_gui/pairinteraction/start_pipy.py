@@ -120,6 +120,8 @@ def one_run(config, param_list, ip):
         }
         with open(filename, "wb") as f:
             pickle.dump(data, f)
+        with open(filename.replace(".pkl", ".json"), "w") as f:
+            json.dump(data["params"], f, indent=4)
 
     result = {
         "ip": ip,
@@ -204,7 +206,7 @@ def conf_to_settings(conf, pathCache):
                 # In case of inversion and permutation symmetry: the orbital parity is conserved and we
                 # just use the blocks with the same parity as the inital state
                 L = config["l1"] + config["l2"]
-                if (inv + per in ["EO", "OE"] and L % 2 == 0) or (inv + per in ["EE", "OO"] and L % 2 == 1):
+                if (f"{inv}{per}" in ["EO", "OE"] and L % 2 == 0) or (f"{inv}{per}" in ["EE", "OO"] and L % 2 == 1):
                     continue
                 # TODO add more symmetry conditions here, see HamiltonianTwo.cpp
             symmetries_list.append({"inversion": inv, "permutation": per, "reflection": ref})

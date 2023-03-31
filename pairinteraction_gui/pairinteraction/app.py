@@ -1475,8 +1475,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.buffer_positions = {}
                 self.buffer_boolarr = {}
 
-                self.labelprob = None
-                self.labelprob_energy = None
+                if len(self.storage_states[idx]) == 1:
+                    self.labelprob = None
+                    self.labelprob_energy = None
 
                 self.yMin_field[idx] = None
                 self.yMax_field[idx] = None
