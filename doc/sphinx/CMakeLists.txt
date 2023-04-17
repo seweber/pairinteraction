@@ -56,6 +56,7 @@ add_custom_target(sphinx
     # sphinx-build
     "${SPHINX_BUILD_EXECUTABLE}"
     -q
+    -T
     -b html
     -c "${SPHINX_BASE}"
     -d "${SPHINX_CACHE_DIR}"
