@@ -1097,16 +1097,18 @@ class MainWindow(QtWidgets.QMainWindow):
             if idx > 1 and not self.thread.dataqueue_field2.empty():
                 continue
 
-            basisfile = [self.thread.basisfile_field1, self.thread.basisfile_field2, self.thread.basisfile_potential][
-                idx
-            ]
+            basisfiles = [
+                self.thread.basisfiles_field1,
+                self.thread.basisfiles_field2,
+                self.thread.basisfiles_potential,
+            ][idx]
             dataqueue = [self.thread.dataqueue_field1, self.thread.dataqueue_field2, self.thread.dataqueue_potential][
                 idx
             ]
 
             # --- load basis states ---
-
-            if basisfile != "":
+            while len(basisfiles) > 0:
+                basisfile = basisfiles.pop(0)
                 # load basis
                 basis = np.loadtxt(basisfile)
                 if "blocknumber_" in basisfile:
@@ -1146,7 +1148,8 @@ class MainWindow(QtWidgets.QMainWindow):
                             "Field maps: ",
                         ][idxtype]
                         self.ui.statusbar.showMessage(status_type + "calculate overlap states")
-                        QtWidgets.QApplication.processEvents()
+                        # TODO: see processEvents below, it can leed to problems
+                        # QtWidgets.QApplication.processEvents()
 
                         # calculate overlap states
                         if self.angle != 0:
@@ -1410,7 +1413,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
                         # update status bar
                         self.ui.statusbar.showMessage(message_old)
-                        QtWidgets.QApplication.processEvents()
+                        # TODO: this can leed to a crash especially when using the unit tests
+                        # QtWidgets.QApplication.processEvents()
 
                     else:
                         self.stateidx_field[idx][bn] = None
@@ -1482,15 +1486,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.yMin_field[idx] = None
                 self.yMax_field[idx] = None
 
-                # indicate that the basis file is already processed
-                if idx == 0:
-                    self.thread.basisfile_field1 = ""
-                elif idx == 1:
-                    self.thread.basisfile_field2 = ""
-                elif idx == 2:
-                    self.thread.basisfile_potential = ""
-                    self.thread.basisfile_potential = ""
-
             # --- check if there is some new data and if yes, plot it ---
 
             if not dataqueue.empty() and len(self.storage_states[idx]) == 0:
@@ -1522,7 +1517,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.storage_data[idx].append([filestep, blocknumber, filename])
 
                     if "pkl" in filename:
-                        pkl_data = pickle.load(open(filename, "rb"))
+                        with open(filename, "rb") as f:
+                            pkl_data = pickle.load(f)
                         energies, basis, params = pkl_data["energies"], pkl_data["basis"], pkl_data["params"]
                         bn = blocknumber
                     else:
@@ -1682,7 +1678,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                 if (
                                     (idx == 0 and np.all(labelstate == self.unperturbedstate[idx][[0, 1, 2]]))
                                     or (
-                                        (idx == 1 or self.thread.samebasis)
+                                        (idx == 1 or (idx == 0 and self.thread.samebasis))
                                         and np.all(labelstate == self.unperturbedstate[idx][[4, 5, 6]])
                                     )
                                     or (
@@ -3181,16 +3177,18 @@ class MainWindow(QtWidgets.QMainWindow):
                 data["states"] = self.storage_states[idx][-1]
                 data["numStates"] = data["states"].shape[0]
             elif len(self.storage_states[idx]) > 0:
-                data["states"] = self.storage_states[idx]
-                data["numStates"] = {k: v.shape[0] for k, v in data["states"].items()}
+                data["states"] = [self.storage_states[idx][k] for k in sorted(self.storage_states[idx].keys())]
+                data["numStates"] = [v.shape[0] for v in data["states"]]
 
             # save overlaps
             if len(self.stateidx_field[idx]) == 1 and -1 in self.stateidx_field[idx]:
                 data["numOverlapvectors"] = self.stateidx_field[idx][-1].shape[0]
                 data["overlapvectors"] = self.stateidx_field[idx][-1]
             elif len(self.stateidx_field[idx]) > 0:
-                data["numOverlapvectors"] = {k: v.shape[0] for k, v in self.stateidx_field[idx].items()}
-                data["overlapvectors"] = self.stateidx_field[idx]
+                data["numOverlapvectors"] = [
+                    self.stateidx_field[idx][k].shape[0] for k in sorted(self.stateidx_field[idx].keys())
+                ]
+                data["overlapvectors"] = [self.stateidx_field[idx][k] for k in sorted(self.stateidx_field[idx].keys())]
 
             # save data
             # TODO Variablen an anderer Stelle anlegen
@@ -3213,7 +3211,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
             for filestep, _blocknumber, filename in sorted(self.storage_data[idx], key=itemgetter(0, 1)):
                 if "pkl" in filename:
-                    pkl_data = pickle.load(open(filename, "rb"))
+                    with open(filename, "rb") as f:
+                        pkl_data = pickle.load(f)
                     energies, basis, params = pkl_data["energies"], pkl_data["basis"], pkl_data["params"]
                     bn = _blocknumber
                 else:
