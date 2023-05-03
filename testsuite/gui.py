@@ -27,8 +27,8 @@ class PairinteractionGuiTest(unittest.TestCase):
         self.form.ui.spinbox_system_cores.setValue(1)
         for x in "xyz":
             for minmax in ["min", "max"]:
-                getattr(self.form.ui, f"lineedit_field{minmax}E{x}").setText("1")
-                getattr(self.form.ui, f"lineedit_field{minmax}B{x}").setText("1.5")
+                getattr(self.form.ui, f"lineedit_system_{minmax}E{x}").setText("1")
+                getattr(self.form.ui, f"lineedit_system_{minmax}B{x}").setText("1.5")
         self.form.ui.spinbox_system_steps.setValue(1)
 
         self._testEnergies(0, "Field", dE=3)
@@ -46,6 +46,7 @@ class PairinteractionGuiTest(unittest.TestCase):
                 self._testEnergies(idx, ref_data, dE, use_python_api=use_python_api)
             return
         self.form.ui.checkbox_use_python_api.setChecked(use_python_api)
+        self.form.autosetSymmetrization()
 
         if idx == 0:
             widget_calc = self.form.ui.pushbutton_field1_calc

@@ -44,6 +44,7 @@ def main(args):
 
 
 def do_simulations(settings, pass_atom="direct"):
+    # TODO decide, wether pass_atom direct or path is better (faster, memory efficient,...)
     param_list = get_param_list(settings)
     ip_list = list(range(len(param_list)))
 
