@@ -3097,7 +3097,10 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             description = ["field map of atom 1", "field map of atom 2", "pair potential"][idx]
 
-        filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, f"Save {description}", path, "zip (*.zip)")
+        if getattr(self, "forceFilename", None) is None:
+            filename, _ = QtWidgets.QFileDialog.getSaveFileName(self, f"Save {description}", path, "zip (*.zip)")
+        else:
+            filename = self.forceFilename
 
         if not filename:
             return
