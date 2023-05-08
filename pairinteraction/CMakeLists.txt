@@ -124,6 +124,17 @@ set(MKL_ARCH "intel64" CACHE STRING "MKL architecture")
 set(MKL_LINK "dynamic" CACHE STRING "MKL linkage")
 set(MKL_THREADING "sequential" CACHE STRING "MKL threading backend")
 set(MKL_INTERFACE "lp64" CACHE STRING "MKL interface")
+
+set(VCPKG_MKL_FILENAME "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/share/mkl/MKLConfig.cmake")
+if(EXISTS "${VCPKG_MKL_FILENAME}")
+  message(STATUS "Fixing ${VCPKG_MKL_FILENAME}")
+  set(VCPKG_MKL_MATCH "\${MKL_ROOT}/bin\${MKL_DLL_GLOB}")
+  set(VCPKG_MKL_REPLACE "\${MKL_ROOT}/bin/\${MKL_DLL_GLOB}")
+  file(READ "${VCPKG_MKL_FILENAME}" CONTENTS)
+  string(REPLACE "${VCPKG_MKL_MATCH}" "${VCPKG_MKL_REPLACE}" CONTENTS "${CONTENTS}")
+  file(WRITE "${VCPKG_MKL_FILENAME}" "${CONTENTS}")
+endif()
+
 find_package(MKL CONFIG)
 find_package(PkgConfig)
 if (NOT MKL_FOUND AND PKG_CONFIG_FOUND)
@@ -164,6 +175,34 @@ if(WITH_LAPACK AND MKL_FOUND AND (NOT BLA_VENDOR OR BLA_VENDOR MATCHES "All" OR 
     target_compile_definitions(picomplex PUBLIC WITH_INTEL_MKL)
   endif()
 
+  # The windows build requires additional dll
+  if(WIN32)
+    file(GLOB MKL_AVX2_DLL_FILE "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/bin/mkl_avx2*.dll")
+    file(GLOB MKL_DEF_DLL_FILE "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/bin/mkl_def*.dll")
+    list(LENGTH MKL_AVX2_DLL_FILE MKL_AVX2_DLL_FILE_LEN)
+    list(LENGTH MKL_DEF_DLL_FILE MKL_DEF_DLL_FILE_LEN)
+    if(MKL_AVX2_DLL_FILE_LEN AND MKL_DEF_DLL_FILE_LEN)
+      list(SORT MKL_AVX2_DLL_FILE)
+      list(REVERSE MKL_AVX2_DLL_FILE)
+      list(GET MKL_AVX2_DLL_FILE 0 MKL_AVX2_DLL_FILE)
+      list(SORT MKL_DEF_DLL_FILE)
+      list(REVERSE MKL_DEF_DLL_FILE)
+      list(GET MKL_DEF_DLL_FILE 0 MKL_DEF_DLL_FILE)
+      add_custom_command(
+        TARGET pireal POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+          ${MKL_AVX2_DLL_FILE} ${MKL_DEF_DLL_FILE}
+          $<TARGET_FILE_DIR:pireal>)
+      add_custom_command(
+        TARGET picomplex POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+          ${MKL_AVX2_DLL_FILE} ${MKL_DEF_DLL_FILE}
+          $<TARGET_FILE_DIR:picomplex>)
+    else()
+      mkl_message(FATAL_ERROR "mkl_avx2*.dll or mkl_def*.dll not found")
+    endif()
+  endif()
+
   # Using Intel MKL from Eigen
   message(STATUS "Using Intel MKL from Eigen")
   target_compile_definitions(pireal PUBLIC
@@ -192,6 +231,7 @@ elseif(WITH_LAPACK AND LAPACK_FOUND)
   else()
     set(CMAKE_REQUIRED_LIBRARIES "${LAPACK_LIBRARIES}")
   endif()
+  include(CheckFunctionExists)
   check_function_exists(LAPACKE_dsyev LAPACKE_WORKS)
   set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES_SAVED})
 

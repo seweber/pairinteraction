@@ -46,6 +46,12 @@ jobs:
           cache: 'pip'
       - run: pip install -r requirements.txt
 
+      - name: Patch intel-mkl portfile
+        shell: pwsh
+        run: |
+          $PORTFILE = "$env:VCPKG_INSTALLATION_ROOT\ports\intel-mkl\portfile.cmake"
+          (Get-Content $PORTFILE) -replace 'ilp64', 'lp64' | Out-File -encoding ASCII $PORTFILE
+
       - name: Configure
         shell: cmd
         run: |
@@ -54,6 +60,7 @@ jobs:
               -DPython3_FIND_REGISTRY=LAST ^
               -DCMAKE_BUILD_TYPE=${{ env.CMAKE_BUILD_TYPE }} ^
               -DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE ^
+              -DMKL_THREADING=intel_thread ^
               -DCMAKE_TOOLCHAIN_FILE="%VCPKG_INSTALLATION_ROOT%\scripts\buildsystems\vcpkg.cmake"
 
       - name: Build
