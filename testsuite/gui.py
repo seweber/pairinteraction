@@ -15,6 +15,7 @@ from PyQt5.QtWidgets import QApplication
 import pairinteraction_gui.pairinteraction.app as piGui
 
 app = QApplication(sys.argv)
+PATH = "reference_data/gui/"
 
 
 class PairinteractionGuiTest(unittest.TestCase):
@@ -24,20 +25,15 @@ class PairinteractionGuiTest(unittest.TestCase):
         self.form.ui.action_pconf_reset.trigger()
 
     def testFieldCalcButton(self):
-        self.form.ui.spinbox_system_cores.setValue(1)
-        for x in "xyz":
-            for minmax in ["min", "max"]:
-                getattr(self.form.ui, f"lineedit_system_{minmax}E{x}").setText("1")
-                getattr(self.form.ui, f"lineedit_system_{minmax}B{x}").setText("1.5")
-        self.form.ui.spinbox_system_steps.setValue(1)
-
+        # Testing simulation single atom with all E and B fields on
+        self.form.loadSettingsSystem(PATH + "Field/settings.sconf")
+        self.form.loadSettingsPlotter(PATH + "Field/settings.pconf")
         self._testEnergies(0, "Field", dE=3)
 
     def testPotentialCalcButton(self):
-        self.form.ui.lineedit_system_minR.setText("20")
-        self.form.ui.lineedit_system_maxR.setText("5")
-        self.form.ui.spinbox_system_steps.setValue(2)
-
+        # Testing simulation for pairpotential
+        self.form.loadSettingsSystem(PATH + "Potential/settings.sconf")
+        self.form.loadSettingsPlotter(PATH + "Potential/settings.pconf")
         self._testEnergies(2, "Potential", dE=0.3)
 
     def _testEnergies(self, idx, ref_data, dE, dE_tol=1e-3, use_python_api="both"):
@@ -61,30 +57,34 @@ class PairinteractionGuiTest(unittest.TestCase):
             self.form.checkForData()
 
         # Save current data
-        path = "reference_data/"
-        self.form.forceFilename = path + "tmp"
+        self.form.forceFilename = PATH + "tmp"
         QTest.mouseClick(widget_save, Qt.LeftButton)
 
-        # Load current and reference data
         data = {}
         sconfig = {}
-        for k in ["tmp", ref_data]:
-            with zipfile.ZipFile(path + k, "r") as zip_file:
-                with zip_file.open("data.mat") as f:
-                    data[k] = scipy.io.loadmat(f)
-                with zip_file.open("settings.sconf") as f:
-                    sconfig[k] = json.load(f)
-        os.remove(path + "tmp")
+        # Load reference data
+        with zipfile.ZipFile(PATH + "tmp", "r") as zip_file:
+            with zip_file.open("data.mat") as f:
+                data["tmp"] = scipy.io.loadmat(f)
+            with zip_file.open("settings.sconf") as f:
+                sconfig["tmp"] = json.load(f)
+        os.remove(PATH + "tmp")
 
-        # Check if configs match
-        for k, v in sconfig[ref_data].items():
+        # Load current data
+        with open(PATH + ref_data + "/data.mat", "rb") as f:
+            data["ref"] = scipy.io.loadmat(f)
+        with open(PATH + ref_data + "/settings.sconf") as f:
+            sconfig["ref"] = json.load(f)
+
+        # Check if configs match # unecessary since we load the same config
+        for k, v in sconfig["ref"].items():
             assert sconfig["tmp"][k] == v
 
         # Check if central eigenvalues (+/- dE) match
-        for i in range(len(data[ref_data]["eigenvalues"])):
+        for i in range(len(data["ref"]["eigenvalues"])):
             Es = {k: np.array(mat["eigenvalues"])[i] for k, mat in data.items()}
             Es = {k: E[np.abs(E) < dE] for k, E in Es.items()}
-            diff_rel = np.abs(Es[ref_data] - Es["tmp"])
+            diff_rel = np.abs(Es["ref"] - Es["tmp"])
             assert np.all(diff_rel <= dE_tol)
 
     def tearDown(self):
