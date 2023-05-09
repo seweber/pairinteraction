@@ -23,6 +23,12 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
     include(CTest)
 endif()
 
+# Work around buggy CMake ignoring CXX_EXTENSIONS OFF
+# https://gitlab.kitware.com/cmake/cmake/-/issues/22224
+if(POLICY CMP0128)
+  cmake_policy(SET CMP0128 NEW)
+endif()
+
 # set version of settings and cache
 
 set(VERSION_SETTINGS "v17")
@@ -74,6 +80,7 @@ option(WITH_DMG      "Generate a DMG file (Mac OS X only)"  OFF)
 option(WITH_COVERAGE "Generate code coverage report"        OFF)
 option(WITH_LTO      "Build with link-time optimization"    OFF)
 option(WITH_GSL      "Use the GNU scientific library for Whittaker functions" ON)
+option(WITH_LAPACK   "Use BLAS and LAPACK to speed up linear algebra" ON)
 if(CMAKE_VERSION VERSION_GREATER 3.5.2 AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   option(WITH_CLANG_TIDY "Run Clang-Tidy during compilation" OFF)
 endif()

@@ -20,12 +20,20 @@
 #ifndef MATRIXELEMENTCACHE_H
 #define MATRIXELEMENTCACHE_H
 
-#include "Basisnames.h"
-#include "State.h"
-#include "Wavefunction.h"
-#include "dtypes.h"
-#include "utils.h"
+#include "Basisnames.hpp"
+#include "State.hpp"
+#include "Wavefunction.hpp"
+#include "dtypes.hpp"
+#include "utils.hpp"
 
+// clang-format off
+#if __has_include (<boost/serialization/version.hpp>)
+#    include <boost/serialization/version.hpp>
+#endif
+#if __has_include (<boost/serialization/library_version_type.hpp>)
+#    include <boost/serialization/library_version_type.hpp>
+#endif
+// clang-format on
 #include <boost/serialization/unordered_map.hpp>
 #include <boost/serialization/unordered_set.hpp>
 #include <wignerSymbols/wignerSymbols-cpp.h>

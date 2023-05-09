@@ -20,11 +20,19 @@
 #ifndef SYSTEMONE_H
 #define SYSTEMONE_H
 
-#include "State.h"
-#include "SystemBase.h"
-#include "utils.h"
+#include "State.hpp"
+#include "SystemBase.hpp"
+#include "utils.hpp"
 
 #include <array>
+// clang-format off
+#if __has_include (<boost/serialization/version.hpp>)
+#    include <boost/serialization/version.hpp>
+#endif
+#if __has_include (<boost/serialization/library_version_type.hpp>)
+#    include <boost/serialization/library_version_type.hpp>
+#endif
+// clang-format on
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/unordered_map.hpp>
 #include <cmath>

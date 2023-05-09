@@ -20,19 +20,27 @@
 #ifndef SYSTEMBASE_H
 #define SYSTEMBASE_H
 
-#include "MatrixElementCache.h"
-#include "State.h"
-#include "WignerD.h"
-#include "dtypes.h"
-#include "serialization_eigen.h"
-#include "serialization_path.h"
-#include "utils.h"
+#include "MatrixElementCache.hpp"
+#include "State.hpp"
+#include "WignerD.hpp"
+#include "dtypes.hpp"
+#include "serialization_eigen.hpp"
+#include "serialization_path.hpp"
+#include "utils.hpp"
 #include <unsupported/Eigen/MatrixFunctions>
 
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/member.hpp>
 #include <boost/multi_index/random_access_index.hpp>
 #include <boost/multi_index_container.hpp>
+// clang-format off
+#if __has_include (<boost/serialization/version.hpp>)
+#    include <boost/serialization/version.hpp>
+#endif
+#if __has_include (<boost/serialization/library_version_type.hpp>)
+#    include <boost/serialization/library_version_type.hpp>
+#endif
+// clang-format on
 #include <boost/serialization/complex.hpp>
 #include <boost/serialization/set.hpp>
 #include <boost/serialization/vector.hpp>
@@ -51,8 +59,9 @@
 #include <vector>
 
 #ifdef WITH_INTEL_MKL
+#define MKL_Complex8 std::complex<float>
 #define MKL_Complex16 std::complex<double>
-#include <mkl.h>
+#include <mkl_solvers_ee.h>
 #endif // WITH_INTEL_MKL
 
 template <class T>
@@ -533,10 +542,6 @@ public:
         if (checkIsDiagonal(hamiltonian)) {
             return;
         }
-
-        // Prepare the mkl library
-        mkl_set_threading_layer(MKL_THREADING_SEQUENTIAL);
-        mkl_set_interface_layer(MKL_INTERFACE_LP64);
 
         // Estimate number of found eigenvalues
         std::vector<double> diagonal_max(hamiltonian.outerSize(), 0);

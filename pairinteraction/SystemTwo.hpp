@@ -20,12 +20,20 @@
 #ifndef SYSTEMTWO_H
 #define SYSTEMTWO_H
 
-#include "State.h"
-#include "SystemBase.h"
-#include "SystemOne.h"
+#include "State.hpp"
+#include "SystemBase.hpp"
+#include "SystemOne.hpp"
 
 #include <Eigen/Sparse>
 #include <boost/math/special_functions/binomial.hpp>
+// clang-format off
+#if __has_include (<boost/serialization/version.hpp>)
+#    include <boost/serialization/version.hpp>
+#endif
+#if __has_include (<boost/serialization/library_version_type.hpp>)
+#    include <boost/serialization/library_version_type.hpp>
+#endif
+// clang-format on
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/unordered_map.hpp>
 #include <cmath>

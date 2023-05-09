@@ -20,14 +20,22 @@
 #ifndef STATEOLD_H
 #define STATEOLD_H
 
-#include "dtypes.h"
-#include "utils.h"
+#include "dtypes.hpp"
+#include "utils.hpp"
 
 #include <array>
 #include <cmath>
 #include <iostream>
 #include <string>
 
+// clang-format off
+#if __has_include (<boost/serialization/version.hpp>)
+#    include <boost/serialization/version.hpp>
+#endif
+#if __has_include (<boost/serialization/library_version_type.hpp>)
+#    include <boost/serialization/library_version_type.hpp>
+#endif
+// clang-format on
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/string.hpp>
 

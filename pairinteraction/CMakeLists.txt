@@ -18,10 +18,10 @@
 # Generate in-memory database
 
 file(READ databases/quantum_defects.sql QUANTUM_DEFECT_DATABASE_CONTENT)
-configure_file(EmbeddedDatabase.h.in ${CMAKE_CURRENT_BINARY_DIR}/EmbeddedDatabase.h)
+configure_file(EmbeddedDatabase.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/EmbeddedDatabase.hpp)
 
 # Generate header containing the version informations
-configure_file(version.h.in ${CMAKE_CURRENT_BINARY_DIR}/version.h)
+configure_file(version.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/version.hpp)
 
 # Add the executables
 
@@ -113,10 +113,106 @@ set_target_properties(wignerSymbols PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(pireal PRIVATE wignerSymbols)
 target_link_libraries(picomplex PRIVATE wignerSymbols)
 
-# Include Eigen
+# Eigen
 find_package(Eigen3 REQUIRED NO_MODULE)
 target_link_libraries(pireal PUBLIC Eigen3::Eigen)
 target_link_libraries(picomplex PUBLIC Eigen3::Eigen)
+
+# Find MKL
+set(CMAKE_C_COMPILER_ID "${CMAKE_CXX_COMPILER_ID}") # Needed by MKLConfig to find gnu_thread
+set(MKL_ARCH "intel64" CACHE STRING "MKL architecture")
+set(MKL_LINK "dynamic" CACHE STRING "MKL linkage")
+set(MKL_THREADING "sequential" CACHE STRING "MKL threading backend")
+set(MKL_INTERFACE "lp64" CACHE STRING "MKL interface")
+find_package(MKL CONFIG)
+find_package(PkgConfig)
+if (NOT MKL_FOUND AND PKG_CONFIG_FOUND)
+  if(MKL_LINK STREQUAL "sdl")
+    pkg_check_modules(MKL mkl-sdl IMPORTED_TARGET)
+  elseif(MKL_THREADING STREQUAL "sequential")
+    pkg_check_modules(MKL mkl-${MKL_LINK}-${MKL_INTERFACE}-seq IMPORTED_TARGET)
+  elseif(MKL_THREADING STREQUAL "intel_thread")
+    pkg_check_modules(MKL mkl-${MKL_LINK}-${MKL_INTERFACE}-iomp IMPORTED_TARGET)
+  elseif(MKL_THREADING STREQUAL "gnu_thread")
+    pkg_check_modules(MKL mkl-${MKL_LINK}-${MKL_INTERFACE}-gomp IMPORTED_TARGET)
+  elseif(MKL_THREADING STREQUAL "tbb_thread")
+    pkg_check_modules(MKL mkl-${MKL_LINK}-${MKL_INTERFACE}-tbb IMPORTED_TARGET)
+  endif()
+endif()
+
+# Find a different lapack vendor
+find_package(LAPACK)
+
+# Determine which lapack vendor to use
+if(WITH_LAPACK AND MKL_FOUND AND (NOT BLA_VENDOR OR BLA_VENDOR MATCHES "All" OR BLA_VENDOR MATCHES "^Intel"))
+  # Use MKL
+  if (TARGET MKL::MKL)
+    if(OMP_LIBRARY)
+      get_filename_component(OMP_LIBRARY_PATH "${OMP_LIBRARY}" DIRECTORY)
+      get_filename_component(OMP_LIBRARY_PATH "${OMP_LIBRARY_PATH}" REALPATH)
+      target_link_options(pireal PUBLIC "$<$<CXX_COMPILER_ID:Clang,GNU>:LINKER:-rpath=${OMP_LIBRARY_PATH}>")
+      target_link_options(picomplex PUBLIC "$<$<CXX_COMPILER_ID:Clang,GNU>:LINKER:-rpath=${OMP_LIBRARY_PATH}>")
+    endif()
+    target_link_libraries(pireal PUBLIC MKL::MKL)
+    target_link_libraries(picomplex PUBLIC MKL::MKL)
+    target_compile_definitions(pireal PUBLIC WITH_INTEL_MKL)
+    target_compile_definitions(picomplex PUBLIC WITH_INTEL_MKL)
+  else()
+    target_link_libraries(pireal PUBLIC PkgConfig::MKL)
+    target_link_libraries(picomplex PUBLIC PkgConfig::MKL)
+    target_compile_definitions(pireal PUBLIC WITH_INTEL_MKL)
+    target_compile_definitions(picomplex PUBLIC WITH_INTEL_MKL)
+  endif()
+
+  # Using Intel MKL from Eigen
+  message(STATUS "Using Intel MKL from Eigen")
+  target_compile_definitions(pireal PUBLIC
+    EIGEN_USE_MKL_ALL
+    "-DMKL_Complex8=std::complex<float>"
+    "-DMKL_Complex16=std::complex<double>")
+  target_compile_definitions(picomplex PUBLIC
+    EIGEN_USE_MKL_ALL
+    "-DMKL_Complex8=std::complex<float>"
+    "-DMKL_Complex16=std::complex<double>")
+
+elseif(WITH_LAPACK AND LAPACK_FOUND)
+  # Use a different lapack vendor
+  target_link_options(pireal PUBLIC ${LAPACK_LINKER_FLAGS})
+  target_link_options(picomplex PUBLIC ${LAPACK_LINKER_FLAGS})
+  target_link_libraries(pireal PUBLIC ${LAPACK_LIBRARIES})
+  target_link_libraries(picomplex PUBLIC ${LAPACK_LIBRARIES})
+
+  # TODO: Ubuntu and macOS have this in a separate library for some reason.
+  # FIXME: Needs a more robust way to detection and linking. Prefer static linking.
+  find_library(LAPACKE_LIBRARY NAMES liblapacke.a lapacke)
+
+  set(CMAKE_REQUIRED_LIBRARIES_SAVED ${CMAKE_REQUIRED_LIBRARIES})
+  if(LAPACKE_LIBRARY)
+    set(CMAKE_REQUIRED_LIBRARIES "${LAPACKE_LIBRARY};${LAPACK_LIBRARIES}")
+  else()
+    set(CMAKE_REQUIRED_LIBRARIES "${LAPACK_LIBRARIES}")
+  endif()
+  check_function_exists(LAPACKE_dsyev LAPACKE_WORKS)
+  set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES_SAVED})
+
+  if(LAPACKE_WORKS AND LAPACKE_LIBRARY)
+    target_link_libraries(pireal PUBLIC ${LAPACKE_LIBRARY})
+    target_link_libraries(picomplex PUBLIC ${LAPACKE_LIBRARY})
+  elseif(NOT LAPACKE_WORKS)
+    message(FATAL_ERROR "No working LAPACKE detected")
+  endif()
+
+  # Using BLAS/LAPACK from Eigen
+  message(STATUS "Using BLAS/LAPACK from Eigen")
+  target_compile_definitions(pireal PUBLIC
+    EIGEN_USE_BLAS EIGEN_USE_LAPACKE
+    "-Dlapack_complex_float=std::complex<float>"
+    "-Dlapack_complex_double=std::complex<double>")
+  target_compile_definitions(picomplex PUBLIC
+    EIGEN_USE_BLAS EIGEN_USE_LAPACKE
+    "-Dlapack_complex_float=std::complex<float>"
+    "-Dlapack_complex_double=std::complex<double>")
+endif()
 
 find_package(fmt REQUIRED)
 target_link_libraries(pireal PUBLIC $<IF:$<TARGET_EXISTS:fmt::fmt-header-only>,fmt::fmt-header-only,fmt::fmt>)
@@ -155,18 +251,10 @@ if(WITH_GSL)
   target_compile_definitions(picomplex PUBLIC WITH_GSL)
 endif()
 
-find_package(MKL)
-if (MKL_FOUND)
-  target_include_directories(pireal SYSTEM PUBLIC ${MKL_INCLUDE_DIR})
-  target_include_directories(picomplex SYSTEM PUBLIC ${MKL_INCLUDE_DIR})
-  target_link_libraries(pireal PUBLIC ${MKL_LIBRARY})
-  target_link_libraries(picomplex PUBLIC ${MKL_LIBRARY})
-  target_compile_definitions(pireal PUBLIC WITH_INTEL_MKL)
-  target_compile_definitions(picomplex PUBLIC WITH_INTEL_MKL)
-endif()
-
 # Generate interface with SWIG
 if(WITH_PYTHON)
+  # FIXME: The OLD behavior for policy CMP0078 will be removed from a future version
+  # of CMake.
   if(POLICY CMP0078)
     cmake_policy(SET CMP0078 OLD)
   endif()
@@ -199,7 +287,7 @@ if(WITH_PYTHON)
   target_compile_features(${SWIG_MODULE_pireal_REAL_NAME} PRIVATE cxx_std_17)
   set_target_properties(${SWIG_MODULE_pireal_REAL_NAME} PROPERTIES
     CXX_EXTENSIONS OFF
-    SWIG_COMPILE_OPTIONS -py3
+    SWIG_COMPILE_OPTIONS "-Wall;-py3"
     SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON
     SWIG_GENERATED_INCLUDE_DIRECTORIES "${Python3_INCLUDE_DIRS};${Python3_NumPy_INCLUDE_DIRS}"
     SWIG_GENERATED_COMPILE_OPTIONS $<$<CXX_COMPILER_ID:MSVC>:/bigobj>)
@@ -214,7 +302,7 @@ if(WITH_PYTHON)
   target_compile_features(${SWIG_MODULE_picomplex_REAL_NAME} PRIVATE cxx_std_17)
   set_target_properties(${SWIG_MODULE_picomplex_REAL_NAME} PROPERTIES
     CXX_EXTENSIONS OFF
-    SWIG_COMPILE_OPTIONS "-py3;-DUSE_COMPLEX"
+    SWIG_COMPILE_OPTIONS "-Wall;-py3;-DUSE_COMPLEX"
     SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON
     SWIG_GENERATED_COMPILE_DEFINITIONS USE_COMPLEX
     SWIG_GENERATED_INCLUDE_DIRECTORIES "${Python3_INCLUDE_DIRS};${Python3_NumPy_INCLUDE_DIRS}"

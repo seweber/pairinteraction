@@ -3,8 +3,7 @@ name: macOS
 on:
   push:
   pull_request:
-  schedule:
-  - cron: '0 0 * * 1' # Every Monday at 00:00
+  workflow_call:
   workflow_dispatch:
     inputs:
       debug_enabled:
@@ -44,7 +43,7 @@ jobs:
           npm install -g fileicon
 
       - name: Configure
-        run: cmake -S . -B build/ -DBUILD_TESTING=On -DWITH_DMG=On -DCPACK_PACKAGE_FILE_NAME="${package}" -DPython3_FIND_FRAMEWORK=LAST
+        run: cmake -S . -B build/ -DBUILD_TESTING=On -DWITH_DMG=On -DWITH_LAPACK=Off -DCPACK_PACKAGE_FILE_NAME="${package}" -DPython3_FIND_FRAMEWORK=LAST
       - name: Build
         run: cmake --build build/ -- --keep-going
       - name: Test
