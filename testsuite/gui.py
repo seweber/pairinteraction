@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import QApplication
 import pairinteraction_gui.pairinteraction.app as piGui
 
 app = QApplication(sys.argv)
-PATH = "reference_data/gui/"
+PATH = os.path.join("reference_data", "gui")
 
 
 class PairinteractionGuiTest(unittest.TestCase):
@@ -26,15 +26,15 @@ class PairinteractionGuiTest(unittest.TestCase):
 
     def testFieldCalcButton(self):
         # Testing simulation single atom with all E and B fields on
-        self.form.loadSettingsSystem(PATH + "Field/settings.sconf")
-        self.form.loadSettingsPlotter(PATH + "Field/settings.pconf")
-        self._testEnergies(0, "Field", dE=3)
+        self.form.loadSettingsSystem(os.path.join(PATH, "field", "settings.sconf"))
+        self.form.loadSettingsPlotter(os.path.join(PATH, "field", "settings.pconf"))
+        self._testEnergies(0, "field", dE=3)
 
     def testPotentialCalcButton(self):
         # Testing simulation for pairpotential
-        self.form.loadSettingsSystem(PATH + "Potential/settings.sconf")
-        self.form.loadSettingsPlotter(PATH + "Potential/settings.pconf")
-        self._testEnergies(2, "Potential", dE=0.3)
+        self.form.loadSettingsSystem(os.path.join(PATH, "potential", "settings.sconf"))
+        self.form.loadSettingsPlotter(os.path.join(PATH, "potential", "settings.pconf"))
+        self._testEnergies(2, "potential", dE=0.3)
 
     def _testEnergies(self, idx, ref_data, dE, dE_tol=1e-3, use_python_api="both"):
         if use_python_api == "both":
@@ -57,23 +57,24 @@ class PairinteractionGuiTest(unittest.TestCase):
             self.form.checkForData()
 
         # Save current data
-        self.form.forceFilename = PATH + "tmp"
+        forceFilename = os.path.join(PATH, "tmp")
+        self.form.forceFilename = forceFilename
         QTest.mouseClick(widget_save, Qt.LeftButton)
 
         data = {}
         sconfig = {}
         # Load reference data
-        with zipfile.ZipFile(PATH + "tmp", "r") as zip_file:
+        with zipfile.ZipFile(forceFilename, "r") as zip_file:
             with zip_file.open("data.mat") as f:
                 data["tmp"] = scipy.io.loadmat(f)
             with zip_file.open("settings.sconf") as f:
                 sconfig["tmp"] = json.load(f)
-        os.remove(PATH + "tmp")
+        os.remove(forceFilename)
 
         # Load current data
-        with open(PATH + ref_data + "/data.mat", "rb") as f:
+        with open(os.path.join(PATH, ref_data, "data.mat"), "rb") as f:
             data["ref"] = scipy.io.loadmat(f)
-        with open(PATH + ref_data + "/settings.sconf") as f:
+        with open(os.path.join(PATH, ref_data, "settings.sconf")) as f:
             sconfig["ref"] = json.load(f)
 
         # Check if configs match # unecessary since we load the same config

@@ -12,8 +12,8 @@ from functools import partial
 
 import numpy as np
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/../")
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)) + "/../../")
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 import pipy  # noqa
 
 
@@ -56,7 +56,8 @@ def do_simulations(settings, pass_atom="direct"):
     else:
         allQunumbers = atom.allQunumbers
     _name = f"{'one' if atom.nAtoms == 1 else 'two'}_{atom.config.toHash()}"
-    path_basis = f"/tmp/basis_{_name}_blocknumber_{settings['blocknumber']}.csv"
+    path_tmp = os.path.abspath(os.path.join(os.sep, "tmp"))
+    path_basis = os.path.join(path_tmp, f"basis_{_name}_blocknumber_{settings['blocknumber']}.csv")
     basis = np.insert(allQunumbers, 0, np.arange(len(allQunumbers)), axis=1)
     np.savetxt(path_basis, basis, delimiter="\t", fmt=["%d"] + ["%d", "%d", "%.1f", "%.1f"] * atom.nAtoms)
     output(f"{'>>BAS':5}{len(basis):7}")
@@ -111,10 +112,10 @@ def one_run(config, param_list, ip):
     dimension = len(atom.basisQunumbers)
 
     real_complex = "real" if config.isReal() else "complex"
-    pathCacheMatrix = config.pathCache() + f"cache_matrix_{real_complex}_new/"
+    pathCacheMatrix = os.path.join(config.pathCache(), f"cache_matrix_{real_complex}_new")
     os.makedirs(pathCacheMatrix, exist_ok=True)
     _name = f"{'one' if atom.nAtoms == 1 else 'two'}_{config.toHash()}"
-    filename = pathCacheMatrix + _name + ".pkl"
+    filename = os.path.join(pathCacheMatrix, _name + ".pkl")
 
     if not os.path.exists(filename):
         output(f"Calculating {ip}, {dimension}x{dimension}")
@@ -129,6 +130,8 @@ def one_run(config, param_list, ip):
             pickle.dump(data, f)
         with open(filename.replace(".pkl", ".json"), "w") as f:
             json.dump(data["params"], f, indent=4)
+    else:
+        output(f"Loading {ip}")
 
     result = {
         "ip": ip,
