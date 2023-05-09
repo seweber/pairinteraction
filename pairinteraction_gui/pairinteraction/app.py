@@ -92,8 +92,8 @@ pg.setConfigOption("foreground", "k")
 SPIN_DICT = {"Li": 0.5, "Na": 0.5, "K": 0.5, "Rb": 0.5, "Cs": 0.5, "Sr1": 0, "Sr3": 1}
 
 # Global constants
-PLOT_ALL = -99
-NO_RESTRICTIONS = -1
+PLOT_ALL = -99  # FIXME: extend spinbox to allow for None
+NO_RESTRICTIONS = -1  # FIXME: extend spinbox to allow for None
 NO_BN = -1
 
 # === Dictionary to manage the elements of the GUI related to the plotter ===
@@ -730,6 +730,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.combobox_system_species2.currentIndexChanged[str].connect(self.forbidSamebasis)
         self.ui.combobox_system_species1.currentIndexChanged[str].connect(self.defaultQuantumnumbers)
         self.ui.combobox_system_species2.currentIndexChanged[str].connect(self.defaultQuantumnumbers)
+        self.ui.combobox_system_species1.currentIndexChanged.connect(self.validateQuantumnumbers)
+        self.ui.combobox_system_species2.currentIndexChanged.connect(self.validateQuantumnumbers)
 
         self.ui.radiobutton_system_pairbasisDefined.toggled.connect(self.togglePairbasis)
         self.ui.radiobutton_plot_overlapDefined.toggled.connect(self.toggleOverlapstate)
@@ -1001,8 +1003,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def loadSettingsSystem(self, path):
         with open(path) as f:
             params = json.load(f)
-            for k, v in params.items():
-                self.systemdict[k] = Quantity(v[0], v[1])
+            prio_keys = ["species1", "species2"]  # first set species, to adapt the allowed j and m values
+            for k in prio_keys + list(params.keys()):
+                self.systemdict[k] = Quantity(params[k][0], params[k][1])
 
     def loadSettingsPlotter(self, path):
         with open(path) as f:
@@ -2629,12 +2632,14 @@ class MainWindow(QtWidgets.QMainWindow):
         s = SPIN_DICT.get(species, 0.5)
 
         for q in ["j", "m"]:
-            spinbox = getattr(self.ui, f"spinbox_system_{q}{number}")
-            spinbox.setValue(np.floor(spinbox.value()) + (s % 1))
-            spinbox.setDecimals(0 if s % 1 == 0 else 1)
-            # Minimum and Maximum for m are handled via setDecimals
-            if spinbox.minimum() >= 0:
-                spinbox.setMinimum(s % 1)
+            for system in ["system", "plot"]:
+                spinbox = getattr(self.ui, f"spinbox_{system}_{q}{number}")
+                value = spinbox.value()
+                spinbox.setDecimals(0 if s % 1 == 0 else 1)
+                # Minimum and Maximum for m are handled via setDecimals
+                if spinbox.minimum() >= 0:
+                    spinbox.setMinimum(s % 1)
+                spinbox.setValue(np.floor(value) + (s % 1))
 
     @QtCore.pyqtSlot()
     def validateCores(self):
@@ -2644,15 +2649,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def validateQuantumnumbers(self):
-        sender_name = self.sender().objectName()  # should be f"spinbox_{system}_{q}{number}"
-        if sender_name in [f"spinbox_system_{k}1" for k in "nljm"]:
-            i, system, number = 0, "system", 1
-        elif sender_name in [f"spinbox_system_{k}2" for k in "nljm"]:
-            i, system, number = 0, "system", 2
-        elif sender_name in [f"spinbox_plot_{k}1" for k in "nljm"]:
-            i, system, number = 0, "plot", 1
-        elif sender_name in [f"spinbox_plot_{k}2" for k in "nljm"]:
-            i, system, number = 0, "plot", 2
+        sender_name = self.sender().objectName()
+        system = "plot" if "plot" in sender_name else "system"
+        number = 2 if "2" in sender_name else 1
+        i = number - 1 + (2 if system == "plot" else 0)
 
         qns = []
         for q in "nljm":
@@ -3083,12 +3083,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 python_threads = {"NUM_PROCESSES": str(self.numprocessors), "OMP_NUM_THREADS": "1"}
 
                 if self.ui.checkbox_use_python_api.isChecked():
+                    path_python = os.path.join(self.path_base, "start_pipy.py")
                     self.proc = subprocess.Popen(
-                        [self.path_base + "/start_pipy.py", "--run_gui", "-c", self.path_conf, "-o", self.path_cache],
+                        [path_python, "--run_gui", "-c", self.path_conf, "-o", self.path_cache],
                         stdout=subprocess.PIPE,
                         stderr=subprocess.STDOUT,
                         cwd=self.path_workingdir,
-                        env=dict(os.environ, **python_threads),
+                        env=dict(os.environ, **python_threads, **other_threads),
                     )
                 else:
                     self.proc = subprocess.Popen(
