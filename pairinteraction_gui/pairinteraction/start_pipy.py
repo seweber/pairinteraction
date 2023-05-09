@@ -24,7 +24,7 @@ def main(args):
 
     # convert conf to settings and save as settings.json
     settings = conf_to_settings(conf, args.path_cache)
-    with open(args.path_config.replace("conf", "settings"), "w") as f:
+    with open(args.path_config.replace("conf.json", "settings.json"), "w") as f:
         json.dump(settings, f, indent=4)
 
     # start the calculation
