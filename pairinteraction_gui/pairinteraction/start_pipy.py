@@ -1,13 +1,12 @@
 """The main function will be called by the pairinteraction GUI to start the calculation.
 """
 import argparse
-import concurrent.futures
 import itertools
 import json
+import multiprocessing
 import os
 import pickle
 import sys
-from functools import partial
 
 import numpy as np
 
@@ -44,11 +43,12 @@ def main(args):
 
 def do_simulations(settings, pass_atom="direct"):
     # TODO decide, wether pass_atom direct or path is better (faster, memory efficient,...)
+    # probably direct is better for the current way of implementing the parallelization
+    # also if path we need to pickle the objects, which on some os leeds to problems
     param_list = get_param_list(settings)
     ip_list = list(range(len(param_list)))
 
     atom = pipy.atom_from_config(settings["config"])
-    atom.system.buildHamiltonian()
 
     if atom.nAtoms == 2:
         allQunumbers = [[*qns[:, 0], *qns[:, 1]] for qns in np.array(atom.allQunumbers)]
@@ -72,21 +72,19 @@ def do_simulations(settings, pass_atom="direct"):
     else:
         config = settings["config"]
 
-    p_one_run = partial(one_run, config, param_list)
+    global p_one_run
+
+    def p_one_run(ip):
+        return one_run(config, param_list, ip)
 
     num_pr = settings.get("runtimeoptions", {}).get("NUM_PROCESSES", 1)
     num_pr = os.cpu_count() if num_pr in [0, -1] else num_pr
 
-    if num_pr > 1 and not atom.config.isReal():
-        raise NotImplementedError(
-            "Parallelization for complex calculations is not implemented yet, since there is some bug occuring."
-        )
-
     if num_pr > 1:
-        with concurrent.futures.ProcessPoolExecutor(num_pr) as executor:
-            futures = [executor.submit(p_one_run, i) for i in ip_list]
-            for future in concurrent.futures.as_completed(futures):
-                print_completed(settings, future.result())
+        with multiprocessing.Pool(num_pr) as pool:
+            results = pool.imap_unordered(p_one_run, ip_list)
+            for result in results:
+                print_completed(settings, result)
     else:
         for i in ip_list:
             result = p_one_run(i)
@@ -106,6 +104,11 @@ def one_run(config, param_list, ip):
     else:
         atom = pipy.atom_from_config(config)
     config = atom.config
+
+    if not getattr(atom, "prebuildDone", False):
+        atom.system.buildHamiltonian()
+        atom.system.buildInteraction()
+        atom.prebuildDone = True
 
     atom.updateFromParams(param_list[ip])
     dimension = len(atom.basisQunumbers)

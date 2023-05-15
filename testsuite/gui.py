@@ -2,7 +2,9 @@
 # https://github.com/jmcgeheeiv/pyqttestexample
 import json
 import os
+import shutil
 import sys
+import tempfile
 import unittest
 import zipfile
 
@@ -21,6 +23,7 @@ PATH = os.path.join("reference_data", "gui")
 class PairinteractionGuiTest(unittest.TestCase):
     def setUp(self):
         self.form = piGui.MainWindow()
+        self.form.path_cache = tempfile.mkdtemp()
         self.form.ui.action_sconf_reset.trigger()
         self.form.ui.action_pconf_reset.trigger()
 
@@ -96,6 +99,9 @@ class PairinteractionGuiTest(unittest.TestCase):
         if self.form.proc:
             self.form.proc.stdout.close()
             self.form.proc.wait()
+
+        # Remove tmp cache
+        shutil.rmtree(self.form.path_cache)
 
 
 if __name__ == "__main__":
