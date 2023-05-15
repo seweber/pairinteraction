@@ -140,6 +140,48 @@ if (NOT MKL_FOUND AND PKG_CONFIG_FOUND)
   endif()
 endif()
 
+if(MSVC)
+  # https://www.intel.com/content/www/us/en/docs/onemkl/developer-guide-windows/2023-1/contents-of-the-redist-intel64-directory.html
+  file(GLOB MKL_DLLS
+    # Threading layer
+    "${MKL_ROOT}/redist/intel64/mkl_${MKL_THREADING}*.dll"
+    # Computational layer
+    "${MKL_ROOT}/redist/intel64/mkl_core*.dll"
+    "${MKL_ROOT}/redist/intel64/mkl_def*.dll"
+    "${MKL_ROOT}/redist/intel64/mkl_mc*.dll"
+    "${MKL_ROOT}/redist/intel64/mkl_avx*.dll"
+    "${MKL_ROOT}/redist/intel64/mkl_vml_def*.dll"
+    "${MKL_ROOT}/redist/intel64/mkl_vml_mc*.dll"
+    "${MKL_ROOT}/redist/intel64/mkl_vml_avx*.dll"
+    "${MKL_ROOT}/redist/intel64/mkl_vml_cmpt*.dll"
+    "${MKL_ROOT}/redist/intel64/libimalloc.dll")
+  if(NOT MKL_DLLS)
+    message(WARNING "MKL DLLs could not be located! Dynamic lookup will probably fail.")
+  endif()
+  if(MKL_THREADING STREQUAL "intel_thread")
+    # Implementation detail of MKLConfig.cmake, the pkg-config files do not expose these variables
+    if(EXISTS "${OMP_DLL_DIR}/${OMP_DLLNAME}")
+      list(APPEND MKL_DLLS ${OMP_DLL_DIR}/${OMP_DLLNAME})
+    else()
+      message(WARNING "Intel OpenMP DLL cloud not be located! Dynamic lookup will probably fail.")
+    endif()
+  elseif(MKL_THREADING STREQUAL "tbb_thread")
+    # FIXME: Do we have to add any additional DLLs?
+  endif()
+  set(MKL_DLLS_TO_COPY "${MKL_DLLS}" CACHE STRING "Intel MKL DLLs to copy into the target dir (;-list, ignored if not on Windows)")
+  unset(MKL_DLLS)
+endif()
+
+function(target_copy_mkl_dlls TARGET)
+  foreach(FILE ${MKL_DLLS_TO_COPY})
+    add_custom_command(TARGET ${TARGET} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${FILE} $<TARGET_FILE_DIR:${TARGET}>)
+  endforeach()
+endfunction()
+
+target_copy_mkl_dlls(pireal)
+target_copy_mkl_dlls(picomplex)
+
 # Find a different lapack vendor
 find_package(LAPACK)
 
@@ -182,25 +224,47 @@ elseif(WITH_LAPACK AND LAPACK_FOUND)
   target_link_libraries(pireal PUBLIC ${LAPACK_LIBRARIES})
   target_link_libraries(picomplex PUBLIC ${LAPACK_LIBRARIES})
 
-  # TODO: Ubuntu and macOS have this in a separate library for some reason.
-  # FIXME: Needs a more robust way to detection and linking. Prefer static linking.
-  find_library(LAPACKE_LIBRARY NAMES liblapacke.a lapacke)
+  # Some systems have LAPACKE in a separate library for some reason. The
+  # following attempts to detect that. Static linking is preferred.
+  add_library(LAPACKE_TARGET INTERFACE)
+  add_library(LAPACKE::LAPACKE ALIAS LAPACKE_TARGET)
+  find_library(LAPACKE_LIBRARY
+    NAMES liblapacke.a liblapacke.dylib lapacke
+    PATH_SUFFIXES lib
+    PATHS /usr/local/opt/lapack)
+  find_path(LAPACKE_INCLUDE_DIR
+    NAMES lapacke.h
+    PATH_SUFFIXES include
+    PATHS /usr/include/openblas /usr/local/opt/lapack)
 
+  set(CMAKE_REQUIRED_INCLUDES_SAVED ${CMAKE_REQUIRED_INCLUDES})
   set(CMAKE_REQUIRED_LIBRARIES_SAVED ${CMAKE_REQUIRED_LIBRARIES})
+  if(LAPACKE_INCLUDE_DIR)
+    set(CMAKE_REQUIRED_INCLUDES "${LAPACKE_INCLUDE_DIR}")
+  endif()
   if(LAPACKE_LIBRARY)
     set(CMAKE_REQUIRED_LIBRARIES "${LAPACKE_LIBRARY};${LAPACK_LIBRARIES}")
   else()
     set(CMAKE_REQUIRED_LIBRARIES "${LAPACK_LIBRARIES}")
   endif()
-  check_function_exists(LAPACKE_dsyev LAPACKE_WORKS)
+  include(CheckSymbolExists)
+  check_symbol_exists(LAPACKE_dsyev "lapacke.h" LAPACKE_WORKS)
+  set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES_SAVED})
   set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES_SAVED})
 
-  if(LAPACKE_WORKS AND LAPACKE_LIBRARY)
-    target_link_libraries(pireal PUBLIC ${LAPACKE_LIBRARY})
-    target_link_libraries(picomplex PUBLIC ${LAPACKE_LIBRARY})
+  if(LAPACKE_WORKS)
+    if(LAPACKE_LIBRARY)
+      target_link_libraries(LAPACKE_TARGET INTERFACE "${LAPACKE_LIBRARY}")
+    endif()
+    if(LAPACKE_INCLUDE_DIR)
+      target_include_directories(LAPACKE_TARGET SYSTEM INTERFACE "${LAPACKE_INCLUDE_DIR}")
+    endif()
   elseif(NOT LAPACKE_WORKS)
     message(FATAL_ERROR "No working LAPACKE detected")
   endif()
+
+  target_link_libraries(pireal PUBLIC LAPACKE::LAPACKE)
+  target_link_libraries(picomplex PUBLIC LAPACKE::LAPACKE)
 
   # Using BLAS/LAPACK from Eigen
   message(STATUS "Using BLAS/LAPACK from Eigen")
@@ -296,6 +360,7 @@ if(WITH_PYTHON)
     $<$<CXX_COMPILER_ID:Clang,GNU>:-Wl,--unresolved-symbols=ignore-all>
     $<$<CXX_COMPILER_ID:MSVC>:/NODEFAULTLIB:python3${Python3_VERSION_MINOR}.lib /DEFAULTLIB:python3.lib /FORCE:UNRESOLVED>)
   swig_link_libraries(pireal PUBLIC pireal $<$<CXX_COMPILER_ID:MSVC>:${Python3_LIBRARIES_GENERALIZED}>)
+  target_copy_mkl_dlls(${SWIG_MODULE_pireal_REAL_NAME})
 
   set_property(SOURCE ${CMAKE_CURRENT_BINARY_DIR}/interface_complex.i PROPERTY CPLUSPLUS ON)
   swig_add_library(picomplex LANGUAGE python SOURCES ${CMAKE_CURRENT_BINARY_DIR}/interface_complex.i)
@@ -312,6 +377,7 @@ if(WITH_PYTHON)
     $<$<CXX_COMPILER_ID:Clang,GNU>:-Wl,--unresolved-symbols=ignore-all>
     $<$<CXX_COMPILER_ID:MSVC>:/NODEFAULTLIB:python3${Python3_VERSION_MINOR}.lib /DEFAULTLIB:python3.lib /FORCE:UNRESOLVED>)
   swig_link_libraries(picomplex PUBLIC picomplex $<$<CXX_COMPILER_ID:MSVC>:${Python3_LIBRARIES_GENERALIZED}>)
+  target_copy_mkl_dlls(${SWIG_MODULE_picomplex_REAL_NAME})
 
 endif()
 
