@@ -8,7 +8,7 @@
         null
     ],
     "deltaEPair": [
-        10.0,
+        2.0,
         "gigahertz"
     ],
     "deltaESingle": [
@@ -124,7 +124,7 @@
         "volt/centimeter"
     ],
     "maxR": [
-        5.0,
+        2.0,
         "micrometer"
     ],
     "minBx": [
