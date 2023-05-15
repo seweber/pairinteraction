@@ -3085,7 +3085,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 if self.ui.checkbox_use_python_api.isChecked():
                     path_python = os.path.join(self.path_base, "start_pipy.py")
                     self.proc = subprocess.Popen(
-                        [path_python, "--run_gui", "-c", self.path_conf, "-o", self.path_cache],
+                        [sys.executable, path_python, "--run_gui", "-c", self.path_conf, "-o", self.path_cache],
                         stdout=subprocess.PIPE,
                         stderr=subprocess.STDOUT,
                         cwd=self.path_workingdir,

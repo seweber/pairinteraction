@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """The main function will be called by the pairinteraction GUI to start the calculation.
 """
 import argparse
