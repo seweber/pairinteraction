@@ -130,7 +130,8 @@ def one_run(config, param_list, ip):
         }
         with open(filename, "wb") as f:
             pickle.dump(data, f)
-        with open(filename.replace(".pkl", ".json"), "w") as f:
+        filename_json = os.path.join(pathCacheMatrix, _name + ".json")
+        with open(filename_json, "w") as f:
             json.dump(data["params"], f, indent=4)
     else:
         output(f"Loading {ip}")

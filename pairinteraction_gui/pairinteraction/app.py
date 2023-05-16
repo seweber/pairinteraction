@@ -1551,7 +1551,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     # save data
                     self.storage_data[idx].append([filestep, blocknumber, filename])
 
-                    if "pkl" in filename:
+                    if filename.endswith(".pkl"):
                         with open(filename, "rb") as f:
                             pkl_data = pickle.load(f)
                         energies, basis, params = pkl_data["energies"], pkl_data["basis"], pkl_data["params"]
@@ -3246,7 +3246,7 @@ class MainWindow(QtWidgets.QMainWindow):
             filestep_last = None
 
             for filestep, _blocknumber, filename in sorted(self.storage_data[idx], key=itemgetter(0, 1)):
-                if "pkl" in filename:
+                if filename.endswith(".pkl"):
                     with open(filename, "rb") as f:
                         pkl_data = pickle.load(f)
                     energies, basis, params = pkl_data["energies"], pkl_data["basis"], pkl_data["params"]
