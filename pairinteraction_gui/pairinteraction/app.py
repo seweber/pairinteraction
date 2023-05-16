@@ -3154,22 +3154,23 @@ class MainWindow(QtWidgets.QMainWindow):
 
         try:
             # save plot
-            plotitem = [
-                self.ui.graphicsview_field1_plot,
-                self.ui.graphicsview_field2_plot,
-                self.ui.graphicsview_potential_plot,
-            ][idx].getPlotItem()
-            exporter = exporters.ImageExporter(plotitem)
-            exporter.parameters()["width"] = 2000
-            exporter.parameters()["height"] = 2000
-            exporter.parameters()["antialias"] = True
-            image = exporter.export(toBytes=True)
+            if getattr(self, "savePlot", True):
+                plotitem = [
+                    self.ui.graphicsview_field1_plot,
+                    self.ui.graphicsview_field2_plot,
+                    self.ui.graphicsview_potential_plot,
+                ][idx].getPlotItem()
+                exporter = exporters.ImageExporter(plotitem)
+                exporter.parameters()["width"] = 2000
+                exporter.parameters()["height"] = 2000
+                exporter.parameters()["antialias"] = True
+                image = exporter.export(toBytes=True)
 
-            buffer = QtCore.QBuffer()
-            buffer.open(QtCore.QIODevice.WriteOnly)
-            image = image.scaled(1500, 1500, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-            image.save(buffer, "PNG")
-            ziparchive.writestr("plot.png", buffer.data())
+                buffer = QtCore.QBuffer()
+                buffer.open(QtCore.QIODevice.WriteOnly)
+                image = image.scaled(1500, 1500, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+                image.save(buffer, "PNG")
+                ziparchive.writestr("plot.png", buffer.data())
 
             # save configuration
             ziparchive.writestr("settings.sconf", self.storage_configuration[idx][0])

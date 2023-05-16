@@ -1,5 +1,6 @@
 # https://johnnado.com/pyqt-qtest-example/
 # https://github.com/jmcgeheeiv/pyqttestexample
+import io
 import json
 import os
 import shutil
@@ -60,21 +61,23 @@ class PairinteractionGuiTest(unittest.TestCase):
             self.form.checkForData()
 
         # Save current data
+        self.form.savePlot = False
         forceFilename = os.path.join(PATH, "tmp")
         self.form.forceFilename = forceFilename
         QTest.mouseClick(widget_save, Qt.LeftButton)
 
         data = {}
         sconfig = {}
-        # Load reference data
+        # Load current data
         with zipfile.ZipFile(forceFilename, "r") as zip_file:
             with zip_file.open("data.mat") as f:
-                data["tmp"] = scipy.io.loadmat(f)
+                f_io = io.BytesIO(f.read())
+                data["tmp"] = scipy.io.loadmat(f_io)
             with zip_file.open("settings.sconf") as f:
                 sconfig["tmp"] = json.load(f)
         os.remove(forceFilename)
 
-        # Load current data
+        # Load reference data
         with open(os.path.join(PATH, ref_data, "data.mat"), "rb") as f:
             data["ref"] = scipy.io.loadmat(f)
         with open(os.path.join(PATH, ref_data, "settings.sconf")) as f:
@@ -83,6 +86,9 @@ class PairinteractionGuiTest(unittest.TestCase):
         # Check if configs match # unecessary since we load the same config
         for k, v in sconfig["ref"].items():
             assert sconfig["tmp"][k] == v
+
+        if len(data["tmp"]["eigenvalues"]) == 0:
+            raise ValueError("No eigenvalues found in current data, some bug in calculating the eigenvalues.")
 
         # Check if central eigenvalues (+/- dE) match
         for i in range(len(data["ref"]["eigenvalues"])):
