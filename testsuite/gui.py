@@ -62,7 +62,7 @@ class PairinteractionGuiTest(unittest.TestCase):
 
         # Save current data
         self.form.savePlot = False
-        forceFilename = os.path.join(PATH, "tmp")
+        forceFilename = os.path.join(PATH, "current")
         self.form.forceFilename = forceFilename
         QTest.mouseClick(widget_save, Qt.LeftButton)
 
@@ -72,9 +72,9 @@ class PairinteractionGuiTest(unittest.TestCase):
         with zipfile.ZipFile(forceFilename, "r") as zip_file:
             with zip_file.open("data.mat") as f:
                 f_io = io.BytesIO(f.read())
-                data["tmp"] = scipy.io.loadmat(f_io)
+                data["current"] = scipy.io.loadmat(f_io)
             with zip_file.open("settings.sconf") as f:
-                sconfig["tmp"] = json.load(f)
+                sconfig["current"] = json.load(f)
         os.remove(forceFilename)
 
         # Load reference data
@@ -85,16 +85,16 @@ class PairinteractionGuiTest(unittest.TestCase):
 
         # Check if configs match # unecessary since we load the same config
         for k, v in sconfig["ref"].items():
-            assert sconfig["tmp"][k] == v
+            assert sconfig["current"][k] == v
 
-        if len(data["tmp"]["eigenvalues"]) == 0:
+        if len(data["current"]["eigenvalues"]) == 0:
             raise ValueError("No eigenvalues found in current data, some bug in calculating the eigenvalues.")
 
         # Check if central eigenvalues (+/- dE) match
         for i in range(len(data["ref"]["eigenvalues"])):
             Es = {k: np.array(mat["eigenvalues"])[i] for k, mat in data.items()}
             Es = {k: E[np.abs(E) < dE] for k, E in Es.items()}
-            diff_rel = np.abs(Es["ref"] - Es["tmp"])
+            diff_rel = np.abs(Es["ref"] - Es["current"])
             assert np.all(diff_rel <= dE_tol)
 
     def tearDown(self):

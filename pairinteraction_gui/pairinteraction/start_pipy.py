@@ -7,6 +7,7 @@ import multiprocessing
 import os
 import pickle
 import sys
+import tempfile
 
 import numpy as np
 
@@ -55,7 +56,7 @@ def do_simulations(settings, pass_atom="direct"):
     else:
         allQunumbers = atom.allQunumbers
     _name = f"{'one' if atom.nAtoms == 1 else 'two'}_{atom.config.toHash()}"
-    path_tmp = os.path.abspath(os.path.join(os.sep, "tmp"))
+    path_tmp = tempfile.gettempdir()
     path_basis = os.path.join(path_tmp, f"basis_{_name}_blocknumber_{settings['blocknumber']}.csv")
     basis = np.insert(allQunumbers, 0, np.arange(len(allQunumbers)), axis=1)
     np.savetxt(path_basis, basis, delimiter="\t", fmt=["%d"] + ["%d", "%d", "%.1f", "%.1f"] * atom.nAtoms)
