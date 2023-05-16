@@ -3512,21 +3512,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def clearCache(self):
-        files = [
-            "cache_elements.db",
-            "cache_matrix_complex.db",
-            "cache_matrix_real.db",
-            "cache_matrix_complex",
-            "cache_matrix_real",
-            "cache_matrix_complex_new",
-            "cache_matrix_real_new",
-        ]  # TODO: sicherstellen, dass gleiche Namen wie im C++ Programm
-        for file in files:
-            path = os.path.join(self.path_cache, file)
+        for name in os.listdir(self.path_cache):
+            path = os.path.join(self.path_cache, name)
             if os.path.isfile(path):
-                os.remove(path)
+                if (name.startswith("cache_elements") or name.startswith("cache_matrix")) and name.endswith(".db"):
+                    os.remove(path)
             elif os.path.isdir(path):
-                shutil.rmtree(path)
+                if name.startswith("cache_matrix"):
+                    shutil.rmtree(path)
 
         if os.path.isdir(self.path_cache_wignerd):
             shutil.rmtree(self.path_cache_wignerd)

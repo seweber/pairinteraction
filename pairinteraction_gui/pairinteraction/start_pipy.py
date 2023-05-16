@@ -39,6 +39,7 @@ def main(args):
     else:
         settings["blocknumber"] = 1
         do_simulations(settings)
+    info("all Hamiltonias processed")
     output(f"{'>>END':5}")
 
 
@@ -50,18 +51,27 @@ def do_simulations(settings, pass_atom="direct"):
     ip_list = list(range(len(param_list)))
 
     atom = pipy.atom_from_config(settings["config"])
+    info(f"construct {atom}", atom.config)
 
     if atom.nAtoms == 2:
         allQunumbers = [[*qns[:, 0], *qns[:, 1]] for qns in np.array(atom.allQunumbers)]
     else:
         allQunumbers = atom.allQunumbers
+    info(f"basis size with restrictions: {len(allQunumbers)}", atom.config)
+
     _name = f"{'one' if atom.nAtoms == 1 else 'two'}_{atom.config.toHash()}"
     path_tmp = tempfile.gettempdir()
     path_basis = os.path.join(path_tmp, f"basis_{_name}_blocknumber_{settings['blocknumber']}.csv")
     basis = np.insert(allQunumbers, 0, np.arange(len(allQunumbers)), axis=1)
     np.savetxt(path_basis, basis, delimiter="\t", fmt=["%d"] + ["%d", "%d", "%.1f", "%.1f"] * atom.nAtoms)
+    info(f"save {type(atom).__name__} basis", atom.config)
     output(f"{'>>BAS':5}{len(basis):7}")
     output(f"{'>>STA':5} {path_basis} ")
+
+    if not getattr(atom, "preCalculate", False):
+        info("precalculate matrix elements", atom.config)
+        atom.system.buildInteraction()
+        atom.preCalculate = True
 
     if pass_atom == "direct":
         config = {"atom": atom}
@@ -106,11 +116,6 @@ def one_run(config, param_list, ip):
         atom = pipy.atom_from_config(config)
     config = atom.config
 
-    if not getattr(atom, "prebuildDone", False):
-        atom.system.buildHamiltonian()
-        atom.system.buildInteraction()
-        atom.prebuildDone = True
-
     atom.updateFromParams(param_list[ip])
     dimension = len(atom.basisQunumbers)
 
@@ -121,7 +126,6 @@ def one_run(config, param_list, ip):
     filename = os.path.join(pathCacheMatrix, _name + ".pkl")
 
     if not os.path.exists(filename):
-        output(f"Calculating {ip}, {dimension}x{dimension}")
         atom.calcEnergies()
         energies0 = config.getEnergiesPair() if atom.nAtoms == 2 else config.getEnergiesSingle()
         data = {
@@ -129,13 +133,15 @@ def one_run(config, param_list, ip):
             "basis": atom.vectors,
             "params": config.toOutDict(),
         }
+        info(f"{ip+1}. Hamiltonian diagonalized ({dimension}x{dimension})", atom.config)
+
         with open(filename, "wb") as f:
             pickle.dump(data, f)
         filename_json = os.path.join(pathCacheMatrix, _name + ".json")
         with open(filename_json, "w") as f:
             json.dump(data["params"], f, indent=4)
     else:
-        output(f"Loading {ip}")
+        info(f"{ip+1}. Hamiltonian loaded", atom.config)
 
     result = {
         "ip": ip,
@@ -248,6 +254,16 @@ def conf_to_settings(conf, pathCache):
 
 def output(x):
     print(x, flush=True)
+
+
+def info(x, config=None):
+    if config is None:
+        print(x, flush=True)
+        return
+    pi = "pireal" if config.isReal() else "picomplex"
+    no = "One-atom" if config.nAtoms() == 1 else "Two-atom"
+    msg = f"{pi}: {no} Hamiltonian, {x}"
+    print(msg, flush=True)
 
 
 if __name__ == "__main__":
