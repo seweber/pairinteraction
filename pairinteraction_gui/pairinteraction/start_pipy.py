@@ -267,6 +267,10 @@ def info(x, config=None):
 
 
 if __name__ == "__main__":
+
+    # Allow multiprocessing to take over when it spawns its worker processes if used in a frozen executable
+    multiprocessing.freeze_support()
+
     parser = argparse.ArgumentParser(description="Scripts")
     parser.add_argument("--run_gui", action="store_true", help="Use this only to run a calculation from the GUI!")
     parser.add_argument("-c", "--path_config", type=str, help="Path to the config.")
