@@ -96,13 +96,8 @@ class PairinteractionGuiTest(unittest.TestCase):
             assert np.all(diff_rel <= dE_tol)
 
     def tearDown(self):
-        # Calculation runs in the background. Wait for it to finish.
-        if self.form.thread.isRunning():
-            self.form.thread.wait()
-        # Close any pipes and wait for subprocess to exit.
-        if self.form.proc:
-            self.form.proc.stdout.close()
-            self.form.proc.wait()
+        # clean up processes
+        self.form.cleanupProcesses()
 
         # Remove tmp cache
         shutil.rmtree(self.form.path_cache)

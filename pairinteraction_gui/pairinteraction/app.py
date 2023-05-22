@@ -67,7 +67,7 @@ from pairinteraction_gui.pairinteraction.guiadditions import (
     DoubleValidator,
 )
 from pairinteraction_gui.pairinteraction.pyqtgraphadditions import PointsItem, MultiLine
-from pairinteraction_gui.pairinteraction.worker import Worker
+from pairinteraction_gui.pairinteraction.worker import Worker, pipyThread, allQueuesClass
 from pairinteraction_gui.pairinteraction.loader import Eigensystem
 from pairinteraction_gui.pairinteraction.version import version_program, version_settings, version_cache
 
@@ -538,7 +538,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.proc = None
 
-        self.thread = Worker()
+        self.allQueues = allQueuesClass()
+        self.readThread = None
+        self.pipyThread = None
 
         self.timer = QtCore.QTimer()
 
@@ -688,8 +690,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.lineedit_storage_maxE.setValidator(validator_doublenone)
 
         # Connect signals and slots
-        self.thread.criticalsignal.connect(self.showCriticalMessage)
-
         for system in ["system", "plot"]:
             for number in [1, 2]:
                 for q in "nljm":
@@ -1080,23 +1080,39 @@ class MainWindow(QtWidgets.QMainWindow):
     #    return self.systemdict['species1'] == self.systemdict['species2']
 
     def abortCalculation(self):
-        # kill c++ process - this terminates the self.thread, too
+        # kill all processes
         if self.proc is not None:
             self.proc.terminate()
+            self.proc.wait()
+        if self.readThread is not None:
+            self.readThread.exiting = True
+            self.readThread.wait()
+        if self.pipyThread is not None:
+            self.pipyThread.exiting = True
+            self.pipyThread.terminate()
+            self.pipyThread.wait()
+        self.allQueues.clear()
 
-        # wait until self.thread has finished
-        self.thread.wait()
-
-        # clear queues
-        self.thread.clear()
+    def cleanupProcesses(self):
+        """Cleanup after calculation it is finished or stopped."""
+        if self.proc is not None:
+            self.proc.wait()
+            self.proc = None
+        if self.readThread is not None:
+            self.readThread.wait()
+            self.readThread = None
+        if self.pipyThread is not None:
+            self.pipyThread.wait()
+            self.pipyThread = None
+        self.allQueues.clear()
 
     def checkForData(self):
         dataamount = 0
 
         # === print status ===
         elapsedtime = f"{timedelta(seconds=int(time() - self.starttime))}"
-        if self.thread.message != "":
-            self.ui.statusbar.showMessage(self.thread.message + ", elapsed time " + elapsedtime)
+        if self.allQueues.message != "":
+            self.ui.statusbar.showMessage(self.allQueues.message + ", elapsed time " + elapsedtime)
         else:
             self.ui.statusbar.showMessage("Elapsed time " + elapsedtime)
 
@@ -1104,19 +1120,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         for idx in range(3):
 
-            if idx > 0 and not self.thread.dataqueue_field1.empty():
-                continue
-            if idx > 1 and not self.thread.dataqueue_field2.empty():
+            if any([not self.allQueues.dataqueues[i].empty() for i in range(idx)]):
                 continue
 
-            basisfiles = [
-                self.thread.basisfiles_field1,
-                self.thread.basisfiles_field2,
-                self.thread.basisfiles_potential,
-            ][idx]
-            dataqueue = [self.thread.dataqueue_field1, self.thread.dataqueue_field2, self.thread.dataqueue_potential][
-                idx
-            ]
+            basisfiles = self.allQueues.basisfiles[idx]
+            dataqueue = self.allQueues.dataqueues[idx]
 
             # --- load basis states ---
             while len(basisfiles) > 0:
@@ -1149,7 +1157,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     if self.ui.groupbox_plot_overlap.isChecked():
                         # update status bar
                         message_old = self.ui.statusbar.currentMessage()
-                        if idx == 0 and self.thread.samebasis:
+                        if idx == 0 and self.allQueues._type == 3:
                             idxtype = 3
                         else:
                             idxtype = idx
@@ -1202,7 +1210,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                 else:
                                     stateamount = np.zeros_like(stateidx)
 
-                                if self.thread.samebasis and np.any(
+                                if self.allQueues._type == 3 and np.any(
                                     self.overlapstate[idx][[0, 1, 2, 3]] != self.overlapstate[idx][[4, 5, 6, 7]]
                                 ):
                                     boolarr = self.overlapstate[idx][[4, 5, 6]] != PLOT_ALL
@@ -1254,7 +1262,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                     coeff = self.wignerd.calc(j, m2, m1, self.angle)
                                     statecoeff.append(coeff)
                                 stateamount = np.zeros_like(stateidx)
-                                if self.thread.samebasis and \
+                                if self.allQueues._type == 3 and \
                                     np.any(self.overlapstate[idx][[0,1,2,3]] != self.overlapstate[idx][[4,5,6,7]]):
                                     stateidx_second = np.where(
                                         np.all(basis[:,[1,2,3]] == self.overlapstate[idx][None,[4,5,6]],axis=-1)
@@ -1380,7 +1388,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                         axis=-1,
                                     )
                                 )[0]
-                                if self.thread.samebasis and np.any(
+                                if self.allQueues._type == 3 and np.any(
                                     self.overlapstate[idx][[0, 1, 2, 3]] != self.overlapstate[idx][[4, 5, 6, 7]]
                                 ):
                                     boolarr = self.overlapstate[idx][[4, 5, 6, 7]] != PLOT_ALL
@@ -1448,7 +1456,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         nlj = basis[:, [1, 2, 3, 5, 6, 7]]
 
                     # sort pair state names
-                    if idx == 2 and self.thread.samebasis:
+                    if idx == 2 and self.allQueues._type == 3:
                         firstsmaller = np.argmax(
                             np.append(nlj[:, 0:3] < nlj[:, 3:6], np.ones((len(nlj), 1), dtype=bool), axis=-1), axis=-1
                         )  # TODO in Funktion auslagern
@@ -1696,7 +1704,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                 if (
                                     (idx == 0 and np.all(labelstate == self.unperturbedstate[idx][[0, 1, 2]]))
                                     or (
-                                        (idx == 1 or (idx == 0 and self.thread.samebasis))
+                                        (idx == 1 or (idx == 0 and self.allQueues._type == 3))
                                         and np.all(labelstate == self.unperturbedstate[idx][[4, 5, 6]])
                                     )
                                     or (
@@ -1704,7 +1712,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                         and np.all(labelstate == self.unperturbedstate[idx][[0, 1, 2, 4, 5, 6]])
                                     )
                                     or (
-                                        (idx == 2 and self.thread.samebasis)
+                                        (idx == 2 and self.allQueues._type == 3)
                                         and np.all(labelstate == self.unperturbedstate[idx][[4, 5, 6, 0, 1, 2]])
                                     )
                                 ):
@@ -2258,12 +2266,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 graphicsview_plot[idx].repaint()
 
         # check if thread has finished
-        if (
-            self.thread.isFinished()
-            and self.thread.dataqueue_field1.empty()
-            and self.thread.dataqueue_field2.empty()
-            and self.thread.dataqueue_potential.empty()
-        ):
+        if not self.threadIsRunning() and all(d.empty() for d in self.allQueues.dataqueues):
             # Delete buffers
             self.buffer_basis = {}
             self.buffer_energies = {}
@@ -2278,10 +2281,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.colormap_buffer_minIdx_field = [0] * 3
             self.lines_buffer_minIdx_field = {}
 
-            # Delete c++ process
-            if self.proc is not None:
-                self.proc.wait()
-                self.proc = None
+            self.cleanupProcesses()
 
             # Stop this timer
             print(f"Total time needed: {time() - self.starttime:.2f} s")
@@ -2703,400 +2703,394 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot()
     def startCalc(self):
-        if self.proc is None:
-            self.stateidx_field = [{}, {}, {}]
-            self.storage_states = [{}, {}, {}]
+        if self.timer.isActive():
+            self.abortCalculation()
+            return
 
-            # ensure that validators are called
-            focused_widget = QtWidgets.QApplication.focusWidget()
-            if focused_widget is not None:
-                focused_widget.clearFocus()
+        self.stateidx_field = [{}, {}, {}]
+        self.storage_states = [{}, {}, {}]
 
-            if any(self.invalidQuantumnumbers.values()):
-                QtWidgets.QMessageBox.critical(self, "Message", self.invalidQuantumnumbersMessage)
+        # ensure that validators are called
+        focused_widget = QtWidgets.QApplication.focusWidget()
+        if focused_widget is not None:
+            focused_widget.clearFocus()
 
-            elif (
-                self.ui.radiobutton_system_missingWhittaker.isChecked()
-                and max(self.systemdict["n1"].magnitude, self.systemdict["n1"].magnitude)
-                + max(self.systemdict["deltaNSingle"].magnitude, self.systemdict["deltaNPair"].magnitude)
-                > 97
+        if any(self.invalidQuantumnumbers.values()):
+            QtWidgets.QMessageBox.critical(self, "Message", self.invalidQuantumnumbersMessage)
+
+        elif (
+            self.ui.radiobutton_system_missingWhittaker.isChecked()
+            and max(self.systemdict["n1"].magnitude, self.systemdict["n1"].magnitude)
+            + max(self.systemdict["deltaNSingle"].magnitude, self.systemdict["deltaNPair"].magnitude)
+            > 97
+        ):
+            QtWidgets.QMessageBox.critical(
+                self,
+                "Message",
+                "If the principal quantum number exceeds 97, radial matrix "
+                + "elements must be calculated from model potentials.",
+            )
+
+        else:
+            self.senderbutton = self.sender()
+
+            if (
+                self.senderbutton in [self.ui.pushbutton_field1_calc, self.ui.pushbutton_field2_calc]
+                and self.systemdict["theta"].toAU().magnitude != 0
             ):
-                QtWidgets.QMessageBox.critical(
+                QtWidgets.QMessageBox.warning(
                     self,
-                    "Message",
-                    "If the principal quantum number exceeds 97, radial matrix "
-                    + "elements must be calculated from model potentials.",
+                    "Warning",
+                    "For calculating field maps, you might like to set the interaction angle to zero. "
+                    + "A non-zero angle makes the program compute eigenvectors in the rotated basis where the "
+                    + "quantization axis equals the interatomic axis. This slows down calculations.",
                 )
 
+            if self.systemdict["theta"].magnitude != 0 and (
+                self.systemdict["deltaMSingle"].magnitude >= 0
+                or (
+                    self.ui.radiobutton_system_pairbasisDefined.isChecked()
+                    and self.systemdict["deltaMPair"].magnitude >= 0
+                )
+            ):
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    "Warning",
+                    "For non-zero interaction angles, it is recommended not to restrict "
+                    + "the magnetic quantum number.",
+                )
+
+            # save last settings
+            self.saveSettingsSystem(self.path_system_last)
+            self.saveSettingsPlotter(self.path_plot_last)
+            self.saveSettingsView(self.path_view_last)
+
+            # change buttons
+            if self.senderbutton != self.ui.pushbutton_field1_calc:
+                self.ui.pushbutton_field1_calc.setEnabled(False)
+            if self.senderbutton != self.ui.pushbutton_field2_calc:
+                self.ui.pushbutton_field2_calc.setEnabled(False)
+            if self.senderbutton != self.ui.pushbutton_potential_calc:
+                self.ui.pushbutton_potential_calc.setEnabled(False)
+            if self.senderbutton == self.ui.pushbutton_potential_calc:
+                self.ui.pushbutton_potential_fit.setEnabled(False)
+                self.ui.combobox_potential_fct.setEnabled(False)
+            self.senderbutton.setText("Abort calculation")
+
+            # store, whether the same basis should be used for both atoms
+            self.samebasis = self.ui.checkbox_system_samebasis.checkState() == QtCore.Qt.Checked
+
+            # store configuration
+            # toAU converts the angle from deg to rad
+            self.angle = self.systemdict["theta"].toAU().magnitude
+
+            self.minE = [
+                self.plotdict["minE_field1"].magnitude,
+                self.plotdict["minE_field2"].magnitude,
+                self.plotdict["minE_potential"].magnitude,
+            ]
+            self.maxE = [
+                self.plotdict["maxE_field1"].magnitude,
+                self.plotdict["maxE_field2"].magnitude,
+                self.plotdict["maxE_potential"].magnitude,
+            ]
+
+            self.steps = self.systemdict["steps"].magnitude
+            # self.calcmissing = self.ui.checkbox_calc_missing.checkState() == QtCore.Qt.Checked
+
+            unperturbedstate = np.array(
+                [
+                    self.systemdict["n1"].magnitude,
+                    self.systemdict["l1"].magnitude,
+                    self.systemdict["j1"].magnitude,
+                    self.systemdict["m1"].magnitude,
+                    self.systemdict["n2"].magnitude,
+                    self.systemdict["l2"].magnitude,
+                    self.systemdict["j2"].magnitude,
+                    self.systemdict["m2"].magnitude,
+                ]
+            )
+
+            if self.ui.radiobutton_plot_overlapUnperturbed.isChecked():
+                overlapstate = unperturbedstate
             else:
-                self.senderbutton = self.sender()
-
-                if (
-                    self.senderbutton in [self.ui.pushbutton_field1_calc, self.ui.pushbutton_field2_calc]
-                    and self.systemdict["theta"].toAU().magnitude != 0
-                ):
-                    QtWidgets.QMessageBox.warning(
-                        self,
-                        "Warning",
-                        "For calculating field maps, you might like to set the interaction angle to zero. "
-                        + "A non-zero angle makes the program compute eigenvectors in the rotated basis where the "
-                        + "quantization axis equals the interatomic axis. This slows down calculations.",
-                    )
-
-                if self.systemdict["theta"].magnitude != 0 and (
-                    self.systemdict["deltaMSingle"].magnitude >= 0
-                    or (
-                        self.ui.radiobutton_system_pairbasisDefined.isChecked()
-                        and self.systemdict["deltaMPair"].magnitude >= 0
-                    )
-                ):
-                    QtWidgets.QMessageBox.warning(
-                        self,
-                        "Warning",
-                        "For non-zero interaction angles, it is recommended not to restrict "
-                        + "the magnetic quantum number.",
-                    )
-
-                # save last settings
-                self.saveSettingsSystem(self.path_system_last)
-                self.saveSettingsPlotter(self.path_plot_last)
-                self.saveSettingsView(self.path_view_last)
-
-                # change buttons
-                if self.senderbutton != self.ui.pushbutton_field1_calc:
-                    self.ui.pushbutton_field1_calc.setEnabled(False)
-                if self.senderbutton != self.ui.pushbutton_field2_calc:
-                    self.ui.pushbutton_field2_calc.setEnabled(False)
-                if self.senderbutton != self.ui.pushbutton_potential_calc:
-                    self.ui.pushbutton_potential_calc.setEnabled(False)
-                if self.senderbutton == self.ui.pushbutton_potential_calc:
-                    self.ui.pushbutton_potential_fit.setEnabled(False)
-                    self.ui.combobox_potential_fct.setEnabled(False)
-                self.senderbutton.setText("Abort calculation")
-
-                # store, whether the same basis should be used for both atoms
-                self.samebasis = self.ui.checkbox_system_samebasis.checkState() == QtCore.Qt.Checked
-
-                # store configuration
-                # toAU converts the angle from deg to rad
-                self.angle = self.systemdict["theta"].toAU().magnitude
-
-                self.minE = [
-                    self.plotdict["minE_field1"].magnitude,
-                    self.plotdict["minE_field2"].magnitude,
-                    self.plotdict["minE_potential"].magnitude,
-                ]
-                self.maxE = [
-                    self.plotdict["maxE_field1"].magnitude,
-                    self.plotdict["maxE_field2"].magnitude,
-                    self.plotdict["maxE_potential"].magnitude,
-                ]
-
-                self.steps = self.systemdict["steps"].magnitude
-                # self.calcmissing = self.ui.checkbox_calc_missing.checkState() == QtCore.Qt.Checked
-
-                unperturbedstate = np.array(
+                overlapstate = np.array(
                     [
-                        self.systemdict["n1"].magnitude,
-                        self.systemdict["l1"].magnitude,
-                        self.systemdict["j1"].magnitude,
-                        self.systemdict["m1"].magnitude,
-                        self.systemdict["n2"].magnitude,
-                        self.systemdict["l2"].magnitude,
-                        self.systemdict["j2"].magnitude,
-                        self.systemdict["m2"].magnitude,
+                        self.plotdict["n1"].magnitude,
+                        self.plotdict["l1"].magnitude,
+                        self.plotdict["j1"].magnitude,
+                        self.plotdict["m1"].magnitude,
+                        self.plotdict["n2"].magnitude,
+                        self.plotdict["l2"].magnitude,
+                        self.plotdict["j2"].magnitude,
+                        self.plotdict["m2"].magnitude,
                     ]
                 )
 
-                if self.ui.radiobutton_plot_overlapUnperturbed.isChecked():
-                    overlapstate = unperturbedstate
-                else:
-                    overlapstate = np.array(
+            self.lut = self.ui.gradientwidget_plot_gradient.getLookupTable(512)
+
+            # clear plots and set them up
+            validsenders = [
+                [self.ui.pushbutton_field1_calc, self.ui.pushbutton_potential_calc],
+                [self.ui.pushbutton_field2_calc, self.ui.pushbutton_potential_calc],
+                [self.ui.pushbutton_potential_calc],
+            ]
+
+            constDistance = self.getConstDistance()
+            constEField = self.getConstEField()
+            constBField = self.getConstBField()
+
+            self.xAxis = [None] * 3
+            self.converter_x = [None] * 3
+            self.leftSmallerRight = [None] * 3
+
+            for idx in range(3):
+                if (self.senderbutton not in validsenders[idx]) and not (idx == 0 and self.samebasis):
+                    continue
+
+                self.unperturbedstate[idx] = unperturbedstate
+                self.overlapstate[idx] = overlapstate
+
+                # setup storage variables to save the results
+                filelike_system = StringIO()
+                filelike_plotter = StringIO()
+                self.saveSettingsSystem(filelike_system)
+                self.saveSettingsPlotter(filelike_plotter)
+
+                self.storage_data[idx] = []
+                self.storage_states[idx] = {}
+                self.storage_configuration[idx] = [filelike_system.getvalue(), filelike_plotter.getvalue()]
+
+                # clear plot
+                autorangestate = (
+                    self.graphicviews_plot[idx].getViewBox().getState()["autoRange"]
+                )  # HACK to avoid performance issues during clearing
+                if autorangestate[0]:
+                    self.graphicviews_plot[idx].disableAutoRange(axis=self.graphicviews_plot[idx].getViewBox().XAxis)
+                if autorangestate[1]:
+                    self.graphicviews_plot[idx].disableAutoRange(axis=self.graphicviews_plot[idx].getViewBox().YAxis)
+                self.graphicviews_plot[idx].clear()
+                if autorangestate[0]:
+                    self.graphicviews_plot[idx].enableAutoRange(axis=self.graphicviews_plot[idx].getViewBox().XAxis)
+                if autorangestate[1]:
+                    self.graphicviews_plot[idx].enableAutoRange(axis=self.graphicviews_plot[idx].getViewBox().YAxis)
+
+                # set up energy axis
+                self.graphicviews_plot[idx].setLabel("left", "Energy (" + str(Units.energy) + ")")
+                self.graphicviews_plot[idx].setLimits(yMin=self.minE[idx])
+                self.graphicviews_plot[idx].setLimits(yMax=self.maxE[idx])
+
+                # set up step axis
+                if (idx in [0, 1] and constEField and not constBField) or (
+                    idx == 2 and constDistance and not constBField
+                ):
+                    self.xAxis[idx] = "B"
+                    self.graphicviews_plot[idx].setLabel("bottom", "Magnetic field (" + str(Units.bfield) + ")")
+                    # Quantity(1, Units.au_bfield).toUU().magnitude
+                    self.converter_x[idx] = 1
+                    posMin = self.get1DPosition(
                         [
-                            self.plotdict["n1"].magnitude,
-                            self.plotdict["l1"].magnitude,
-                            self.plotdict["j1"].magnitude,
-                            self.plotdict["m1"].magnitude,
-                            self.plotdict["n2"].magnitude,
-                            self.plotdict["l2"].magnitude,
-                            self.plotdict["j2"].magnitude,
-                            self.plotdict["m2"].magnitude,
+                            self.systemdict["minBx"].magnitude,
+                            self.systemdict["minBy"].magnitude,
+                            self.systemdict["minBz"].magnitude,
+                        ]
+                    )
+                    posMax = self.get1DPosition(
+                        [
+                            self.systemdict["maxBx"].magnitude,
+                            self.systemdict["maxBy"].magnitude,
+                            self.systemdict["maxBz"].magnitude,
+                        ]
+                    )
+                elif (idx in [0, 1]) or (idx == 2 and constDistance and not constEField):
+                    self.xAxis[idx] = "E"
+                    self.graphicviews_plot[idx].setLabel("bottom", "Electric field (" + str(Units.efield) + ")")
+                    # Quantity(1, Units.au_efield).toUU().magnitude
+                    self.converter_x[idx] = 1
+                    posMin = self.get1DPosition(
+                        [
+                            self.systemdict["minEx"].magnitude,
+                            self.systemdict["minEy"].magnitude,
+                            self.systemdict["minEz"].magnitude,
+                        ]
+                    )
+                    posMax = self.get1DPosition(
+                        [
+                            self.systemdict["maxEx"].magnitude,
+                            self.systemdict["maxEy"].magnitude,
+                            self.systemdict["maxEz"].magnitude,
+                        ]
+                    )
+                elif idx == 2:
+                    self.xAxis[idx] = "R"
+                    self.graphicviews_plot[idx].setLabel("bottom", "Interatomic distance (" + str(Units.length) + ")")
+                    # Quantity(1, Units.au_length).toUU().magnitude
+                    self.converter_x[idx] = 1
+                    posMin = self.systemdict["minR"].magnitude
+                    posMax = self.systemdict["maxR"].magnitude
+
+                self.leftSmallerRight[idx] = posMin < posMax
+
+                # enable / disable auto range
+                if self.ui.checkbox_plot_autorange.isChecked():
+                    self.graphicviews_plot[idx].enableAutoRange()
+                else:
+                    if not self.manualRangeX[idx]:
+                        self.graphicviews_plot[idx].setXRange(posMin, posMax)
+                    if not self.manualRangeY[idx] and self.minE[idx] is not None and self.maxE[idx] is not None:
+                        self.graphicviews_plot[idx].setYRange(self.minE[idx], self.maxE[idx])
+
+                # clear variables
+                self.linesSelected[idx] = 0
+                self.linesData[idx] = []
+                self.linesX[idx] = {}
+                self.linesY[idx] = {}
+                self.linesO[idx] = {}
+                self.linesSender[idx] = None
+
+            # Quantity(1, Units.au_energy).toUU().magnitude
+            self.converter_y = 1
+
+            # save configuration to json file
+            with open(self.path_conf, "w") as f:
+                if self.senderbutton == self.ui.pushbutton_potential_calc:
+                    keys = self.systemdict.keys_for_cprogram_potential
+                    button_id = 2
+                elif self.samebasis:
+                    keys = self.systemdict.keys_for_cprogram_field12
+                    button_id = 3
+                elif self.senderbutton == self.ui.pushbutton_field1_calc:
+                    keys = self.systemdict.keys_for_cprogram_field1
+                    button_id = 0
+                elif self.senderbutton == self.ui.pushbutton_field2_calc:
+                    keys = self.systemdict.keys_for_cprogram_field2
+                    button_id = 1
+
+                params = {k: self.systemdict[k].toUU().magnitude for k in keys}
+                params["button_id"] = button_id
+
+                self.numprocessors = self.systemdict["cores"].magnitude
+                params["NUM_PROCESSES"] = self.numprocessors
+
+                if self.senderbutton == self.ui.pushbutton_potential_calc:
+                    params["zerotheta"] = self.angle == 0
+
+                if params["deltaNSingle"] < 0:
+                    params["deltaNSingle"] = NO_RESTRICTIONS
+                if params["deltaLSingle"] < 0:
+                    params["deltaLSingle"] = NO_RESTRICTIONS
+                if params["deltaJSingle"] < 0:
+                    params["deltaJSingle"] = NO_RESTRICTIONS
+                if params["deltaMSingle"] < 0:
+                    params["deltaMSingle"] = NO_RESTRICTIONS
+
+                if (
+                    self.senderbutton == self.ui.pushbutton_potential_calc
+                    and self.ui.radiobutton_system_pairbasisSame.isChecked()
+                ):
+                    params["deltaNPair"] = NO_RESTRICTIONS
+                    params["deltaLPair"] = NO_RESTRICTIONS
+                    params["deltaJPair"] = NO_RESTRICTIONS
+                    params["deltaMPair"] = NO_RESTRICTIONS
+
+                if self.angle != 0:
+                    arrlabels = [
+                        ["minEx", "minEy", "minEz"],
+                        ["maxEx", "maxEy", "maxEz"],
+                        ["minBx", "minBy", "minBz"],
+                        ["maxBx", "maxBy", "maxBz"],
+                    ]
+                    rotator = np.array(
+                        [
+                            [np.cos(self.angle), 0, -np.sin(self.angle)],
+                            [0, 1, 0],
+                            [np.sin(self.angle), 0, np.cos(self.angle)],
                         ]
                     )
 
-                self.lut = self.ui.gradientwidget_plot_gradient.getLookupTable(512)
+                    for labels in arrlabels:
+                        fields = np.array([[params[label]] for label in labels])
+                        fields = np.dot(rotator, fields).flatten()
+                        for field, label in zip(fields, labels):
+                            params[label] = field
 
-                # clear plots and set them up
-                validsenders = [
-                    [self.ui.pushbutton_field1_calc, self.ui.pushbutton_potential_calc],
-                    [self.ui.pushbutton_field2_calc, self.ui.pushbutton_potential_calc],
-                    [self.ui.pushbutton_potential_calc],
-                ]
-
-                constDistance = self.getConstDistance()
-                constEField = self.getConstEField()
-                constBField = self.getConstBField()
-
-                self.xAxis = [None] * 3
-                self.converter_x = [None] * 3
-                self.leftSmallerRight = [None] * 3
-
-                for idx in range(3):
-                    if (self.senderbutton not in validsenders[idx]) and not (idx == 0 and self.samebasis):
-                        continue
-
-                    self.unperturbedstate[idx] = unperturbedstate
-                    self.overlapstate[idx] = overlapstate
-
-                    # setup storage variables to save the results
-                    filelike_system = StringIO()
-                    filelike_plotter = StringIO()
-                    self.saveSettingsSystem(filelike_system)
-                    self.saveSettingsPlotter(filelike_plotter)
-
-                    self.storage_data[idx] = []
-                    self.storage_states[idx] = {}
-                    self.storage_configuration[idx] = [filelike_system.getvalue(), filelike_plotter.getvalue()]
-
-                    # clear plot
-                    autorangestate = (
-                        self.graphicviews_plot[idx].getViewBox().getState()["autoRange"]
-                    )  # HACK to avoid performance issues during clearing
-                    if autorangestate[0]:
-                        self.graphicviews_plot[idx].disableAutoRange(
-                            axis=self.graphicviews_plot[idx].getViewBox().XAxis
-                        )
-                    if autorangestate[1]:
-                        self.graphicviews_plot[idx].disableAutoRange(
-                            axis=self.graphicviews_plot[idx].getViewBox().YAxis
-                        )
-                    self.graphicviews_plot[idx].clear()
-                    if autorangestate[0]:
-                        self.graphicviews_plot[idx].enableAutoRange(axis=self.graphicviews_plot[idx].getViewBox().XAxis)
-                    if autorangestate[1]:
-                        self.graphicviews_plot[idx].enableAutoRange(axis=self.graphicviews_plot[idx].getViewBox().YAxis)
-
-                    # set up energy axis
-                    self.graphicviews_plot[idx].setLabel("left", "Energy (" + str(Units.energy) + ")")
-                    self.graphicviews_plot[idx].setLimits(yMin=self.minE[idx])
-                    self.graphicviews_plot[idx].setLimits(yMax=self.maxE[idx])
-
-                    # set up step axis
-                    if (idx in [0, 1] and constEField and not constBField) or (
-                        idx == 2 and constDistance and not constBField
-                    ):
-                        self.xAxis[idx] = "B"
-                        self.graphicviews_plot[idx].setLabel("bottom", "Magnetic field (" + str(Units.bfield) + ")")
-                        # Quantity(1, Units.au_bfield).toUU().magnitude
-                        self.converter_x[idx] = 1
-                        posMin = self.get1DPosition(
-                            [
-                                self.systemdict["minBx"].magnitude,
-                                self.systemdict["minBy"].magnitude,
-                                self.systemdict["minBz"].magnitude,
-                            ]
-                        )
-                        posMax = self.get1DPosition(
-                            [
-                                self.systemdict["maxBx"].magnitude,
-                                self.systemdict["maxBy"].magnitude,
-                                self.systemdict["maxBz"].magnitude,
-                            ]
-                        )
-                    elif (idx in [0, 1]) or (idx == 2 and constDistance and not constEField):
-                        self.xAxis[idx] = "E"
-                        self.graphicviews_plot[idx].setLabel("bottom", "Electric field (" + str(Units.efield) + ")")
-                        # Quantity(1, Units.au_efield).toUU().magnitude
-                        self.converter_x[idx] = 1
-                        posMin = self.get1DPosition(
-                            [
-                                self.systemdict["minEx"].magnitude,
-                                self.systemdict["minEy"].magnitude,
-                                self.systemdict["minEz"].magnitude,
-                            ]
-                        )
-                        posMax = self.get1DPosition(
-                            [
-                                self.systemdict["maxEx"].magnitude,
-                                self.systemdict["maxEy"].magnitude,
-                                self.systemdict["maxEz"].magnitude,
-                            ]
-                        )
-                    elif idx == 2:
-                        self.xAxis[idx] = "R"
-                        self.graphicviews_plot[idx].setLabel(
-                            "bottom", "Interatomic distance (" + str(Units.length) + ")"
-                        )
-                        # Quantity(1, Units.au_length).toUU().magnitude
-                        self.converter_x[idx] = 1
-                        posMin = self.systemdict["minR"].magnitude
-                        posMax = self.systemdict["maxR"].magnitude
-
-                    self.leftSmallerRight[idx] = posMin < posMax
-
-                    # enable / disable auto range
-                    if self.ui.checkbox_plot_autorange.isChecked():
-                        self.graphicviews_plot[idx].enableAutoRange()
-                    else:
-                        if not self.manualRangeX[idx]:
-                            self.graphicviews_plot[idx].setXRange(posMin, posMax)
-                        if not self.manualRangeY[idx] and self.minE[idx] is not None and self.maxE[idx] is not None:
-                            self.graphicviews_plot[idx].setYRange(self.minE[idx], self.maxE[idx])
-
-                    # clear variables
-                    self.linesSelected[idx] = 0
-                    self.linesData[idx] = []
-                    self.linesX[idx] = {}
-                    self.linesY[idx] = {}
-                    self.linesO[idx] = {}
-                    self.linesSender[idx] = None
-
-                # Quantity(1, Units.au_energy).toUU().magnitude
-                self.converter_y = 1
-
-                # save configuration to json file
-                with open(self.path_conf, "w") as f:
-                    if self.senderbutton == self.ui.pushbutton_potential_calc:
-                        keys = self.systemdict.keys_for_cprogram_potential
-                        button_id = 2
-                    elif self.samebasis:
-                        keys = self.systemdict.keys_for_cprogram_field12
-                        button_id = 3
-                    elif self.senderbutton == self.ui.pushbutton_field1_calc:
-                        keys = self.systemdict.keys_for_cprogram_field1
-                        button_id = 0
-                    elif self.senderbutton == self.ui.pushbutton_field2_calc:
-                        keys = self.systemdict.keys_for_cprogram_field2
-                        button_id = 1
-
-                    params = {k: self.systemdict[k].toUU().magnitude for k in keys}
-                    params["button_id"] = button_id
-
-                    if self.senderbutton == self.ui.pushbutton_potential_calc:
-                        params["zerotheta"] = self.angle == 0
-
-                    if params["deltaNSingle"] < 0:
-                        params["deltaNSingle"] = NO_RESTRICTIONS
-                    if params["deltaLSingle"] < 0:
-                        params["deltaLSingle"] = NO_RESTRICTIONS
-                    if params["deltaJSingle"] < 0:
-                        params["deltaJSingle"] = NO_RESTRICTIONS
-                    if params["deltaMSingle"] < 0:
-                        params["deltaMSingle"] = NO_RESTRICTIONS
-
-                    if (
-                        self.senderbutton == self.ui.pushbutton_potential_calc
-                        and self.ui.radiobutton_system_pairbasisSame.isChecked()
-                    ):
-                        params["deltaNPair"] = NO_RESTRICTIONS
-                        params["deltaLPair"] = NO_RESTRICTIONS
-                        params["deltaJPair"] = NO_RESTRICTIONS
-                        params["deltaMPair"] = NO_RESTRICTIONS
-
-                    if self.angle != 0:
-                        arrlabels = [
-                            ["minEx", "minEy", "minEz"],
-                            ["maxEx", "maxEy", "maxEz"],
-                            ["minBx", "minBy", "minBz"],
-                            ["maxBx", "maxBy", "maxBz"],
-                        ]
-                        rotator = np.array(
-                            [
-                                [np.cos(self.angle), 0, -np.sin(self.angle)],
-                                [0, 1, 0],
-                                [np.sin(self.angle), 0, np.cos(self.angle)],
-                            ]
-                        )
-
-                        for labels in arrlabels:
-                            fields = np.array([[params[label]] for label in labels])
-                            fields = np.dot(rotator, fields).flatten()
-                            for field, label in zip(fields, labels):
-                                params[label] = field
-
-                    """if self.angle != 0 or params["minEx"] != 0 or params["minEy"] != 0 or \
-                        params["maxEx"] != 0 or params["maxEy"] != 0 or params["minBx"] != 0 or \
-                        params["minBy"] != 0 or params["maxBx"] != 0 or params["maxBy"] != 0:
-                        params["conserveM"] = False
-                    else:
-                        params["conserveM"] = True
-
-                    if (self.senderbutton == self.ui.pushbutton_potential_calc and \
-                        params["exponent"] > 3) or params["minEx"] != 0 or params["minEy"] != 0 \
-                        or params["minEz"] != 0 or params["maxEx"] != 0 or params["maxEy"] != 0 \
-                        or params["maxEz"] != 0:
-                        params["conserveParityL"] = False
-                    else:
-                        params["conserveParityL"] = True"""
-
-                    # TODO make quantities of None type accessible without
-                    # .magnitude
-
-                    # TODO remove this hack
-                    if self.senderbutton == self.ui.pushbutton_potential_calc and params["exponent"] == 3:
-                        params["dd"] = True
-                        params["dq"] = False
-                        params["qq"] = False
-                    # TODO remove this hack
-                    elif self.senderbutton == self.ui.pushbutton_potential_calc and params["exponent"] == 2:
-                        params["dd"] = False
-                        params["dq"] = False
-                        params["qq"] = False
-                    else:  # TODO remove this hack
-                        params["dd"] = True
-                        params["dq"] = True
-                        params["qq"] = True
-
-                    json.dump(params, f, indent=4, sort_keys=True)
-
-                # start c++ process
-                if params["minEy"] != 0 or params["maxEy"] != 0 or params["minBy"] != 0 or params["maxBy"] != 0:
-                    path_cpp = self.path_cpp_complex
+                """if self.angle != 0 or params["minEx"] != 0 or params["minEy"] != 0 or \
+                    params["maxEx"] != 0 or params["maxEy"] != 0 or params["minBx"] != 0 or \
+                    params["minBy"] != 0 or params["maxBx"] != 0 or params["maxBy"] != 0:
+                    params["conserveM"] = False
                 else:
-                    path_cpp = self.path_cpp_real
+                    params["conserveM"] = True
 
-                if os.name == "nt":
-                    path_cpp += ".exe"
+                if (self.senderbutton == self.ui.pushbutton_potential_calc and \
+                    params["exponent"] > 3) or params["minEx"] != 0 or params["minEy"] != 0 \
+                    or params["minEz"] != 0 or params["maxEx"] != 0 or params["maxEy"] != 0 \
+                    or params["maxEz"] != 0:
+                    params["conserveParityL"] = False
+                else:
+                    params["conserveParityL"] = True"""
 
-                self.numprocessors = self.systemdict["cores"].magnitude
+                # TODO make quantities of None type accessible without
+                # .magnitude
+
+                # TODO remove this hack
+                if self.senderbutton == self.ui.pushbutton_potential_calc and params["exponent"] == 3:
+                    params["dd"] = True
+                    params["dq"] = False
+                    params["qq"] = False
+                # TODO remove this hack
+                elif self.senderbutton == self.ui.pushbutton_potential_calc and params["exponent"] == 2:
+                    params["dd"] = False
+                    params["dq"] = False
+                    params["qq"] = False
+                else:  # TODO remove this hack
+                    params["dd"] = True
+                    params["dq"] = True
+                    params["qq"] = True
+
+                json.dump(params, f, indent=4, sort_keys=True)
+
+            # start c++ process
+            if params["minEy"] != 0 or params["maxEy"] != 0 or params["minBy"] != 0 or params["maxBy"] != 0:
+                path_cpp = self.path_cpp_complex
+            else:
+                path_cpp = self.path_cpp_real
+
+            if os.name == "nt":
+                path_cpp += ".exe"
+
+            if self.ui.checkbox_use_python_api.isChecked():
+                paths = {
+                    "path_conf": self.path_conf,
+                    "path_cache": self.path_cache,
+                    "path_workingdir": self.path_workingdir,
+                }
+                self.pipyThread = pipyThread(self.allQueues, paths)
+                self.pipyThread.start()
+            else:
                 # OMP_NUM_THREADS – Specifies the number of threads to
                 # use in parallel regions.  The value of this variable
                 # shall be a comma-separated list of positive
                 # integers; the value specified the number of threads
                 # to use for the corresponding nested level.  If
                 # undefined one thread per CPU is used.
+                omp_before = os.environ.pop("OMP_NUM_THREADS", 1)
                 omp_threads = {} if self.numprocessors == 0 else {"OMP_NUM_THREADS": str(self.numprocessors)}
                 other_threads = {"OPENBLAS_NUM_THREADS": "1", "MKL_NUM_THREADS": "1"}
-                python_threads = {"NUM_PROCESSES": str(self.numprocessors), "OMP_NUM_THREADS": "1"}
+                self.proc = subprocess.Popen(
+                    [path_cpp, "-c", self.path_conf, "-o", self.path_cache],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    cwd=self.path_workingdir,
+                    env=dict(os.environ, **other_threads, **omp_threads),
+                )
+                self.readThread = Worker(self.allQueues)
+                self.readThread.criticalsignal.connect(self.showCriticalMessage)
+                self.readThread.execute(self.proc.stdout)
+                os.environ["OMP_NUM_THREADS"] = omp_before
 
-                if self.ui.checkbox_use_python_api.isChecked():
-                    path_python = os.path.join(self.path_base, "start_pipy.py")
-                    self.proc = subprocess.Popen(
-                        [sys.executable, path_python, "--run_gui", "-c", self.path_conf, "-o", self.path_cache],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.STDOUT,
-                        cwd=self.path_workingdir,
-                        env=dict(os.environ, **python_threads, **other_threads),
-                    )
-                else:
-                    self.proc = subprocess.Popen(
-                        [path_cpp, "-c", self.path_conf, "-o", self.path_cache],
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.STDOUT,
-                        cwd=self.path_workingdir,
-                        env=dict(os.environ, **omp_threads, **other_threads),
-                    )
-
-                self.starttime = time()
-
-                # start thread that collects the output
-                self.thread.execute(self.proc.stdout)
-
-                # start timer used for processing the results
-                self.timer.start(0)
-
-        else:
-            self.abortCalculation()
+            self.starttime = time()
+            # start timer used for processing the results
+            self.timer.start(0)
 
     @QtCore.pyqtSlot()
     def saveResult(self):
@@ -4181,6 +4175,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Close everything
         super().closeEvent(event)
+
+    def threadIsRunning(self):
+        if self.pipyThread is not None:
+            return self.pipyThread.isRunning()
+        elif self.readThread is not None and self.proc is not None:
+            return self.proc.poll() is None or self.readThread.isRunning()
+        else:
+            print("WARNING: threadIsRunning() called but no thread is running, return False")
+            return False
 
 
 def main():

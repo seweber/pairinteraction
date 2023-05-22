@@ -1,6 +1,5 @@
 """The main function will be called by the pairinteraction GUI to start the calculation.
 """
-import argparse
 import itertools
 import json
 import multiprocessing
@@ -16,14 +15,26 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 import pipy  # noqa
 
 
-def main(args):
+def PRINTFUNCTION(msg):
+    print(msg, flush=True, end="")
+
+
+POOL = None
+
+
+def main(paths, printFunction=None):
+    if printFunction is not None:
+        global PRINTFUNCTION
+        PRINTFUNCTION = printFunction
+
+    path_conf, path_cache = paths["path_conf"], paths["path_cache"]
     # Load params from conf.json file
-    with open(args.path_config) as f:
+    with open(path_conf) as f:
         conf = json.load(f)
 
     # convert conf to settings and save as settings.json
-    settings = conf_to_settings(conf, args.path_cache)
-    with open(args.path_config.replace("conf.json", "settings.json"), "w") as f:
+    settings = conf_to_settings(conf, path_cache)
+    with open(path_conf.replace("conf.json", "settings.json"), "w") as f:
         json.dump(settings, f, indent=4)
 
     # start the calculation
@@ -92,10 +103,13 @@ def do_simulations(settings, pass_atom="direct"):
     num_pr = os.cpu_count() if num_pr in [0, -1] else num_pr
 
     if num_pr > 1:
-        with multiprocessing.Pool(num_pr) as pool:
+        global POOL
+        POOL = multiprocessing.Pool(num_pr)
+        with POOL as pool:
             results = pool.imap_unordered(p_one_run, ip_list)
             for result in results:
                 print_completed(settings, result)
+        POOL = None
     else:
         for i in ip_list:
             result = p_one_run(i)
@@ -133,7 +147,11 @@ def one_run(config, param_list, ip):
             "basis": atom.vectors,
             "params": config.toOutDict(),
         }
-        info(f"{ip+1}. Hamiltonian diagonalized ({dimension}x{dimension})", atom.config)
+
+        info(
+            f"{ip+1}. Hamiltonian diagonalized ({dimension}x{dimension}) ({multiprocessing.current_process().name})",
+            atom.config,
+        )
 
         with open(filename, "wb") as f:
             pickle.dump(data, f)
@@ -233,7 +251,7 @@ def conf_to_settings(conf, pathCache):
     else:
         symmetries_list = [{k: False for k in ["inversion", "permutation", "reflection"]}]
 
-    runtimeoptions = {"NUM_PROCESSES": int(os.environ.get("NUM_PROCESSES", 0))}
+    runtimeoptions = {"NUM_PROCESSES": int(conf.get("NUM_PROCESSES", 0))}
 
     # touch unimportant options
     for k in ["dd", "dq", "qq", "missingWhittaker", "precision", "zerotheta"]:
@@ -252,30 +270,15 @@ def conf_to_settings(conf, pathCache):
     return settings
 
 
-def output(x):
-    print(x, flush=True)
+def output(msg):
+    PRINTFUNCTION(msg + "\n")
 
 
-def info(x, config=None):
+def info(msg, config=None):
     if config is None:
-        print(x, flush=True)
+        PRINTFUNCTION(msg + "\n")
         return
     pi = "pireal" if config.isReal() else "picomplex"
     no = "One-atom" if config.nAtoms() == 1 else "Two-atom"
-    msg = f"{pi}: {no} Hamiltonian, {x}"
-    print(msg, flush=True)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Scripts")
-    parser.add_argument("--run_gui", action="store_true", help="Use this only to run a calculation from the GUI!")
-    parser.add_argument("-c", "--path_config", type=str, help="Path to the config.")
-    parser.add_argument("-o", "--path_cache", type=str, help="Path to the cache.")
-    args = parser.parse_args()
-
-    if args.run_gui:
-        main(args)
-    else:
-        raise ValueError(
-            "For now this script can only be called from the GUI and there is no other use calling this script!"
-        )
+    msg = f"{pi}: {no} Hamiltonian, {msg}"
+    PRINTFUNCTION(msg + "\n")
