@@ -1094,7 +1094,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.allQueues.clear()
 
     def cleanupProcesses(self):
-        """Cleanup after calculation it is finished or stopped."""
+        """Cleanup after calculation is finished or stopped."""
         if self.proc is not None:
             self.proc.wait()
             self.proc = None
@@ -1103,6 +1103,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.readThread = None
         if self.pipyThread is not None:
             self.pipyThread.wait()
+            # del self.pipyThread
             self.pipyThread = None
         self.allQueues.clear()
 

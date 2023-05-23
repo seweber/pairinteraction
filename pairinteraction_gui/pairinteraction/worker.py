@@ -19,8 +19,6 @@ from queue import Queue
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtCore import QThread
 
-from pairinteraction_gui.pairinteraction import start_pipy
-
 
 class Worker(QThread):
     criticalsignal = pyqtSignal(str)
@@ -58,17 +56,21 @@ class pipyThread(QThread):
         super().__init__(parent)
         self.allQueues = allQueues
         self.paths = paths
+        self.kwargs = {"printFunction": self.emit}
+        from pairinteraction_gui.pairinteraction import start_pipy
+
+        self.start_pipy = start_pipy
 
     def run(self):
-        start_pipy.main(self.paths, printFunction=self.emit)
+        self.start_pipy.main(self.paths, self.kwargs)
 
     def emit(self, msg):
         self.allQueues.processOneLine(msg)
 
     def terminate(self):
-        if start_pipy.POOL is not None:
-            start_pipy.POOL.terminate()
-            start_pipy.POOL = None
+        pool = self.kwargs.get("pool", None)
+        if pool is not None:
+            pool.terminate()
         super().terminate()
 
 
