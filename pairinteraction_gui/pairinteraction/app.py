@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with the pairinteraction GUI. If not, see <http://www.gnu.org/licenses/>.
 # Standard library
+import itertools
 import json
 import locale
 import multiprocessing
@@ -24,6 +25,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import threading
 import webbrowser
 import zipfile
 from datetime import datetime
@@ -31,6 +33,7 @@ from datetime import timedelta
 from io import BytesIO
 from io import StringIO
 from operator import itemgetter
+from time import sleep
 from time import time
 
 # Process information
@@ -75,6 +78,31 @@ if getattr(sys, "frozen", False):
     sys.path.append(os.path.join(os.path.dirname(os.path.realpath(sys.executable)), ".."))
 else:
     sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), ".."))
+
+
+# Loading animation in the command line
+class LoadingAnimation:
+    def __init__(self, text, delay=0.05):
+        self.text = text
+        self.delay = delay
+
+    def __enter__(self):
+        self.done = False
+        t = threading.Thread(target=self._animate)
+        t.start()
+
+    def __exit__(self, *args):
+        self.done = True
+
+    def _animate(self):
+        for c in itertools.cycle(["|", "/", "-", "\\"]):
+            if self.done:
+                break
+            sys.stdout.write("\r" + self.text + " " + c)
+            sys.stdout.flush()
+            sleep(self.delay)
+        sys.stdout.write("\r" + self.text + " " + "Done!")
+
 
 # Make program killable via strg-c if it is started in a terminal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
@@ -448,7 +476,9 @@ class MainWindow(QtWidgets.QMainWindow):
             pg.graphicsItems.GradientEditorItem.Gradients[k]["ticks"] = mapticks
 
         self.ui = Ui_plotwindow()
-        self.ui.setupUi(self)
+
+        with LoadingAnimation("Setup UI..."):
+            self.ui.setupUi(self)
 
         self.invalidQuantumnumbers = {}
         self.invalidQuantumnumbersMessage = ""
@@ -612,8 +642,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.manualRangeX = [False, False, False]
         self.manualRangeY = [False, False, False]
 
-        self.printer = QPrinter(QPrinter.HighResolution)
-        self.printer.setPageMargins(20, 15, 20, 20, QPrinter.Millimeter)
+        self.printer = None
 
         self.momentslabels = ["S", "P", "D", "F"]
 
@@ -3596,6 +3625,10 @@ class MainWindow(QtWidgets.QMainWindow):
                         self.plotdict["m2"].magnitude,
                     ]
                 )
+
+        with LoadingAnimation("Create printer..."):
+            self.printer = QPrinter(QPrinter.HighResolution)
+            self.printer.setPageMargins(20, 15, 20, 20, QPrinter.Millimeter)
 
         dialog = QPrintDialog(self.printer, self)
         if dialog.exec_() == QPrintDialog.Accepted:
