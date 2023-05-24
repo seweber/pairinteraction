@@ -72,6 +72,10 @@ def do_simulations(settings, kwargs, pass_atom="direct"):
 
     if not getattr(atom, "preCalculate", False):
         info("precalculate matrix elements", kwargs)
+        # make sure also interactions are precalculated (distance must be not None) and all fields, that might occur
+        atom.updateFromParams(param_list[0])
+        atom.system.buildInteraction()
+        atom.updateFromParams(param_list[-1])
         atom.system.buildInteraction()
         atom.preCalculate = True
 

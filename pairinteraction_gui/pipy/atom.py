@@ -263,7 +263,7 @@ class Atom:
         raise NotImplementedError("This has to be implemented in the subclass")
 
     def getCache(self):
-        if not hasattr(self, "_cache") or self._cache is not None:
+        if getattr(self, "_cache", None) is None:
             pathCache = self.config.pathCache()
             os.makedirs(pathCache, exist_ok=True)
             logger.debug("Using cache at %s", pathCache)
