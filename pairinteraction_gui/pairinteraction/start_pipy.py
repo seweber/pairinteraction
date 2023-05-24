@@ -14,6 +14,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 import pipy  # noqa
 
+# FIXME: this is a workaround to make the multiprocessing work on windows
+# Somehow LAPACKE in SystemBase.hpp is not working if we dont do this
+import scipy.sparse  # noqa
+
+#
+
 
 def main(paths, kwargs):
     kwargs.setdefault("printFunction", lambda msg: print(msg, flush=True, end=""))
