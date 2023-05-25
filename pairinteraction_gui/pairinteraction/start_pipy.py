@@ -19,6 +19,9 @@ import pipy  # noqa
 # import scipy.sparse  # noqa
 # It is not needed anymore due to adding self._cache = None in Atom.__init__
 # (and because we also could pass_atom="direct&delete" to delete all the cpp objects before pickling)
+# If a SystemTwo object is passed to a subprocess created by multiprocessing, it is pickled. To make use of the
+# object in the subprocess, "import scipy.sparse" must apparently be called. Otherwise, the method
+# "initializeInteraction" in SystemTwo.cpp will not work.
 
 
 def main(paths, kwargs):
@@ -86,7 +89,11 @@ def do_simulations(settings, kwargs, pass_atom="direct", context="default"):
 
     # Decide how to pass the atom to the subprocesses
     if "delete" in pass_atom:
-        atom.delete()  # delete the cpp object, so it is not pickled
+        atom.delete()
+        # delete the cpp object, so it is not pickled and let the subprocess recreate them
+        # Ideally, each subprocess recreates it just once. This seems to work for forked processes,
+        # however for spawned processes, the recreation happens for each run - even if the same SpawnPoolWorker is used
+        # Why is the state of the "Atom" object not stored in the spawned processes? # FIXME
     if "direct" in pass_atom:
         config = {"atom": atom}
     elif "path" in pass_atom:
