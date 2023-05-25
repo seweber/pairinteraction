@@ -72,6 +72,9 @@ class pipyThread(QThread):
         if pool is not None:
             pool.terminate()
         super().terminate()
+        atom = self.kwargs.get("atom", None)
+        if atom is not None:
+            atom.delete()
 
 
 class allQueuesClass:

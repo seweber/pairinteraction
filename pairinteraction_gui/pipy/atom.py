@@ -46,6 +46,7 @@ class Atom:
         self.config = config
 
         # properties call by self.property without underscore to ensure, they are created first
+        self._cache = None
         self._system = None
         self._basisStates = None
         self._basisQunumbers = None
@@ -272,6 +273,19 @@ class Atom:
                 pi.MatrixElementCache.setMethod(pi.WHITTAKER)
             self._cache = pi.MatrixElementCache(pathCache)
         return self._cache
+
+    def deleteCache(self):
+        if getattr(self, "_cache", None) is not None:
+            del self._cache
+            self._cache = None
+
+    def delete(self):
+        """Delete all cpp objects and more."""
+        self.deleteCache()
+        for k in ["_system", "_basisStates", "_basisQunumbers", "_allStates", "_allQunumbers"]:
+            if hasattr(self, k):
+                delattr(self, k)
+            setattr(self, k, None)
 
 
 class AtomOne(Atom):
@@ -523,6 +537,21 @@ class AtomTwo(Atom):
             self.energies, self.overlaps, self.vectors = None, None, None
             return True
         return False
+
+    def deleteCache(self):
+        for atom in self.atoms:
+            atom.deleteCache()
+        super().deleteCache()
+
+    def delete(self):
+        """Delete all cpp objects and more."""
+        for atom in self.atoms:
+            atom.delete()
+        for k in ["_atom1", "_atom2"]:
+            if hasattr(self, k):
+                delattr(self, k)
+            setattr(self, k, None)
+        super().delete()
 
 
 def atom_from_config(_config):

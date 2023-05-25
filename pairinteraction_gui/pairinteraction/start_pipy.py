@@ -122,6 +122,9 @@ def do_simulations(settings, kwargs, pass_atom="direct"):
             result = P_ONE_RUN(i)
             print_completed(settings, result, kwargs)
 
+    # clean up
+    atom.delete()
+    del kwargs["atom"]
     if "atom_path" in config:
         os.remove(config["atom_path"])
 
@@ -169,6 +172,7 @@ def one_run(ip, config, param_list):
             json.dump(data["params"], f, indent=4)
     else:
         print(f"{ip+1}. Hamiltonian loaded")
+    atom.deleteCache()
 
     result = {
         "ip": ip,
