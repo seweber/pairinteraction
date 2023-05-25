@@ -282,7 +282,16 @@ class Atom:
     def delete(self):
         """Delete all cpp objects and more."""
         self.deleteCache()
-        for k in ["_system", "_basisStates", "_basisQunumbers", "_allStates", "_allQunumbers"]:
+        for k in [
+            "_system",
+            "_basisStates",
+            "_basisQunumbers",
+            "_allStates",
+            "_allQunumbers",
+            "energies",
+            "vectors",
+            "overlaps",
+        ]:
             if hasattr(self, k):
                 delattr(self, k)
             setattr(self, k, None)

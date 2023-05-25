@@ -16,9 +16,9 @@ import pipy  # noqa
 
 # FIXME: this is a workaround to make the multiprocessing work on windows
 # Somehow LAPACKE in SystemBase.hpp is not working if we dont do this
-import scipy.sparse  # noqa
-
-#
+# import scipy.sparse  # noqa
+# It is not needed anymore due to adding self._cache = None in Atom.__init__
+# (and because we also could pass_atom="direct&delete" to delete all the cpp objects before pickling)
 
 
 def main(paths, kwargs):
@@ -51,22 +51,19 @@ def main(paths, kwargs):
     output(f"{'>>END':5}", kwargs)
 
 
-def do_simulations(settings, kwargs, pass_atom="direct"):
-    # TODO decide, wether pass_atom direct or path is better (faster, memory efficient,...)
-    # probably direct is better for the current way of implementing the parallelization
-    # also if path we need to pickle the objects, which on some os leeds to problems
-    param_list = get_param_list(settings)
-    ip_list = list(range(len(param_list)))
+def do_simulations(settings, kwargs, pass_atom="direct", context="default"):
+    assert context in ["default", "fork", "spawn", "forkserver"]
+    assert pass_atom in ["direct", "path", "direct&delete", "path&delete", "config"]
 
     kwargs["atom"] = atom = pipy.atom_from_config(settings["config"])
     info(f"construct {atom}", kwargs)
 
+    # create and save atom basis
     if atom.nAtoms == 2:
         allQunumbers = [[*qns[:, 0], *qns[:, 1]] for qns in np.array(atom.allQunumbers)]
     else:
         allQunumbers = atom.allQunumbers
     info(f"basis size with restrictions: {len(allQunumbers)}", kwargs)
-
     _name = f"{'one' if atom.nAtoms == 1 else 'two'}_{atom.config.toHash()}"
     path_tmp = tempfile.gettempdir()
     path_basis = os.path.join(path_tmp, f"basis_{_name}_blocknumber_{settings['blocknumber']}.csv")
@@ -76,6 +73,8 @@ def do_simulations(settings, kwargs, pass_atom="direct"):
     output(f"{'>>BAS':5}{len(basis):7}", kwargs)
     output(f"{'>>STA':5} {path_basis} ", kwargs)
 
+    # precalculate matrix elements
+    param_list = get_param_list(settings)
     if not getattr(atom, "preCalculate", False):
         info("precalculate matrix elements", kwargs)
         # make sure also interactions are precalculated (distance must be not None) and all fields, that might occur
@@ -85,17 +84,21 @@ def do_simulations(settings, kwargs, pass_atom="direct"):
         atom.system.buildInteraction()
         atom.preCalculate = True
 
-    pass_atom = kwargs.get("pass_atom", pass_atom)
-    if pass_atom == "direct":
+    # Decide how to pass the atom to the subprocesses
+    if "delete" in pass_atom:
+        atom.delete()  # delete the cpp object, so it is not pickled
+    if "direct" in pass_atom:
         config = {"atom": atom}
-    elif pass_atom == "path":
+    elif "path" in pass_atom:
         atom_path = path_basis.replace("basis_", "atom_").replace(".csv", ".pkl")
         with open(atom_path, "wb") as file:
             pickle.dump(atom, file)
         config = {"atom_path": atom_path}
-    else:
-        config = settings["config"]
+    elif pass_atom == "config":
+        config = atom.config.toOutDict()
 
+    # Some definitions for the multiprocessing
+    ip_list = list(range(len(param_list)))
     run_kwargs = {"config": config, "param_list": param_list}
     dict_list = [(ip, run_kwargs) for ip in ip_list]
 
@@ -107,9 +110,14 @@ def do_simulations(settings, kwargs, pass_atom="direct"):
     num_pr = settings.get("runtimeoptions", {}).get("NUM_PROCESSES", 1)
     num_pr = os.cpu_count() if num_pr in [0, -1] else num_pr
 
+    # The actual calculation
     if num_pr > 1:
-        kwargs["pool"] = pool = multiprocessing.Pool(num_pr)
-        # kwargs["pool"] = pool = multiprocessing.get_context("spawn").Pool(num_pr)  # mimic windows behaviour
+        if context == "default":
+            kwargs["pool"] = pool = multiprocessing.Pool(num_pr)
+        elif context in ["fork", "spawn", "forkserver"]:
+            kwargs["pool"] = pool = multiprocessing.get_context(context).Pool(
+                num_pr
+            )  # mimic windows behaviour with spawn
         if pool._ctx.get_start_method() == "fork":
             results = pool.imap_unordered(P_ONE_RUN, ip_list)
         else:  # this is slower on linux and sometimes had weird bugs when aborting calculation
@@ -122,7 +130,7 @@ def do_simulations(settings, kwargs, pass_atom="direct"):
             result = P_ONE_RUN(i)
             print_completed(settings, result, kwargs)
 
-    # clean up
+    # Clean up
     atom.delete()
     del kwargs["atom"]
     if "atom_path" in config:
