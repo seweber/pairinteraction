@@ -47,7 +47,7 @@ def main(paths, kwargs):
     else:
         settings["blocknumber"] = 1
         do_simulations(settings, kwargs)
-    info("all Hamiltonias processed", kwargs)
+    info("all Hamiltonian processed", kwargs)
     output(f"{'>>END':5}", kwargs)
 
 
