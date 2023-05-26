@@ -10,18 +10,13 @@ import tempfile
 
 import numpy as np
 
+
+# FIXME we should use from pairinteraction_gui import pipy here,
+# however, this will lead to bugs in the pyinstall on mac and windows
+# probably you have to fix this by adapting cmake and/or the .spec file
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 import pipy  # noqa
-
-# FIXME: this is a workaround to make the multiprocessing work on windows
-# Somehow LAPACKE in SystemBase.hpp is not working if we dont do this
-# import scipy.sparse  # noqa
-# It is not needed anymore due to adding self._cache = None in Atom.__init__
-# (and because we also could pass_atom="direct&delete" to delete all the cpp objects before pickling)
-# If a SystemTwo object is passed to a subprocess created by multiprocessing, it is pickled. To make use of the
-# object in the subprocess, "import scipy.sparse" must apparently be called. Otherwise, the method
-# "initializeInteraction" in SystemTwo.cpp will not work.
 
 
 def main(paths, kwargs):
