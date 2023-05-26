@@ -1571,6 +1571,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 params = eigensystem.params
                 bn = NO_BN
 
+            if len(energies) == 0:
+                print("WARNING: Loaded data does not contain any eigenvalues.")
+
             if idx == 2:
                 symmetrycolor = []
 
@@ -3312,6 +3315,9 @@ class MainWindow(QtWidgets.QMainWindow):
             if len(data["eigenvalues"]) > 0:
                 data["numSteps"] = len(data["eigenvalues"])
                 data["numEigenvectors"] = len(data["eigenvalues"][0])
+
+            if len(data["eigenvalues"]) == 0:
+                print("WARNING: Save data, although no eigenvalues were found.")
 
             if self.ui.radiobutton_system_quantizationZ.isChecked() and self.angle != 0:
 
