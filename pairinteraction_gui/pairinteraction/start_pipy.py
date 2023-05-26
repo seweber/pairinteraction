@@ -54,7 +54,7 @@ def main(paths, kwargs):
     output(f"{'>>END':5}", kwargs)
 
 
-def do_simulations(settings, kwargs, pass_atom="direct", context="default"):
+def do_simulations(settings, kwargs, pass_atom="direct&delete", context="default"):
     assert context in ["default", "fork", "spawn", "forkserver"]
     assert pass_atom in ["direct", "path", "direct&delete", "path&delete", "config"]
 
@@ -78,14 +78,12 @@ def do_simulations(settings, kwargs, pass_atom="direct", context="default"):
 
     # precalculate matrix elements
     param_list = get_param_list(settings)
-    if not getattr(atom, "preCalculate", False):
-        info("precalculate matrix elements", kwargs)
-        # make sure also interactions are precalculated (distance must be not None) and all fields, that might occur
-        atom.updateFromParams(param_list[0])
-        atom.system.buildInteraction()
-        atom.updateFromParams(param_list[-1])
-        atom.system.buildInteraction()
-        atom.preCalculate = True
+    info("precalculate matrix elements", kwargs)
+    # make sure also interactions are precalculated (distance must be not None) and all fields, that might occur
+    atom.updateFromParams(param_list[0])
+    atom.system.buildInteraction()
+    atom.updateFromParams(param_list[-1])
+    atom.system.buildInteraction()
 
     # Decide how to pass the atom to the subprocesses
     if "delete" in pass_atom:
@@ -187,7 +185,6 @@ def one_run(ip, config, param_list):
             json.dump(data["params"], f, indent=4)
     else:
         print(f"{ip+1}. Hamiltonian loaded")
-    atom.deleteCache()
 
     result = {
         "ip": ip,

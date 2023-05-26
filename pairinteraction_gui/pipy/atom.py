@@ -274,16 +274,13 @@ class Atom:
             self._cache = pi.MatrixElementCache(pathCache)
         return self._cache
 
-    def deleteCache(self):
-        if getattr(self, "_cache", None) is not None:
-            del self._cache
-            self._cache = None
-
     def delete(self):
         """Delete all cpp objects and more."""
-        self.deleteCache()
+        # Never delete _cache with also deleting the _system!
+        # Also first delete _system, then _cache
         for k in [
             "_system",
+            "_cache",
             "_basisStates",
             "_basisQunumbers",
             "_allStates",
@@ -551,19 +548,13 @@ class AtomTwo(Atom):
 
         return False
 
-    def deleteCache(self):
-        for atom in self.atoms:
-            atom.deleteCache()
-        super().deleteCache()
-
     def delete(self):
         """Delete all cpp objects and more."""
-        for atom in self.atoms:
-            atom.delete()
         for k in ["_atom1", "_atom2"]:
-            if hasattr(self, k):
+            if getattr(self, k, None) is not None:
+                getattr(self, k).delete()
                 delattr(self, k)
-            setattr(self, k, None)
+                setattr(self, k, None)
         super().delete()
 
 
