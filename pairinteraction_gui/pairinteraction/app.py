@@ -572,6 +572,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pipyThread = None
 
         self.timer = QtCore.QTimer()
+        self.starttime = None
 
         self.momentumcolors = [
             (55, 126, 184),
@@ -1531,10 +1532,8 @@ class MainWindow(QtWidgets.QMainWindow):
             dataqueue.get()  # TODO make this hack unnecessary
             return
 
-        if dataqueue.empty():
-            if not self.threadIsRunning():
-                self.threadFinished()
-            return
+        if not self.threadIsRunning() and dataqueue.empty():  # this order is important!
+            self.threadFinished()
 
         graphicsview_plot = [
             self.ui.graphicsview_field1_plot,
@@ -2270,8 +2269,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.cleanupProcesses()
 
-        # Stop this timer
+        # Logging for debugging
         print(f"Total time needed: {time() - self.starttime:.2f} s")
+        print(f"Amount of data loaded into gui: {len(self.storage_data[self.current_idx])}")
+        # Stop this timer
         self.timer.stop()
 
         # Change buttons
@@ -3089,9 +3090,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.readThread.execute(self.proc.stdout)
                 os.environ["OMP_NUM_THREADS"] = omp_before
 
-            self.starttime = time()
             # start timer used for processing the results
             self.timer.start(0)
+            self.starttime = time()
 
     @QtCore.pyqtSlot()
     def saveResult(self):

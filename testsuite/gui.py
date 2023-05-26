@@ -94,6 +94,7 @@ class PairinteractionGuiTest(unittest.TestCase):
         for i in range(len(data["ref"]["eigenvalues"])):
             Es = {k: np.array(mat["eigenvalues"])[i] for k, mat in data.items()}
             Es = {k: E[np.abs(E) < dE] for k, E in Es.items()}
+            assert len(np.abs(Es["ref"]) == len(Es["current"]))
             diff_rel = np.abs(Es["ref"] - Es["current"])
             assert np.all(diff_rel <= dE_tol)
 
