@@ -14,6 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with the pairinteraction GUI. If not, see <http://www.gnu.org/licenses/>.
+import os
+import time
 from queue import Queue
 
 from PyQt5.QtCore import pyqtSignal
@@ -68,10 +70,30 @@ class pipyThread(QThread):
         self.allQueues.processOneLine(msg)
 
     def terminate(self):
+        # FIXME this is not the cleanest way, maybe using multiprocessing.manager/event/value would be better
+        # but also might be slower and introduces bugs, where the gui does not close, althoug the terminal terminated
+        current_time = time.time()
+
         pool = self.kwargs.get("pool", None)
         if pool is not None:
             pool.terminate()
+            pool.join()
+
         super().terminate()
+        self.wait()
+
+        # delete files, that where changed during pool.terminate was called
+        for real_complex in ["real", "complex"]:
+            pathCacheMatrix = os.path.join(self.paths["path_cache"], f"cache_matrix_{real_complex}_new")
+            if not os.path.isdir(pathCacheMatrix):
+                continue
+            for fn in os.listdir(pathCacheMatrix):
+                f = os.path.join(pathCacheMatrix, fn)
+                if not os.path.isfile(f):
+                    continue
+                if current_time < os.path.getmtime(f):
+                    os.remove(f)
+
         atom = self.kwargs.get("atom", None)
         if atom is not None:
             atom.delete()

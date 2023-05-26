@@ -166,8 +166,9 @@ def one_run(ip, config, param_list):
     os.makedirs(pathCacheMatrix, exist_ok=True)
     _name = f"{'one' if atom.nAtoms == 1 else 'two'}_{config.toHash()}"
     filename = os.path.join(pathCacheMatrix, _name + ".pkl")
+    filename_json = os.path.join(pathCacheMatrix, _name + ".json")
 
-    if not os.path.exists(filename):
+    if not os.path.exists(filename) or not os.path.exists(filename_json):
         atom.calcEnergies()
         energies0 = config.getEnergiesPair() if atom.nAtoms == 2 else config.getEnergiesSingle()
         data = {
@@ -177,10 +178,8 @@ def one_run(ip, config, param_list):
         }
 
         print(f"{ip+1}. Hamiltonian diagonalized ({dimension}x{dimension}) ({multiprocessing.current_process().name})")
-
         with open(filename, "wb") as f:
             pickle.dump(data, f)
-        filename_json = os.path.join(pathCacheMatrix, _name + ".json")
         with open(filename_json, "w") as f:
             json.dump(data["params"], f, indent=4)
     else:
