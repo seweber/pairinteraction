@@ -53,6 +53,8 @@ class PipyThread(QThread):
         if self.terminating:
             return self.STOP
         print("Creating new pool")
+        if self.num_pr == 0:
+            self.num_pr = None
         if self.num_pr == 1:
             self._pool = self.SEQUENTIAL
         elif self.context == "default":
