@@ -18,13 +18,8 @@
 # Import and construct everything inside functions to ensure that
 # spawned processes do not re-execute the code
 import multiprocessing
-
-# Worker processes should not load this module
-if multiprocessing.current_process().name != "MainProcess":
-    exit()
-
-import sys
 import os
+import sys
 
 try:
     from PyQt5 import QtCore, QtGui, QtWidgets
@@ -953,7 +948,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Create directories
         os.makedirs(self.path_config, exist_ok=True)
-        os.makedirs(self.path_cache, exist_ok=True)
 
         if not os.path.isfile(self.path_version):
             with open(self.path_version, "w") as f:
