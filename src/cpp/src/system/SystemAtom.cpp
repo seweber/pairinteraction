@@ -96,7 +96,7 @@ template <typename Scalar>
 void SystemAtom<Scalar>::construct_hamiltonian() const {
     auto basis = this->hamiltonian->get_basis();
 
-    constexpr real_t numerical_precision = 100 * std::numeric_limits<real_t>::epsilon();
+    constexpr real_t numerical_precision = 100 * std::numeric_limits<real_t>::epsilon(); // TODO
 
     // Construct the unperturbed Hamiltonian
     this->hamiltonian = std::make_unique<OperatorAtom<Scalar>>(basis, OperatorType::ENERGY);
@@ -122,7 +122,8 @@ void SystemAtom<Scalar>::construct_hamiltonian() const {
         vector_dipole_order = vector_dipole_order.conjugate() / std::pow(distance, 2);
 
         for (int q = -1; q <= 1; ++q) {
-            if (std::abs(vector_dipole_order[q + 1]) > numerical_precision) {
+            if (std::abs(vector_dipole_order[q + 1]) >
+                numerical_precision * std::pow(distance, 2)) {
                 *this->hamiltonian -= ion_charge * vector_dipole_order[q + 1] *
                     OperatorAtom<Scalar>(basis, OperatorType::ELECTRIC_DIPOLE, q);
                 this->hamiltonian_is_diagonal = false;
@@ -144,7 +145,8 @@ void SystemAtom<Scalar>::construct_hamiltonian() const {
         vector_quadrupole_order = 3 * vector_quadrupole_order.conjugate() / std::pow(distance, 3);
 
         for (int q = -2; q <= 2; ++q) {
-            if (std::abs(vector_quadrupole_order[q + 2]) > numerical_precision) {
+            if (std::abs(vector_quadrupole_order[q + 2]) >
+                numerical_precision * std::pow(distance, 3)) {
                 *this->hamiltonian -= ion_charge * vector_quadrupole_order[q + 2] *
                     OperatorAtom<Scalar>(basis, OperatorType::ELECTRIC_QUADRUPOLE, q);
                 this->hamiltonian_is_diagonal = false;
